@@ -156,3 +156,22 @@ export async function submitPaymentReference({ registrationId, paymentToken, pay
     throw error;
   }
 }
+
+export async function paymentTicketStatus({ registrationId, paymentToken }) {
+  if (!registrationId || !paymentToken) return { error: 'This payment request is no longer available. Please register again.' };
+  const registration = await prisma.registration.findFirst({
+    where: { id: registrationId, paymentTokenHash: hashSecret(paymentToken) },
+    include: { members: { orderBy: { position: 'asc' } } },
+  });
+  if (!registration) return { error: 'This payment request is no longer available. Please register again.' };
+  if (registration.paymentStatus !== 'PAID' || !registration.ticketId) return { status: registration.paymentStatus };
+  return {
+    status: 'PAID',
+    ticket: {
+      ticketId: registration.ticketId,
+      teamName: registration.teamName,
+      members: registration.members.map(({ position, fullName }) => ({ position, fullName })),
+      verifyUrl: `${process.env.APP_URL || ''}/verify/${registration.ticketId}`,
+    },
+  };
+}
