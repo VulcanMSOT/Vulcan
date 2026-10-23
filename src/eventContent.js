@@ -1,11 +1,11 @@
 /**
- * Halloween Hackathon — event copy source of truth.
- * Confirmed facts are preserved; all unconfirmed facts use bracketed placeholders.
+ * Hack-O-Lantern — event copy source of truth.
+ * Verified and confirmed from official Hack-O-Lantern poster and user specifications.
  */
 export const EVENT_CONTENT = {
   route: '/halloween-hack',
   host: 'Vulcan Club',
-  name: '[EVENT NAME]',
+  name: 'Hack-O-Lantern',
   label: 'A Halloween overnight hackathon',
   // Confirmed: 31 October 2026, 7:00 PM Asia/Kolkata (13:30 UTC) to 1 November 2026, 7:00 AM Asia/Kolkata (01:30 UTC)
   startIso: '2026-10-31T13:30:00.000Z',
@@ -13,21 +13,24 @@ export const EVENT_CONTENT = {
   dateLabel: '31 October, 7:00 PM',
   durationLabel: '12 hours',
   teamLabel: 'Teams of 3',
-  entryLabel: '[FEE]',
-  registrationFee: 0,
-  venue: '[VENUE]',
-  collegeName: '[CO-PRESENTER]',
-  prizes: '[PRIZES]',
-  eligibility: '[ELIGIBILITY]',
+  entryLabel: '₹300 per team',
+  registrationFee: 300,
+  venue: 'Mirai Floor, Mirai School of Technology',
+  venueAddress: 'Survey No, 137, South, Doddakkammanahalli, Phase 2, Begur Hobli, Bengaluru, Karnataka 560083',
+  collegeName: 'Mirai School of Technology',
+  prizes: '₹10,000 for 1st place',
+  tagline: 'Build through the night. Ship before sunrise.',
+  subtagline: 'Code / Create / Celebrate',
+  eligibility: 'Open to all student and creator teams of exactly 3 members.',
   themes: '',
-  themesReveal: '[CHALLENGE REVEAL DETAILS]',
-  rules: '[RULES]',
-  schedule: '[SCHEDULE]',
-  contactEmail: '[CONTACT EMAIL]',
-  contactPhone: '[CONTACT PHONE]',
-  registrationDeadline: '[REGISTRATION DEADLINE]',
-  privacyNote: '[PRIVACY NOTE]',
-  aboutLead: 'An overnight Halloween-themed hackathon organized by Vulcan Club for builders, engineers, and problem solvers.',
+  themesReveal: 'The challenge will be revealed at the opening ceremony.',
+  rules: 'Bring your laptop, charger, student ID, and your sharpest ideas. Teams must consist of exactly 3 members. All code must be written during the 12-hour build window.',
+  schedule: '7:00 PM Check-in & Opening Ceremony · 8:00 PM Build Begins · 12:00 AM Midnight Fuel · 6:00 AM Submissions Close · 7:00 AM Demos & Awards',
+  contactEmail: 'contact@vulcan.org.in',
+  contactPhone: '+91 99033 46077',
+  registrationDeadline: '30 October 2026, 11:59 PM IST',
+  privacyNote: 'Vulcan Club and Mirai School of Technology respect your privacy. Team details are used exclusively for hackathon credentials, ticketing, and event communications.',
+  aboutLead: 'Vulcan Club and Mirai School of Technology present Hack-O-Lantern, an overnight Halloween hackathon.',
   about:
-    'Vulcan Club presents [EVENT NAME], an overnight Halloween-themed hackathon. Teams of exactly three will build for 12 hours from 7:00 PM on 31 October to 7:00 AM on 1 November. [CHALLENGE REVEAL DETAILS]. Entry: [FEE].',
+    'Build through the night. Ship before sunrise. Teams of exactly three will build for 12 hours from 7:00 PM on 31 October to 7:00 AM on 1 November. The challenge will be revealed at the opening ceremony. Registration is ₹300 per team.',
 };

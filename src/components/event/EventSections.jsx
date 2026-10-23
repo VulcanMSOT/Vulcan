@@ -2,16 +2,18 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { EVENT_CONTENT } from '../../eventContent';
 
 const fixedTimeline = [
-  { time: '7:00 PM', title: 'Opening ceremony', detail: '[CHALLENGE REVEAL DETAILS]' },
-  { time: '7:00 AM', title: 'Hackathon ends', detail: 'The 12-hour overnight build window ends.' },
+  { time: '7:00 PM', title: 'Opening ceremony', detail: 'The challenge is revealed and the 12-hour build begins.' },
+  { time: '12:00 AM', title: 'Midnight fuel', detail: 'Midnight check-in and mentor feedback.' },
+  { time: '7:00 AM', title: 'Hackathon ends', detail: 'The overnight build window concludes. Demos and awards begin.' },
 ];
 
 const knownFaqs = [
   ['How long is it?', '12 hours, from 7:00 PM on 31 October to 7:00 AM on 1 November.'],
   ['How big is a team?', 'Teams of exactly 3 members.'],
-  ['What does it cost?', '[FEE]'],
+  ['What does it cost?', '₹300 per team.'],
+  ['Where is it held?', 'Mirai Floor, Mirai School of Technology, Bengaluru.'],
+  ['When is the challenge revealed?', 'The challenge will be revealed live at the opening ceremony.'],
   ['How do I get in?', 'Show your registration ticket QR code at the entrance.'],
-  ['What else do I need to know?', '[RULES]'],
 ];
 
 function isEmpty(value) {
@@ -33,7 +35,7 @@ export function EventAbout() {
         <div className="event-about__body">
           <Reveal>
             <p className="event-about__lead">
-              Vulcan Club presents {EVENT_CONTENT.name}, an overnight Halloween-themed hackathon crafted for builders and problem solvers. Build through the witching hours and ship before sunrise.
+              Vulcan Club and {EVENT_CONTENT.collegeName} present {EVENT_CONTENT.name}, an overnight Halloween hackathon for teams of exactly three. {EVENT_CONTENT.tagline}
             </p>
           </Reveal>
           <Reveal>
@@ -57,8 +59,7 @@ export function EventAbout() {
             </ul>
           </Reveal>
           <Reveal>
-            <p className="event-about__subtext">{EVENT_CONTENT.themesReveal}</p>
-            {EVENT_CONTENT.collegeName && <p className="event-placeholder-copy">{EVENT_CONTENT.collegeName}</p>}
+            <p className="event-about__subtext">{EVENT_CONTENT.themesReveal} Venue: {EVENT_CONTENT.venue}.</p>
           </Reveal>
         </div>
       </div>
