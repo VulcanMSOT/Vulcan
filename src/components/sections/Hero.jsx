@@ -3,7 +3,7 @@ import { ArrowDown } from 'lucide-react';
 import HeroCanvas from '../3d/HeroCanvas';
 import { CLUB_INFO } from '../../content';
 
-export default function Hero({ prefersReducedMotion }) {
+export default function Hero({ prefersReducedMotion, introSettled = true }) {
   const scrollToWork = () => {
     const target = document.getElementById('about');
     if (target) {
@@ -26,8 +26,15 @@ export default function Hero({ prefersReducedMotion }) {
       <motion.header
         className="w-full max-w-6xl mx-auto flex items-center justify-between z-10"
         initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1], delay: 0.1 }}
+        animate={{
+          opacity: introSettled ? 1 : 0,
+          y: introSettled ? 0 : -12,
+        }}
+        transition={{
+          duration: 0.35,
+          ease: [0.23, 1, 0.32, 1],
+          delay: prefersReducedMotion ? 0 : 0.05,
+        }}
       >
         <div className="flex items-center gap-3">
           <img
@@ -57,8 +64,15 @@ export default function Hero({ prefersReducedMotion }) {
       <motion.div
         className="w-full max-w-3xl mx-auto flex flex-col items-center text-center z-10 gap-5"
         initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1], delay: 0.25 }}
+        animate={{
+          opacity: introSettled ? 1 : 0,
+          scale: introSettled ? 1 : 0.96,
+        }}
+        transition={{
+          duration: 0.4,
+          ease: [0.23, 1, 0.32, 1],
+          delay: prefersReducedMotion ? 0 : 0.15,
+        }}
       >
         {/* Tagline */}
         <div className="space-y-1.5">
@@ -67,7 +81,7 @@ export default function Hero({ prefersReducedMotion }) {
           </h1>
         </div>
 
-        {/* Scroll Action Button (Never a join button!) */}
+        {/* Scroll Action Button */}
         <button
           onClick={scrollToWork}
           className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-vulcan-border bg-vulcan-card/80 hover:bg-vulcan-surface hover:border-vulcan-gold/40 text-sm font-medium text-zinc-200 transition-all duration-200"

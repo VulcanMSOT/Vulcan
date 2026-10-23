@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLenis } from './hooks/useLenis';
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
 import ScrollProgress from './components/ui/ScrollProgress';
@@ -15,7 +15,23 @@ import Footer from './components/sections/Footer';
 
 export default function App() {
   const [loaderComplete, setLoaderComplete] = useState(false);
+  const [introSettled, setIntroSettled] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
+
+  // Prevent browser scroll restoration jump on refresh
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    if (
+      typeof window !== 'undefined' &&
+      window.scrollY > 50 &&
+      !window.location.search.includes('intro=true')
+    ) {
+      setLoaderComplete(true);
+      setIntroSettled(true);
+    }
+  }, []);
 
   // Initialize Lenis smooth scroll coordinated with GSAP ScrollTrigger
   useLenis();
@@ -28,10 +44,11 @@ export default function App() {
       {/* Spring-damped Custom Cursor (desktop only) */}
       <CustomCursor />
 
-      {/* 1. Intro Pixel Loader */}
+      {/* 1. Intro Pixel Loader with continuous camera zoom-out */}
       {!loaderComplete && (
         <IntroLoader
           onComplete={() => setLoaderComplete(true)}
+          onSettled={() => setIntroSettled(true)}
           prefersReducedMotion={prefersReducedMotion}
         />
       )}
@@ -39,7 +56,10 @@ export default function App() {
       {/* Main Landing Flow */}
       <main className="relative w-full overflow-hidden">
         {/* 2. Hero */}
-        <Hero prefersReducedMotion={prefersReducedMotion} />
+        <Hero
+          prefersReducedMotion={prefersReducedMotion}
+          introSettled={introSettled}
+        />
 
         {/* 3. About */}
         <About prefersReducedMotion={prefersReducedMotion} />

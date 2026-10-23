@@ -26,8 +26,25 @@ const V_MATRIX = [
   [1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
 ];
 
-export default function IntroLoader({ onComplete, prefersReducedMotion }) {
-  const [phase, setPhase] = useState('assembling'); // 'assembling' | 'locked' | 'exiting' | 'done'
+export default function IntroLoader({ onComplete, onSettled, prefersReducedMotion }) {
+  // URL phase override for deterministic visual inspection & testing
+  const urlPhase = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('phase')
+    : null;
+
+  // 'assembling' -> 'assembled' (hold beat) -> 'zooming' (camera pull back 1.2s) -> 'done'
+  const [phase, setPhase] = useState(() => urlPhase || 'assembling');
+
+  // Skip immediately if reduced motion or user already scrolled down (unless testing)
+  const shouldSkip = useMemo(() => {
+    if (urlPhase) return false;
+    if (typeof window !== 'undefined' && window.location.search.includes('intro=true')) {
+      return false;
+    }
+    if (prefersReducedMotion) return true;
+    if (typeof window !== 'undefined' && window.scrollY > 50) return true;
+    return false;
+  }, [prefersReducedMotion, urlPhase]);
 
   // Extract pixel coordinates for grid
   const pixelPoints = useMemo(() => {
@@ -55,7 +72,7 @@ export default function IntroLoader({ onComplete, prefersReducedMotion }) {
             startX,
             startY,
             isGold: val === 2,
-            delay: Math.random() * 0.45,
+            delay: Math.random() * 0.4,
           });
         }
       });
@@ -63,114 +80,154 @@ export default function IntroLoader({ onComplete, prefersReducedMotion }) {
     return points;
   }, []);
 
+  // Lock scrolling during the loader and release cleanly
   useEffect(() => {
-    if (prefersReducedMotion) {
-      const timer = setTimeout(() => {
-        onComplete();
-      }, 300);
-      return () => clearTimeout(timer);
+    if (urlPhase) return;
+
+    if (shouldSkip) {
+      if (onComplete) onComplete();
+      if (onSettled) onSettled();
+      return;
     }
 
-    // Phase 1: Assembling (0 - 1.2s)
-    const lockTimer = setTimeout(() => {
-      setPhase('locked');
-    }, 1250);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
 
-    // Phase 2: Lock & glow (1.25s - 2.0s)
-    const exitTimer = setTimeout(() => {
-      setPhase('exiting');
-    }, 2100);
+    // 1. Assembling (0.0s -> 1.1s)
+    const holdTimer = setTimeout(() => {
+      setPhase('assembled'); // Hold for a beat
+    }, 1150);
 
-    // Phase 3: Exit completed (2.5s)
+    // 2. Hold beat (1.15s -> 1.65s) -> Begin zoom-out camera transition (1.2s duration)
+    const zoomTimer = setTimeout(() => {
+      setPhase('zooming');
+      // Release body scroll cleanly as camera pullback begins
+      document.body.style.overflow = originalOverflow;
+    }, 1650);
+
+    // 3. Zoom-out transition settles (1.65s + 1.2s = 2.85s)
+    const settleTimer = setTimeout(() => {
+      if (onSettled) onSettled();
+    }, 2850);
+
+    // 4. Complete and unmount loader
     const completeTimer = setTimeout(() => {
       setPhase('done');
-      onComplete();
-    }, 2600);
+      if (onComplete) onComplete();
+    }, 2950);
 
     return () => {
-      clearTimeout(lockTimer);
-      clearTimeout(exitTimer);
+      document.body.style.overflow = originalOverflow;
+      clearTimeout(holdTimer);
+      clearTimeout(zoomTimer);
+      clearTimeout(settleTimer);
       clearTimeout(completeTimer);
     };
-  }, [onComplete, prefersReducedMotion]);
+  }, [shouldSkip, onComplete, onSettled]);
 
-  if (phase === 'done') return null;
+  if (shouldSkip || phase === 'done') return null;
+
+  const isMidZoom = phase === 'midzoom';
+  const isZooming = phase === 'zooming' || isMidZoom;
+  const isAssembledOrLater = phase === 'assembled' || isZooming;
 
   return (
     <AnimatePresence>
-      {phase !== 'done' && (
+      <motion.div
+        className={`fixed inset-0 z-[100] bg-vulcan-bg flex flex-col items-center justify-center overflow-hidden select-none ${
+          isZooming ? 'pointer-events-none' : 'cursor-pointer'
+        }`}
+        initial={{ opacity: 1 }}
+        animate={{
+          opacity: isMidZoom ? 0.45 : isZooming ? 0 : 1,
+        }}
+        exit={{ opacity: 0 }}
+        transition={{
+          duration: isMidZoom ? 0 : 1.2,
+          ease: [0.65, 0, 0.35, 1], // Smooth continuous camera ease-in-out
+        }}
+        onClick={() => {
+          document.body.style.overflow = '';
+          setPhase('done');
+          if (onComplete) onComplete();
+          if (onSettled) onSettled();
+        }}
+        title="Click to skip"
+      >
+        {/* Subtle radial background glow */}
+        <div className="absolute w-[500px] h-[500px] bg-vulcan-gold/5 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Central Logo Container with Camera Zoom Out */}
         <motion.div
-          className="fixed inset-0 z-[100] bg-vulcan-bg flex flex-col items-center justify-center overflow-hidden select-none cursor-pointer"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: phase === 'exiting' ? 0 : 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-          onClick={() => {
-            setPhase('done');
-            onComplete();
+          className="relative flex flex-col items-center justify-center"
+          animate={{
+            scale: isMidZoom ? 0.94 : isZooming ? 0.88 : 1,
+            y: isMidZoom ? -6 : isZooming ? -12 : 0,
           }}
-          title="Click to skip"
+          transition={{
+            duration: isMidZoom ? 0 : 1.2,
+            ease: [0.65, 0, 0.35, 1], // Smooth continuous camera pullback
+          }}
         >
-          {/* Subtle radial background glow */}
-          <div className="absolute w-[500px] h-[500px] bg-vulcan-gold/5 rounded-full blur-3xl pointer-events-none" />
-
-          {/* Central Assembly Canvas / Grid */}
+          {/* Assembled Pixel Grid */}
           <div className="relative w-72 h-64 flex items-center justify-center">
-            {pixelPoints.map((p) => {
-              const isLocked = phase === 'locked' || phase === 'exiting';
-
-              return (
-                <motion.div
-                  key={p.id}
-                  className={`absolute rounded-[1px] ${
-                    p.isGold
-                      ? 'bg-vulcan-gold shadow-[0_0_8px_rgba(245,166,35,0.8)] z-10'
-                      : 'bg-white shadow-[0_0_4px_rgba(255,255,255,0.4)]'
-                  }`}
-                  style={{
-                    width: 10,
-                    height: 10,
-                  }}
-                  initial={{
-                    x: p.startX,
-                    y: p.startY,
-                    opacity: 0,
-                    scale: 0.5,
-                  }}
-                  animate={{
-                    x: p.targetX,
-                    y: p.targetY,
-                    opacity: 1,
-                    scale: isLocked && p.isGold ? [1, 1.3, 1] : 1,
-                  }}
-                  transition={{
-                    x: {
-                      duration: 0.95,
-                      delay: p.delay,
-                      ease: [0.23, 1, 0.32, 1], // Emil strong ease-out
-                    },
-                    y: {
-                      duration: 0.95,
-                      delay: p.delay,
-                      ease: [0.23, 1, 0.32, 1],
-                    },
-                    opacity: { duration: 0.4, delay: p.delay },
-                    scale: { duration: 0.4, delay: isLocked ? 0.1 : p.delay },
-                  }}
-                />
-              );
-            })}
+            {pixelPoints.map((p) => (
+              <motion.div
+                key={p.id}
+                className={`absolute rounded-[1px] ${
+                  p.isGold
+                    ? 'bg-vulcan-gold shadow-[0_0_8px_rgba(245,166,35,0.8)] z-10'
+                    : 'bg-white shadow-[0_0_4px_rgba(255,255,255,0.4)]'
+                }`}
+                style={{
+                  width: 10,
+                  height: 10,
+                }}
+                initial={{
+                  x: p.startX,
+                  y: p.startY,
+                  opacity: 0,
+                  scale: 0.5,
+                }}
+                animate={{
+                  x: p.targetX,
+                  y: p.targetY,
+                  opacity: isMidZoom ? 0.7 : isZooming ? 0 : 1,
+                  scale: isAssembledOrLater && p.isGold ? [1, 1.25, 1] : 1,
+                }}
+                transition={{
+                  x: {
+                    duration: 0.95,
+                    delay: p.delay,
+                    ease: [0.23, 1, 0.32, 1],
+                  },
+                  y: {
+                    duration: 0.95,
+                    delay: p.delay,
+                    ease: [0.23, 1, 0.32, 1],
+                  },
+                  opacity: {
+                    duration: isZooming ? 0.8 : 0.4,
+                    delay: isZooming ? 0.2 : p.delay,
+                  },
+                  scale: { duration: 0.4, delay: isAssembledOrLater ? 0.05 : p.delay },
+                }}
+              />
+            ))}
           </div>
 
-          {/* Wordmark Reveal */}
+          {/* Wordmark Reveal under Logo (fades out first during zoom) */}
           <motion.div
             className="mt-6 flex flex-col items-center gap-1.5"
             initial={{ opacity: 0, y: 10 }}
             animate={{
-              opacity: phase === 'locked' || phase === 'exiting' ? 1 : 0,
-              y: phase === 'locked' || phase === 'exiting' ? 0 : 10,
+              opacity: isZooming ? 0 : isAssembledOrLater ? 1 : 0,
+              y: isZooming ? -5 : isAssembledOrLater ? 0 : 10,
             }}
-            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+            transition={{
+              duration: isZooming ? 0.35 : 0.4,
+              ease: [0.23, 1, 0.32, 1],
+            }}
           >
             <span className="font-sans font-bold text-xl tracking-tight text-white lowercase">
               vulcan club
@@ -179,13 +236,17 @@ export default function IntroLoader({ onComplete, prefersReducedMotion }) {
               assembling system
             </span>
           </motion.div>
-
-          {/* Skip hint */}
-          <div className="absolute bottom-6 font-mono text-[10px] text-vulcan-textFaint tracking-widest uppercase">
-            [click or press any key to enter]
-          </div>
         </motion.div>
-      )}
+
+        {/* Skip hint */}
+        <motion.div
+          className="absolute bottom-6 font-mono text-[10px] text-vulcan-textFaint tracking-widest uppercase"
+          animate={{ opacity: isZooming ? 0 : 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          [click or press any key to enter]
+        </motion.div>
+      </motion.div>
     </AnimatePresence>
   );
 }
