@@ -5,7 +5,7 @@ import HalloweenHero from './HalloweenHero';
 import RegistrationForm from './RegistrationForm';
 import PaymentPending from './PaymentPending';
 import TicketSuccess from './TicketSuccess';
-import { EventAbout, EventFaq, EventFooter, EventPrizesSponsors, EventRules, EventTimeline, EventTracks } from './EventSections';
+import { EventAbout, EventFaq, EventFooter, EventPrizes, EventRules, EventTimeline, EventTracks } from './EventSections';
 import './halloween.css';
 
 export default function HalloweenHackPage() {
@@ -33,7 +33,7 @@ export default function HalloweenHackPage() {
         <EventTimeline />
         <EventTracks />
         <EventRules />
-        <EventPrizesSponsors />
+        <EventPrizes />
         <RegistrationForm onRegistered={(payment) => { window.localStorage.setItem('hack-o-lantern-payment', JSON.stringify({ type: 'payment', payment })); setFlow({ type: 'payment', payment }); }} />
         <EventFaq />
         <EventFooter />

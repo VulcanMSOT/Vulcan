@@ -75,20 +75,14 @@ export function EventTimeline() {
 }
 
 export function EventTracks() {
-  const tracks = EVENT_CONTENT.themes === '[THEMES/TRACKS]'
-    ? ['[THEMES/TRACKS]', '[THEMES/TRACKS]', '[THEMES/TRACKS]']
-    : EVENT_CONTENT.themes.split('|').map((track) => track.trim());
+  const tracks = EVENT_CONTENT.themes ? EVENT_CONTENT.themes.split('|').map((track) => track.trim()).filter(Boolean) : [];
 
   return (
     <section className="event-section event-tracks" id="tracks" aria-labelledby="tracks-title">
-      <Reveal className="event-section__heading"><h2 id="tracks-title">What will you summon?</h2><p>Choose from the confirmed themes or tracks when they are announced.</p></Reveal>
-      <div className="event-track-list">
-        {tracks.map((track, index) => (
-          <Reveal key={`${track}-${index}`} className="event-track-wrap">
-            <article className="event-track" tabIndex="0"><span>Theme {index + 1}</span><h3>{track}</h3></article>
-          </Reveal>
-        ))}
-      </div>
+      <Reveal className="event-section__heading"><h2 id="tracks-title">What will you build?</h2><p>{EVENT_CONTENT.themesReveal}</p></Reveal>
+      {tracks.length > 0 ? <div className="event-track-list">
+        {tracks.map((track) => <Reveal key={track} className="event-track-wrap"><article className="event-track"><h3>{track}</h3></article></Reveal>)}
+      </div> : <Reveal className="event-tracks__reveal"><p>The brief arrives with the opening. Bring your sharpest ideas.</p><span aria-hidden="true">?</span></Reveal>}
     </section>
   );
 }
@@ -110,14 +104,13 @@ export function EventRules() {
   );
 }
 
-export function EventPrizesSponsors() {
-  if (isEmpty(EVENT_CONTENT.prizes) && isEmpty(EVENT_CONTENT.sponsors)) return null;
+export function EventPrizes() {
+  if (isEmpty(EVENT_CONTENT.prizes)) return null;
   return (
     <section className="event-section event-prizes" id="prizes" aria-labelledby="prizes-title">
-      <Reveal className="event-section__heading"><h2 id="prizes-title">The things still unnamed.</h2></Reveal>
+      <Reveal className="event-section__heading"><h2 id="prizes-title">What is at stake.</h2></Reveal>
       <div className="event-prizes__grid">
-        {!isEmpty(EVENT_CONTENT.prizes) && <div><h3>Prizes</h3><p>{EVENT_CONTENT.prizes}</p></div>}
-        {!isEmpty(EVENT_CONTENT.sponsors) && <div><h3>Sponsors</h3><p>{EVENT_CONTENT.sponsors}</p></div>}
+        <div><h3>Prize pool</h3><p>{EVENT_CONTENT.prizes}</p></div>
       </div>
     </section>
   );
