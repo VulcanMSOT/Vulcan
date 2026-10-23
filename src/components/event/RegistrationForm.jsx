@@ -82,7 +82,7 @@ function Turnstile({ onToken, onError }) {
   return <div className="event-turnstile" ref={containerRef} />;
 }
 
-export default function RegistrationForm() {
+export default function RegistrationForm({ onRegistered }) {
   const [step, setStep] = useState(0);
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
@@ -178,7 +178,7 @@ export default function RegistrationForm() {
         else setNotice(result.error || 'We could not register your team. Please try again.');
         return;
       }
-      setNotice(`Your team is registered. Ticket ${result.ticket.ticketId} is ready.`);
+      onRegistered(result.ticket);
     } catch {
       setNotice('We could not reach registration securely. Please try again.');
     } finally {
