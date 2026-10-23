@@ -12,9 +12,9 @@ export const CLUB_INFO = {
   tagline: "[CLUB TAGLINE]",
   college: "[COLLEGE NAME]",
   about: {
-    lead: "Vulcan is a tech club built for students who make things.",
-    description: "We are an engineering community focused on hands-on building, algorithmic problem solving, and open source development. We do not run open recruitments or mass intakes.",
-    subtext: "Our members build software, ship code to global open source initiatives, and compete across top technical challenges."
+    line1: "Vulcan is a tech club.",
+    line2: "We organise hackathons, open source contributions, guidance, competitive programming and project building.",
+    line3: "Our members have cracked GSoC and LFX."
   },
   contact: {
     email: "[CONTACT EMAIL]",
