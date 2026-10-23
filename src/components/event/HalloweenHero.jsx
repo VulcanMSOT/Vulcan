@@ -80,35 +80,37 @@ export default function HalloweenHero({ reducedMotion }) {
       <div className="event-cobweb event-cobweb--left" aria-hidden="true" />
       <div className="event-cobweb event-cobweb--right" aria-hidden="true" />
 
-      <nav className="event-nav" aria-label="Event navigation">
-        <a href="/" className="event-wordmark" aria-label="Back to the Vulcan Club site">
-          <img src="/assets/vulcan-logo.png" alt="" />
-          <span>vulcan club</span>
-        </a>
-        <a href="#registration" className="event-nav__link">Register</a>
-      </nav>
+      <div className="event-hero__inner">
+        <nav className="event-nav" aria-label="Event navigation">
+          <a href="/" className="event-wordmark" aria-label="Back to the Vulcan Club site">
+            <img src="/assets/vulcan-logo.png" alt="" />
+            <span>vulcan club</span>
+          </a>
+          <a href="#registration" className="event-nav__link">Register</a>
+        </nav>
 
-      <div className="event-hero__content">
-        <p className="event-kicker">{EVENT_CONTENT.label}</p>
-        <h1 id="event-title">
-          <span>{EVENT_CONTENT.name}</span>
-        </h1>
-        <p className="event-hero__intro">Hosted by {EVENT_CONTENT.host} with {EVENT_CONTENT.collegeName}. An overnight hackathon for teams of exactly three.</p>
-      </div>
+        <div className="event-hero__content">
+          <p className="event-kicker">{EVENT_CONTENT.label}</p>
+          <h1 id="event-title">
+            <span>{EVENT_CONTENT.name}</span>
+          </h1>
+          <p className="event-hero__intro">Hosted by {EVENT_CONTENT.host} with {EVENT_CONTENT.collegeName}. An overnight hackathon for teams of exactly three.</p>
+        </div>
 
-      <div className="event-hero__bottom">
-        <ul className="event-facts" aria-label="Event details">
-          <li>{EVENT_CONTENT.dateLabel}</li>
-          <li>{EVENT_CONTENT.durationLabel}</li>
-          <li>{EVENT_CONTENT.teamLabel}</li>
-          <li>{EVENT_CONTENT.entryLabel}</li>
-        </ul>
-        <div className="event-hero__action">
-          <Countdown />
-          <a className="event-register-button" href="#registration">Register your team <span aria-hidden="true">↘</span></a>
+        <div className="event-hero__bottom">
+          <ul className="event-facts" aria-label="Event details">
+            <li>{EVENT_CONTENT.dateLabel}</li>
+            <li>{EVENT_CONTENT.durationLabel}</li>
+            <li>{EVENT_CONTENT.teamLabel}</li>
+            <li>{EVENT_CONTENT.entryLabel}</li>
+          </ul>
+          <div className="event-hero__action">
+            <Countdown />
+            <a className="event-register-button" href="#registration">Register your team <span aria-hidden="true">↘</span></a>
+            <p className="event-hero__timezone">Countdown fixed to India Standard Time (Asia/Kolkata).</p>
+          </div>
         </div>
       </div>
-      <p className="event-hero__timezone">Countdown fixed to India Standard Time (Asia/Kolkata).</p>
       {reducedMotion && <span className="sr-only">Decorative movement is disabled because reduced motion is enabled.</span>}
     </section>
   );

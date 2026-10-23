@@ -190,19 +190,21 @@ export default function RegistrationForm({ onRegistered }) {
 
   return (
     <section className="event-section event-registration" id="registration" aria-labelledby="registration-title">
-      <RevealHeading />
-      <p className="event-registration__note">Teams of exactly 3. ₹300 per team. A ticket is issued after payment is approved.</p>
-      {deadlineIsConfigured && <p className="event-registration__deadline">Register by {EVENT_CONTENT.registrationDeadline}</p>}
-      <ol className="event-form-progress" aria-label="Registration progress">{steps.map((label, index) => <li key={label} className={index === step ? 'is-current' : index < step ? 'is-complete' : ''}><span>{index + 1}</span>{label}</li>)}</ol>
-      <form className="event-registration-form" onSubmit={submit} noValidate>
-        <div className="event-honeypot" aria-hidden="true"><label htmlFor="company">Company</label><input id="company" name="company" value={values.company} onChange={onChange} tabIndex="-1" autoComplete="off" /></div>
-        {step === 0 && <div className="event-step"><label className="event-field event-field--wide" htmlFor="teamName">Team name<input id="teamName" name="teamName" type="text" minLength="2" maxLength="40" value={values.teamName} onChange={onChange} autoComplete="off" aria-invalid={Boolean(errors.teamName)} aria-describedby={errors.teamName ? 'teamName-error' : undefined} /><FieldError message={errors.teamName} id="teamName-error" /></label></div>}
-        {step === 1 && <div className="event-step"><MemberFields memberKey="leader" title="Member 1" leader values={values} onChange={onChange} errors={errors} /></div>}
-        {step === 2 && <div className="event-step"><MemberFields memberKey="member2" title="Member 2" values={values} onChange={onChange} errors={errors} /><MemberFields memberKey="member3" title="Member 3" values={values} onChange={onChange} errors={errors} /></div>}
-        {step === 3 && <div className="event-step event-review"><h3>Review your team</h3><p><strong>{values.teamName || 'Team name'}</strong></p>{memberKeys.map((memberKey, index) => <p key={memberKey}>{index === 0 ? 'Team leader' : `Member ${index + 1}`}: {values[memberKey].fullName || '—'} · {values[memberKey].college || '—'}</p>)}<label className="event-agreement"><input type="checkbox" name="agreed" checked={values.agreed} onChange={onChange} aria-invalid={Boolean(errors.agreed)} aria-describedby={errors.agreed ? 'agreed-error' : undefined} /> <span>I agree to the event rules and let Vulcan Club use these details to run this event. <a href="#privacy-note">Read the privacy note.</a></span></label><FieldError message={errors.agreed} id="agreed-error" /><p className="event-privacy-note" id="privacy-note">{EVENT_CONTENT.privacyNote}</p><Turnstile onToken={setTurnstileToken} onError={setNotice} /></div>}
-        {notice && <p className="event-form-notice" role="status">{notice}</p>}
-        <div className="event-form-actions">{step > 0 && <button type="button" className="event-secondary-button" onClick={back} disabled={isSubmitting}>Back</button>}{step < 3 ? <button type="button" className="event-register-button" onClick={next}>Continue <span aria-hidden="true">↘</span></button> : <button type="submit" className="event-register-button" disabled={isSubmitting}>{isSubmitting ? 'Registering…' : 'Confirm team'} <span aria-hidden="true">↘</span></button>}</div>
-      </form>
+      <div className="event-section-inner event-registration__inner">
+        <RevealHeading />
+        <p className="event-registration__note">Teams of exactly 3. Entry: {EVENT_CONTENT.entryLabel}.</p>
+        {deadlineIsConfigured && <p className="event-registration__deadline">Register by {EVENT_CONTENT.registrationDeadline}</p>}
+        <ol className="event-form-progress" aria-label="Registration progress">{steps.map((label, index) => <li key={label} className={index === step ? 'is-current' : index < step ? 'is-complete' : ''}><span>{index + 1}</span>{label}</li>)}</ol>
+        <form className="event-registration-form" onSubmit={submit} noValidate>
+          <div className="event-honeypot" aria-hidden="true"><label htmlFor="company">Company</label><input id="company" name="company" value={values.company} onChange={onChange} tabIndex="-1" autoComplete="off" /></div>
+          {step === 0 && <div className="event-step"><label className="event-field event-field--wide" htmlFor="teamName">Team name<input id="teamName" name="teamName" type="text" minLength="2" maxLength="40" value={values.teamName} onChange={onChange} autoComplete="off" aria-invalid={Boolean(errors.teamName)} aria-describedby={errors.teamName ? 'teamName-error' : undefined} /><FieldError message={errors.teamName} id="teamName-error" /></label></div>}
+          {step === 1 && <div className="event-step"><MemberFields memberKey="leader" title="Member 1" leader values={values} onChange={onChange} errors={errors} /></div>}
+          {step === 2 && <div className="event-step"><MemberFields memberKey="member2" title="Member 2" values={values} onChange={onChange} errors={errors} /><MemberFields memberKey="member3" title="Member 3" values={values} onChange={onChange} errors={errors} /></div>}
+          {step === 3 && <div className="event-step event-review"><h3>Review your team</h3><p><strong>{values.teamName || 'Team name'}</strong></p>{memberKeys.map((memberKey, index) => <p key={memberKey}>{index === 0 ? 'Team leader' : `Member ${index + 1}`}: {values[memberKey].fullName || '—'} · {values[memberKey].college || '—'}</p>)}<label className="event-agreement"><input type="checkbox" name="agreed" checked={values.agreed} onChange={onChange} aria-invalid={Boolean(errors.agreed)} aria-describedby={errors.agreed ? 'agreed-error' : undefined} /> <span>I agree to the event rules and let Vulcan Club use these details to run this event. <a href="#privacy-note">Read the privacy note.</a></span></label><FieldError message={errors.agreed} id="agreed-error" /><p className="event-privacy-note" id="privacy-note">{EVENT_CONTENT.privacyNote}</p><Turnstile onToken={setTurnstileToken} onError={setNotice} /></div>}
+          {notice && <p className="event-form-notice" role="status">{notice}</p>}
+          <div className="event-form-actions">{step > 0 && <button type="button" className="event-secondary-button" onClick={back} disabled={isSubmitting}>Back</button>}{step < 3 ? <button type="button" className="event-register-button" onClick={next}>Continue <span aria-hidden="true">↘</span></button> : <button type="submit" className="event-register-button" disabled={isSubmitting}>{isSubmitting ? 'Registering…' : 'Confirm team'} <span aria-hidden="true">↘</span></button>}</div>
+        </form>
+      </div>
     </section>
   );
 }
