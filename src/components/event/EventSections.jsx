@@ -2,15 +2,15 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { EVENT_CONTENT } from '../../eventContent';
 
 const fixedTimeline = [
-  { time: '7:00 PM', title: 'Hackathon begins', detail: 'The 12-hour build window begins.' },
-  { time: '7:00 AM', title: 'Hackathon ends', detail: 'The build window ends around this time.' },
+  { time: '7:00 PM', title: 'Opening ceremony', detail: 'The challenge is revealed and the build begins.' },
+  { time: '8:00 AM', title: 'Hackathon ends', detail: 'The overnight build window ends.' },
 ];
 
 const knownFaqs = [
-  ['How long is it?', '12 hours, starting at 7:00 PM on 31 October and ending around 7:00 AM on 1 November.'],
+  ['How long is it?', '13 hours, from 7:00 PM on 30 October to 8:00 AM on 31 October.'],
   ['How big is a team?', 'Exactly 3 members.'],
-  ['Is it free?', 'Yes. Registration is free.'],
-  ['How do I get in?', 'Show your ticket QR code at the entrance.'],
+  ['What does it cost?', '₹300 per team.'],
+  ['How do I get in?', 'After payment is confirmed, show your ticket QR code at the entrance.'],
   ['What else do I need to know?', '[RULES]'],
 ];
 

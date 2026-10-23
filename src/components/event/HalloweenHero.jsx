@@ -93,7 +93,7 @@ export default function HalloweenHero({ reducedMotion }) {
         <h1 id="event-title">
           <span>{EVENT_CONTENT.name}</span>
         </h1>
-        <p className="event-hero__intro">Hosted by {EVENT_CONTENT.host}. A free, 12-hour hackathon for teams of exactly three.</p>
+        <p className="event-hero__intro">Hosted by {EVENT_CONTENT.host} with {EVENT_CONTENT.collegeName}. An overnight hackathon for teams of exactly three.</p>
       </div>
 
       <div className="event-hero__bottom">

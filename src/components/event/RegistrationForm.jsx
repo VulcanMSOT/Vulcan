@@ -191,7 +191,7 @@ export default function RegistrationForm({ onRegistered }) {
   return (
     <section className="event-section event-registration" id="registration" aria-labelledby="registration-title">
       <RevealHeading />
-      <p className="event-registration__note">Teams of exactly 3. Free to register.</p>
+      <p className="event-registration__note">Teams of exactly 3. ₹300 per team.</p>
       {deadlineIsConfigured && <p className="event-registration__deadline">Register by {EVENT_CONTENT.registrationDeadline}</p>}
       <ol className="event-form-progress" aria-label="Registration progress">{steps.map((label, index) => <li key={label} className={index === step ? 'is-current' : index < step ? 'is-complete' : ''}><span>{index + 1}</span>{label}</li>)}</ol>
       <form className="event-registration-form" onSubmit={submit} noValidate>
