@@ -77,6 +77,19 @@ a[role="button"]:active {
   image-rendering: pixelated;
 }
 
+/* Outlined typography for project numbers */
+.outlined-num {
+  -webkit-text-stroke: 1.5px rgba(245, 166, 35, 0.4);
+  color: transparent;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  transition: -webkit-text-stroke 200ms cubic-bezier(0.23, 1, 0.32, 1), filter 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.group:hover .outlined-num {
+  -webkit-text-stroke: 1.5px rgba(245, 166, 35, 0.85);
+  filter: drop-shadow(0 0 10px rgba(245, 166, 35, 0.35));
+}
+
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -88,3 +101,4 @@ a[role="button"]:active {
     scroll-behavior: auto !important;
   }
 }
+

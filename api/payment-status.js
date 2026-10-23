@@ -1,8 +1,10 @@
-import { json, methodNotAllowed, parseBody } from './_lib/http.js';
+import { handleCors, json, methodNotAllowed, parseBody } from './_lib/http.js';
 import { paymentTicketStatus } from './_lib/registration.js';
 
 export default async function handler(request, response) {
+  if (handleCors(request, response, ['POST', 'OPTIONS'])) return;
   if (request.method !== 'POST') return methodNotAllowed(response, ['POST']);
+
   try {
     const result = await paymentTicketStatus(parseBody(request));
     if (result.error) return json(response, 404, result);

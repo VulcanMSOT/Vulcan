@@ -16,17 +16,33 @@ enum PaymentStatus {
 
 model Registration {
   id                 String   @id @default(cuid())
+  teamId             String?  @unique @db.VarChar(32)
+  paymentRef         String?  @unique @db.VarChar(32)
+  orderRef           String?  @unique @db.VarChar(32)
+  amount             Int      @default(300)
   ticketId           String?  @unique @db.VarChar(32)
+  ticketToken        String?  @unique @db.VarChar(64)
   teamName           String   @db.VarChar(40)
   normalizedTeamName String   @unique @db.VarChar(40)
   createdAt          DateTime @default(now())
   paymentStatus      PaymentStatus @default(PENDING_PAYMENT)
   paymentReference   String?  @unique @db.VarChar(100)
+  utr                String?  @db.VarChar(64)
+  screenshotPath     String?  @db.VarChar(255)
   paymentTokenHash   String?  @unique @db.VarChar(64)
   paymentSubmittedAt DateTime?
   paymentApprovedAt  DateTime?
   paymentApprovedBy  String?  @db.VarChar(100)
   paymentNote        String?  @db.VarChar(500)
+  rejectReason       String?  @db.VarChar(500)
+  emailStatus        String?  @default("pending") @db.VarChar(32)
+  emailSentCount     Int      @default(0)
+  emailSentBy        String?  @db.VarChar(255)
+  emailSentAt        DateTime?
+  isComp             Boolean  @default(false)
+  compReason         String?  @db.VarChar(255)
+  revokedAt          DateTime?
+  revokedReason      String?  @db.VarChar(255)
   ticketEmailSentAt  DateTime?
   ticketEmailError   String?  @db.VarChar(500)
   ticketEmailId      String?  @db.VarChar(100)
@@ -36,6 +52,49 @@ model Registration {
   @@index([createdAt])
   @@index([checkedInAt])
   @@index([paymentStatus, createdAt])
+  @@index([utr])
+  @@index([orderRef])
+  @@index([ticketToken])
+  @@index([teamId])
+  @@index([paymentRef])
+  @@index([emailStatus])
+}
+
+model EventSettings {
+  id                String    @id @default("default") @db.VarChar(64)
+  eventName         String    @default("Hack-O-Lantern") @map("event_name") @db.VarChar(128)
+  eventDate         String    @default("31 Oct 2026, 7:00 PM – 1 Nov 2026, 7:00 AM") @map("event_date") @db.VarChar(255)
+  eventVenue        String    @default("Mirai Floor, Bengaluru") @map("event_venue") @db.VarChar(255)
+  registrationsOpen Boolean   @default(true) @map("registrations_open")
+  opensAt           DateTime? @map("opens_at")
+  closesAt          DateTime? @map("closes_at")
+  maxCapacity       Int       @default(100) @map("max_capacity")
+  ticketPrice       Int       @default(300) @map("ticket_price")
+  upiId             String    @default("himangshuyadav2@oksbi") @map("upi_id") @db.VarChar(128)
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@map("event_settings")
+}
+
+model Admin {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  email     String   @unique @db.VarChar(255)
+  role      String   @default("staff") @db.VarChar(32)
+  name      String?  @db.VarChar(100)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.VarChar(36)
+  adminEmail String   @db.VarChar(255)
+  action     String   @db.VarChar(64)
+  targetId   String?  @db.VarChar(100)
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([targetId])
+  @@index([createdAt(sort: Desc)])
 }
 
 model TeamMember {

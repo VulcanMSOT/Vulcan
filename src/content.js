@@ -108,30 +108,71 @@ export const EVENTS = [
  */
 export const PROJECTS = [
   {
-    id: "project-1",
-    title: "[PROJECT NAME]",
-    category: "Systems & Infrastructure",
-    description: "High-performance developer tool built to streamline local workflows and environment profiling.",
-    stack: ["Rust", "TypeScript", "WebAssembly"],
-    github: "https://github.com/vulcan-club"
+    id: "auto-translation-field",
+    number: "01",
+    tag: "Google Summer of Code 2026",
+    title: "Auto Translation Field (Drupal)",
+    summary: "Provides a field-level, one-click AI translation button inside the Drupal content editing form, leveraging the Drupal AI Core ecosystem to communicate with LLMs and translation services.",
+    stack: ["PHP 8.3+", "Drupal Core", "Drupal AI", "JavaScript"],
+    status: "1.0.0-alpha1 released on Drupal.org",
+    credit: "Built by Sapnil Biswas · Mentored by Pooja Sharma",
+    isPlaceholder: false,
+    links: [
+      {
+        label: "Drupal.org project",
+        url: "https://www.drupal.org/project/auto_translation_field",
+        primary: true,
+      },
+      {
+        label: "GSoC final report",
+        url: "https://github.com/sapnilbiswas/Drupal-Auto-Translation-Field-GSoC-2026",
+        primary: false,
+      },
+    ],
+    built: [
+      "FieldTranslationService: Backend service integrating with Drupal AI Core for prompt building and provider dispatch.",
+      "Multi-Provider Support: Integration with Chat LLMs and dedicated translate_text providers.",
+      "Diff Preview Overlay: Differential visual comparison allowing editors to review changes before applying.",
+      "CKEditor 5 & Paragraphs: In-place translation injection into rich text editors and complex composite fields.",
+      "Secure AJAX API: CSRF-protected endpoints, rate limiting, and permission access checks.",
+      "Automated Testing: Unit test suite and Functional Javascript browser testing via Drupal GitLab CI.",
+    ],
+    flow: [
+      "Editor clicks Translate",
+      "Request goes through Drupal AI Core to a provider",
+      "Diff preview appears",
+      "Editor applies the translation",
+    ],
   },
   {
     id: "project-2",
+    number: "02",
+    tag: "[CATEGORY]",
     title: "[PROJECT NAME]",
-    category: "Open Source Tooling",
-    description: "Collaborative distributed utility designed for real-time peer code review and telemetry.",
-    stack: ["Go", "React", "gRPC"],
-    github: "https://github.com/vulcan-club"
+    summary: "[PROJECT SUMMARY]",
+    stack: ["[STACK 1]", "[STACK 2]", "[STACK 3]"],
+    status: "[PROJECT STATUS]",
+    credit: "[MEMBER NAME]",
+    isPlaceholder: true,
+    links: [],
+    built: [],
   },
   {
     id: "project-3",
+    number: "03",
+    tag: "[CATEGORY]",
     title: "[PROJECT NAME]",
-    category: "Developer Experience",
-    description: "Lightweight algorithmic visualization engine with custom shaders and AST parsing.",
-    stack: ["TypeScript", "WebGL", "Vite"],
-    github: "https://github.com/vulcan-club"
-  }
+    summary: "[PROJECT SUMMARY]",
+    stack: ["[STACK 1]", "[STACK 2]", "[STACK 3]"],
+    status: "[PROJECT STATUS]",
+    credit: "[MEMBER NAME]",
+    isPlaceholder: true,
+    links: [],
+    built: [],
+  },
 ];
+
+export const projects = PROJECTS;
 
 /**
  * Core Team Members

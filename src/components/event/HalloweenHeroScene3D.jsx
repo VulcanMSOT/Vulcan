@@ -193,12 +193,12 @@ function JackOLantern({ scrollProgress, cursor, reducedMotion, entryProgress }) 
     // Parallax damping & mobile responsive positioning
     const targetRotY = cursor.x * 0.22 + Math.sin(time * 0.4) * 0.03;
     const targetRotX = -cursor.y * 0.15 + Math.cos(time * 0.5) * 0.02;
-    // On desktop: position to the right (x = 1.78) so it leaves hero content completely unobstructed
+    // On desktop: position to the right (x = 2.05) so it frames the right side with ample breathing room
     // On mobile: position slightly higher in upper-right background with gentle presence
-    const targetPosX = isMobile ? 0.35 + cursor.x * 0.12 : 1.78 + cursor.x * 0.25;
+    const targetPosX = isMobile ? 0.35 + cursor.x * 0.12 : 2.05 + cursor.x * 0.25;
     const targetPosY = isMobile ? 0.95 - scrollProgress * 2.8 : -0.15 - scrollProgress * 2.8 + cursor.y * 0.15;
     const targetPosZ = isMobile ? -0.2 : 0.05 - scrollProgress * 1.6;
-    const targetScale = isMobile ? 0.62 : 0.92;
+    const targetScale = isMobile ? 0.62 : 0.86;
 
     pumpkinRef.current.rotation.y = THREE.MathUtils.damp(pumpkinRef.current.rotation.y, targetRotY, 3.5, delta);
     pumpkinRef.current.rotation.x = THREE.MathUtils.damp(pumpkinRef.current.rotation.x, targetRotX, 3.5, delta);
@@ -215,7 +215,7 @@ function JackOLantern({ scrollProgress, cursor, reducedMotion, entryProgress }) 
   });
 
   return (
-    <group ref={pumpkinRef} position={[1.78, -0.15, 0.05]} scale={0.92}>
+    <group ref={pumpkinRef} position={[2.05, -0.15, 0.05]} scale={0.86}>
       {/* Pumpkin Body */}
       <mesh geometry={pumpkinGeom} material={pumpkinMaterial} castShadow receiveShadow />
 
@@ -256,7 +256,7 @@ function Moon({ scrollProgress, cursor, reducedMotion }) {
 
     // Camera scroll dolly pulls camera toward moon as pumpkin recedes
     const targetY = isMobile ? 1.6 + scrollProgress * 0.45 : 1.35 + scrollProgress * 0.45 + cursor.y * 0.08;
-    const targetX = isMobile ? 0.75 + cursor.x * 0.08 : 2.05 + cursor.x * 0.12 + Math.sin(time * 0.15) * 0.04;
+    const targetX = isMobile ? 0.75 + cursor.x * 0.08 : 2.15 + cursor.x * 0.12 + Math.sin(time * 0.15) * 0.04;
     const targetScale = isMobile ? 0.68 : 1.0;
 
     moonRef.current.position.y = THREE.MathUtils.damp(moonRef.current.position.y, targetY, 2.5, delta);
@@ -265,7 +265,7 @@ function Moon({ scrollProgress, cursor, reducedMotion }) {
   });
 
   return (
-    <group ref={moonRef} position={[2.05, 1.35, -4.2]}>
+    <group ref={moonRef} position={[2.15, 1.35, -4.2]}>
       {/* Pale Moon Disc */}
       <mesh>
         <circleGeometry args={[1.75, 48]} />

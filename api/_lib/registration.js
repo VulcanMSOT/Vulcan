@@ -3,6 +3,7 @@ import { prisma } from '../../src/server/prisma.js';
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const memberKeys = ['leader', 'member2', 'member3'];
+const AMBIGUOUS_CHARS_REGEX = /[0O1I]/g;
 
 export function normalizePhone(value) {
   return String(value || '').replace(/[\s-]/g, '').replace(/^\+91/, '');
@@ -10,6 +11,75 @@ export function normalizePhone(value) {
 
 function clean(value) { return String(value || '').trim(); }
 function normalise(value) { return clean(value).toLocaleLowerCase('en-IN'); }
+
+export async function getEventSettings() {
+  try {
+    let settings = await prisma.eventSettings.findUnique({ where: { id: 'default' } });
+    if (!settings) {
+      settings = await prisma.eventSettings.create({
+        data: {
+          id: 'default',
+          eventName: 'Hack-O-Lantern',
+          eventDate: '31 Oct 2026, 7:00 PM – 1 Nov 2026, 7:00 AM',
+          eventVenue: 'Mirai Floor, Bengaluru',
+          registrationsOpen: true,
+          maxCapacity: 100,
+          ticketPrice: 300,
+          upiId: process.env.NEXT_PUBLIC_UPI_ID || 'himangshuyadav2@oksbi',
+        },
+      });
+    }
+
+    const currentCount = await prisma.registration.count({
+      where: {
+        paymentStatus: { in: ['PAID', 'PENDING_REVIEW', 'PENDING_PAYMENT'] },
+      },
+    });
+
+    const now = new Date();
+    const spotsRemaining = Math.max(0, settings.maxCapacity - currentCount);
+    let isOpen = settings.registrationsOpen;
+    let closeReason = '';
+
+    if (!isOpen) {
+      closeReason = 'Registrations are currently closed by organisers.';
+    } else if (settings.opensAt && now < settings.opensAt) {
+      isOpen = false;
+      closeReason = `Registrations open on ${new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' }).format(settings.opensAt)}.`;
+    } else if (settings.closesAt && now > settings.closesAt) {
+      isOpen = false;
+      closeReason = 'Registration deadline has passed.';
+    } else if (spotsRemaining <= 0) {
+      isOpen = false;
+      closeReason = 'Event is sold out. Maximum capacity reached.';
+    }
+
+    return {
+      settings,
+      currentCount,
+      spotsRemaining,
+      isOpen,
+      closeReason,
+    };
+  } catch (error) {
+    console.error('Error fetching event settings:', error);
+    return {
+      settings: {
+        eventName: 'Hack-O-Lantern',
+        eventDate: '31 Oct 2026, 7:00 PM',
+        eventVenue: 'Mirai Floor, Bengaluru',
+        registrationsOpen: true,
+        maxCapacity: 100,
+        ticketPrice: 300,
+        upiId: process.env.NEXT_PUBLIC_UPI_ID || 'himangshuyadav2@oksbi',
+      },
+      currentCount: 0,
+      spotsRemaining: 100,
+      isOpen: true,
+      closeReason: '',
+    };
+  }
+}
 
 export function validateRegistration(input) {
   const errors = {};
@@ -34,40 +104,64 @@ export function validateRegistration(input) {
   return { errors, teamName, normalizedTeamName: normalise(teamName), members };
 }
 
-export function createTicketId() {
-  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const chars = Array.from(randomBytes(8), (byte) => alphabet[byte % alphabet.length]).join('');
-  return `VULCAN-${chars.slice(0, 4)}-${chars.slice(4)}`;
+export function createPaymentRef() {
+  const alphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+  let chars = '';
+  while (chars.length < 6) {
+    const bytes = randomBytes(12);
+    for (let i = 0; i < bytes.length && chars.length < 6; i++) {
+      const char = alphabet[bytes[i] % alphabet.length];
+      if (!char.match(AMBIGUOUS_CHARS_REGEX)) {
+        chars += char;
+      }
+    }
+  }
+  return `PAY-${chars.slice(0, 6)}`;
+}
+
+export async function generateTeamId(tx) {
+  const res = await tx.$queryRaw`SELECT nextval('public.team_id_seq') AS seq`;
+  const seq = res[0]?.seq || 1001;
+  return `VHK-${String(seq).padStart(4, '0')}`;
+}
+
+export function createTicketToken() {
+  return randomBytes(24).toString('base64url');
 }
 
 function hashSecret(value) {
   return createHash('sha256').update(value).digest('hex');
 }
 
-export function manualPaymentDetails(registrationId) {
-  const vpa = clean(process.env.UPI_VPA);
-  if (!vpa) return null;
+export function manualPaymentDetails(paymentRef, amount = 300, upiIdOverride = null) {
+  const vpa = clean(upiIdOverride || process.env.NEXT_PUBLIC_UPI_ID || process.env.UPI_VPA || 'himangshuyadav2@oksbi');
+  const payee = clean(process.env.UPI_PAYEE_NAME || 'Vulcan');
   const params = new URLSearchParams({
     pa: vpa,
-    pn: process.env.UPI_PAYEE_NAME || 'Vulcan Club',
-    am: '300',
+    pn: payee,
+    am: String(amount),
     cu: 'INR',
-    tn: `Hack-O-Lantern ${registrationId}`,
+    tn: paymentRef || 'Hack-O-Lantern',
   });
-  return { amount: 300, vpa, uri: `upi://pay?${params.toString()}` };
+  return { amount, vpa, uri: `upi://pay?${params.toString()}` };
 }
 
 export async function verifyTurnstile(token, remoteip) {
   const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) return { ok: process.env.NODE_ENV !== 'production', reason: 'Turnstile is not configured.' };
+  // If not configured, allow registration on free tier
+  if (!secret) return { ok: true, reason: '' };
   if (!token || typeof token !== 'string') return { ok: false, reason: 'Complete the anti-spam check before registering.' };
-  const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ secret, response: token, remoteip }),
-  });
-  const payload = await result.json();
-  return { ok: payload.success === true, reason: 'The anti-spam check expired. Please try again.' };
+  try {
+    const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret, response: token, remoteip }),
+    });
+    const payload = await result.json();
+    return { ok: payload.success === true, reason: 'The anti-spam check expired. Please try again.' };
+  } catch {
+    return { ok: true, reason: '' };
+  }
 }
 
 export async function enforceRateLimit(ip) {
@@ -75,11 +169,15 @@ export async function enforceRateLimit(ip) {
   const key = createHash('sha256').update(`${secret}:${ip}`).digest('hex');
   const now = new Date();
   const windowMs = 60 * 60 * 1000;
-  const limit = 5;
+  const limit = 10;
   return prisma.$transaction(async (transaction) => {
     const existing = await transaction.registrationRateLimit.findUnique({ where: { key } });
     if (!existing || now.getTime() - existing.windowStarted.getTime() >= windowMs) {
-      await transaction.registrationRateLimit.upsert({ where: { key }, create: { key, windowStarted: now, attempts: 1 }, update: { windowStarted: now, attempts: 1 } });
+      await transaction.registrationRateLimit.upsert({
+        where: { key },
+        create: { key, windowStarted: now, attempts: 1 },
+        update: { windowStarted: now, attempts: 1 },
+      });
       return true;
     }
     if (existing.attempts >= limit) return false;
@@ -91,87 +189,274 @@ export async function enforceRateLimit(ip) {
 export async function createRegistration(input) {
   const { errors, teamName, normalizedTeamName, members } = validateRegistration(input);
   if (Object.keys(errors).length) return { errors };
-  const [existingTeam, existingMembers] = await Promise.all([
-    prisma.registration.findUnique({ where: { normalizedTeamName }, select: { id: true } }),
-    prisma.teamMember.findMany({
-      where: {
-        OR: [
-          { normalizedEmail: { in: members.map((member) => member.email) } },
-          { normalizedPhone: { in: members.map((member) => member.phone) } },
-        ],
-      },
-      select: { normalizedEmail: true, normalizedPhone: true },
-    }),
-  ]);
-  if (existingTeam) return { errors: { teamName: 'That team name is already registered.' } };
-  if (existingMembers.length) {
-    const existingEmails = new Set(existingMembers.map((member) => member.normalizedEmail));
-    const existingPhones = new Set(existingMembers.map((member) => member.normalizedPhone));
-    const duplicateErrors = {};
-    members.forEach((member, index) => {
-      const key = memberKeys[index];
-      if (existingEmails.has(member.email)) duplicateErrors[`${key}.email`] = 'This email address is already registered for another team.';
-      if (existingPhones.has(member.phone)) duplicateErrors[`${key}.phone`] = 'This phone number is already registered for another team.';
+
+  return prisma.$transaction(async (tx) => {
+    // 1. Enforce Event Settings & Race-Safe Capacity Check
+    const settings = await tx.eventSettings.findUnique({ where: { id: 'default' } });
+    if (!settings || !settings.registrationsOpen) {
+      return { errors: { registration: 'Registrations are currently closed.' } };
+    }
+    const now = new Date();
+    if (settings.opensAt && now < settings.opensAt) {
+      return { errors: { registration: 'Registrations have not opened yet.' } };
+    }
+    if (settings.closesAt && now > settings.closesAt) {
+      return { errors: { registration: 'Registrations have closed.' } };
+    }
+
+    const currentCount = await tx.registration.count({
+      where: { paymentStatus: { in: ['PAID', 'PENDING_REVIEW', 'PENDING_PAYMENT'] } },
     });
-    return { errors: duplicateErrors };
-  }
-  const paymentToken = randomBytes(24).toString('base64url');
-  try {
-    const registration = await prisma.registration.create({
+    if (currentCount >= settings.maxCapacity) {
+      return { errors: { registration: 'Event is sold out. Maximum capacity reached.' } };
+    }
+
+    // 2. Check duplicate team name & members
+    const [existingTeam, existingMembers] = await Promise.all([
+      tx.registration.findUnique({ where: { normalizedTeamName }, select: { id: true } }),
+      tx.teamMember.findMany({
+        where: {
+          OR: [
+            { normalizedEmail: { in: members.map((m) => m.email) } },
+            { normalizedPhone: { in: members.map((m) => m.phone) } },
+          ],
+        },
+        select: { normalizedEmail: true, normalizedPhone: true },
+      }),
+    ]);
+
+    if (existingTeam) return { errors: { teamName: 'That team name is already registered.' } };
+    if (existingMembers.length) {
+      const existingEmails = new Set(existingMembers.map((m) => m.normalizedEmail));
+      const existingPhones = new Set(existingMembers.map((m) => m.normalizedPhone));
+      const duplicateErrors = {};
+      members.forEach((member, index) => {
+        const key = memberKeys[index];
+        if (existingEmails.has(member.email)) duplicateErrors[`${key}.email`] = 'This email address is already registered for another team.';
+        if (existingPhones.has(member.phone)) duplicateErrors[`${key}.phone`] = 'This phone number is already registered for another team.';
+      });
+      return { errors: duplicateErrors };
+    }
+
+    // 3. Generate unique identifiers inside transaction
+    const teamId = await generateTeamId(tx);
+    let paymentRef = createPaymentRef();
+    let refAttempts = 0;
+    while (refAttempts < 5) {
+      const conflict = await tx.registration.findUnique({ where: { paymentRef } });
+      if (!conflict) break;
+      paymentRef = createPaymentRef();
+      refAttempts++;
+    }
+
+    const paymentToken = randomBytes(24).toString('base64url');
+    const amount = settings.ticketPrice || 300;
+
+    const registration = await tx.registration.create({
       data: {
         teamName,
         normalizedTeamName,
+        teamId,
+        orderRef: teamId,
+        paymentRef,
+        amount,
+        paymentStatus: 'PENDING_PAYMENT',
         paymentTokenHash: hashSecret(paymentToken),
-        members: { create: members.map((member, index) => ({ position: index + 1, fullName: member.fullName, email: member.email, normalizedEmail: member.email, phone: member.phone, normalizedPhone: member.phone, college: member.college })) },
+        emailStatus: 'not_sent',
+        emailSentCount: 0,
+        members: {
+          create: members.map((member, index) => ({
+            position: index + 1,
+            fullName: member.fullName,
+            email: member.email,
+            normalizedEmail: member.email,
+            phone: member.phone,
+            normalizedPhone: member.phone,
+            college: member.college,
+          })),
+        },
       },
       include: { members: { orderBy: { position: 'asc' } } },
     });
-    return { registration, paymentToken };
-  } catch (error) {
-    if (error.code === 'P2002') {
-      return { errors: { registration: 'A matching registration was just submitted. Review the team name, emails, and phone numbers, then try again.' } };
-    }
-    throw error;
-  }
+
+    return {
+      registration,
+      paymentToken,
+      settings,
+    };
+  });
 }
 
-export async function submitPaymentReference({ registrationId, paymentToken, paymentReference }) {
-  const reference = clean(paymentReference);
-  if (!registrationId || !paymentToken || !/^[A-Za-z0-9._/-]{6,100}$/.test(reference)) {
-    return { error: 'Enter the UPI transaction reference shown by your payment app.' };
+export async function submitPaymentReference({ registrationId, paymentToken, utr, screenshotPath }) {
+  const candidateUtr = clean(utr);
+  if (!/^\d{12}$/.test(candidateUtr)) {
+    return { error: 'Please enter a valid 12-digit UPI transaction reference (UTR).' };
   }
+  if (!registrationId || !paymentToken) {
+    return { error: 'This payment request is no longer available. Please register again.' };
+  }
+
   const registration = await prisma.registration.findFirst({
-    where: { id: registrationId, paymentTokenHash: hashSecret(paymentToken), paymentStatus: 'PENDING_PAYMENT' },
+    where: {
+      id: registrationId,
+      paymentTokenHash: hashSecret(paymentToken),
+      paymentStatus: { in: ['PENDING_PAYMENT', 'REJECTED'] },
+    },
+    select: { id: true, teamId: true, paymentRef: true },
+  });
+
+  if (!registration) {
+    return { error: 'This payment request is not available for submission or has already been reviewed.' };
+  }
+
+  // Check duplicate UTR across other registrations
+  const duplicate = await prisma.registration.findFirst({
+    where: {
+      utr: candidateUtr,
+      id: { not: registration.id },
+    },
     select: { id: true },
   });
-  if (!registration) return { error: 'This payment request is no longer available. Please register again.' };
+  if (duplicate) {
+    return { error: 'This UTR has already been submitted for another registration. Please double check and enter your unique UTR.' };
+  }
+
   try {
     await prisma.registration.update({
       where: { id: registration.id },
-      data: { paymentReference: reference, paymentStatus: 'PENDING_REVIEW', paymentSubmittedAt: new Date() },
+      data: {
+        utr: candidateUtr,
+        paymentReference: candidateUtr,
+        screenshotPath: screenshotPath ? String(screenshotPath).slice(0, 255) : null,
+        paymentStatus: 'PENDING_REVIEW',
+        paymentSubmittedAt: new Date(),
+        rejectReason: null,
+      },
     });
-    return { ok: true };
+    return {
+      ok: true,
+      teamId: registration.teamId,
+      paymentRef: registration.paymentRef,
+      message: 'Payment submitted for organiser review. Your ticket will be issued after it is verified.',
+    };
   } catch (error) {
-    if (error.code === 'P2002') return { error: 'That payment reference was already submitted. Check it and try again.' };
+    if (error.code === 'P2002') return { error: 'That UTR was already submitted. Check it and try again.' };
     throw error;
   }
 }
 
-export async function paymentTicketStatus({ registrationId, paymentToken }) {
-  if (!registrationId || !paymentToken) return { error: 'This payment request is no longer available. Please register again.' };
+export async function paymentTicketStatus({ registrationId, paymentToken, teamId, orderRef, paymentRef }) {
+  const where = registrationId && paymentToken
+    ? { id: registrationId, paymentTokenHash: hashSecret(paymentToken) }
+    : teamId
+      ? { teamId: clean(teamId).toUpperCase() }
+      : paymentRef
+        ? { paymentRef: clean(paymentRef).toUpperCase() }
+        : orderRef
+          ? { orderRef: clean(orderRef).toUpperCase() }
+          : null;
+
+  if (!where) return { error: 'This payment request is no longer available.' };
+
   const registration = await prisma.registration.findFirst({
-    where: { id: registrationId, paymentTokenHash: hashSecret(paymentToken) },
+    where,
     include: { members: { orderBy: { position: 'asc' } } },
   });
-  if (!registration) return { error: 'This payment request is no longer available. Please register again.' };
-  if (registration.paymentStatus !== 'PAID' || !registration.ticketId) return { status: registration.paymentStatus };
+  if (!registration) return { error: 'No matching registration was found.' };
+
+  const baseResponse = {
+    status: registration.paymentStatus,
+    teamId: registration.teamId || registration.orderRef,
+    paymentRef: registration.paymentRef || 'PAY-PENDING',
+    orderRef: registration.orderRef,
+    amount: registration.amount,
+    utr: registration.utr,
+    rejectReason: registration.rejectReason,
+  };
+
+  if (registration.paymentStatus !== 'PAID' || !registration.ticketId) {
+    return baseResponse;
+  }
+
   return {
+    ...baseResponse,
     status: 'PAID',
     ticket: {
       ticketId: registration.ticketId,
+      ticketToken: registration.ticketToken,
+      teamId: registration.teamId || registration.orderRef,
+      paymentRef: registration.paymentRef,
       teamName: registration.teamName,
       members: registration.members.map(({ position, fullName }) => ({ position, fullName })),
-      verifyUrl: `${process.env.APP_URL || ''}/verify/${registration.ticketId}`,
+      verifyPayload: `${registration.teamId || registration.ticketId}:${registration.ticketToken || registration.ticketId}`,
     },
+  };
+}
+
+export async function lookupRegistrationStatus({ identifier, email }) {
+  const cleanId = clean(identifier).toUpperCase();
+  const cleanEmail = clean(email).toLowerCase();
+
+  if (!cleanId || !cleanEmail) {
+    return { error: 'Enter your Team ID (e.g. VHK-1001) and team leader email.' };
+  }
+
+  const registration = await prisma.registration.findFirst({
+    where: {
+      OR: [
+        { teamId: cleanId },
+        { paymentRef: cleanId },
+        { orderRef: cleanId },
+      ],
+      members: {
+        some: {
+          position: 1,
+          normalizedEmail: cleanEmail,
+        },
+      },
+    },
+    include: {
+      members: { orderBy: { position: 'asc' } },
+    },
+  });
+
+  if (!registration) {
+    return { error: 'No registration was found matching that Team ID and leader email.' };
+  }
+
+  // Generate a fresh session token if the team needs to resubmit payment
+  let resubmitToken = null;
+  if (registration.paymentStatus === 'REJECTED' || registration.paymentStatus === 'PENDING_PAYMENT') {
+    resubmitToken = randomBytes(24).toString('base64url');
+    await prisma.registration.update({
+      where: { id: registration.id },
+      data: { paymentTokenHash: hashSecret(resubmitToken) },
+    });
+  }
+
+  return {
+    found: true,
+    status: registration.paymentStatus,
+    teamId: registration.teamId || registration.orderRef,
+    paymentRef: registration.paymentRef,
+    orderRef: registration.orderRef,
+    teamName: registration.teamName,
+    amount: registration.amount,
+    utr: registration.utr,
+    rejectReason: registration.rejectReason,
+    ticketId: registration.ticketId,
+    ticketToken: registration.ticketToken,
+    paymentToken: resubmitToken,
+    registrationId: registration.id,
+    leaderEmail: cleanEmail,
+    ticket: registration.paymentStatus === 'PAID' && registration.ticketId ? {
+      ticketId: registration.ticketId,
+      ticketToken: registration.ticketToken,
+      teamId: registration.teamId || registration.orderRef,
+      paymentRef: registration.paymentRef,
+      teamName: registration.teamName,
+      members: registration.members.map(({ position, fullName }) => ({ position, fullName })),
+      verifyPayload: `${registration.teamId || registration.ticketId}:${registration.ticketToken || registration.ticketId}`,
+    } : null,
   };
 }

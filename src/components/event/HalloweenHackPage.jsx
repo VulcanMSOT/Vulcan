@@ -12,7 +12,24 @@ import './halloween.css';
 export default function HalloweenHackPage() {
   const reducedMotion = usePrefersReducedMotion();
   const [flow, setFlow] = useState(() => {
-    try { return JSON.parse(window.localStorage.getItem('hack-o-lantern-payment') || 'null'); } catch { return null; }
+    try {
+      const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      if (urlParams?.get('preview') === 'ticket') {
+        return {
+          type: 'ticket',
+          ticket: {
+            ticketId: 'VLC-HACK-7721',
+            teamName: 'Phantom Three',
+            members: [
+              { position: 1, fullName: 'Alice' },
+              { position: 2, fullName: 'Bob' },
+              { position: 3, fullName: 'Charlie' }
+            ]
+          }
+        };
+      }
+      return JSON.parse(window.localStorage.getItem('hack-o-lantern-payment') || 'null');
+    } catch { return null; }
   });
   useLenis();
 

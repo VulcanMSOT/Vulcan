@@ -37,10 +37,23 @@ function MemberFields({ memberKey, title, leader, values, onChange, errors }) {
         {fields.map(([field, label, type, autocomplete]) => {
           const error = errors[`${memberKey}.${field}`];
           const id = `${base}-${field}`;
-          return <label className="event-field" key={field} htmlFor={id}>{label}
-            <input id={id} name={`${memberKey}.${field}`} type={type} value={member[field]} onChange={onChange} autoComplete={autocomplete} inputMode={type === 'tel' ? 'tel' : undefined} aria-invalid={Boolean(error)} aria-describedby={error ? `${id}-error` : undefined} />
-            <FieldError message={error} id={`${id}-error`} />
-          </label>;
+          return (
+            <label className="event-field" key={field} htmlFor={id}>
+              {label}
+              <input
+                id={id}
+                name={`${memberKey}.${field}`}
+                type={type}
+                value={member[field]}
+                onChange={onChange}
+                autoComplete={autocomplete}
+                inputMode={type === 'tel' ? 'tel' : undefined}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? `${id}-error` : undefined}
+              />
+              <FieldError message={error} id={`${id}-error`} />
+            </label>
+          );
         })}
       </div>
     </fieldset>
@@ -78,7 +91,7 @@ function Turnstile({ onToken, onError }) {
     return () => { if (widgetId !== undefined && window.turnstile) window.turnstile.remove(widgetId); };
   }, [onError, onToken, siteKey]);
 
-  if (!siteKey) return <p className="event-turnstile-config" role="status">Anti-spam protection is not configured yet. Registration will open when it is ready.</p>;
+  if (!siteKey) return null;
   return <div className="event-turnstile" ref={containerRef} />;
 }
 
@@ -89,9 +102,25 @@ export default function RegistrationForm({ onRegistered }) {
   const [notice, setNotice] = useState('');
   const [turnstileToken, setTurnstileToken] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentTime] = useState(() => Date.now());
-  const deadlineIsConfigured = EVENT_CONTENT.registrationDeadline && !EVENT_CONTENT.registrationDeadline.startsWith('[');
-  const registrationClosed = deadlineIsConfigured && new Date(EVENT_CONTENT.registrationDeadline).getTime() < currentTime;
+  const [eventSettings, setEventSettings] = useState(null);
+  const [loadingSettings, setLoadingSettings] = useState(true);
+
+  // Fetch live server event settings
+  useEffect(() => {
+    let active = true;
+    fetch('/api/event-settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (active && data) {
+          setEventSettings(data);
+        }
+      })
+      .catch((err) => console.warn('Could not load dynamic settings:', err))
+      .finally(() => {
+        if (active) setLoadingSettings(false);
+      });
+    return () => { active = false; };
+  }, []);
 
   const teamMembers = useMemo(() => memberKeys.map((key) => values[key]), [values]);
 
@@ -148,18 +177,18 @@ export default function RegistrationForm({ onRegistered }) {
     setStep((current) => Math.min(3, current + 1));
   };
   const back = () => { setErrors({}); setStep((current) => Math.max(0, current - 1)); };
+
   const submit = async (event) => {
     event.preventDefault();
     const nextErrors = validate(3);
     if (Object.keys(nextErrors).length) { focusFirstError(nextErrors); return; }
-    if (!import.meta.env.VITE_TURNSTILE_SITE_KEY) {
-      setNotice('Registration is not open yet. The anti-spam check has not been configured.');
-      return;
-    }
-    if (!turnstileToken) {
+
+    const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+    if (siteKey && !turnstileToken) {
       setNotice('Complete the anti-spam check before registering.');
       return;
     }
+
     setIsSubmitting(true);
     setNotice('');
     try {
@@ -174,8 +203,9 @@ export default function RegistrationForm({ onRegistered }) {
           setErrors(result.errors);
           if (result.errors.registration) setNotice(result.errors.registration);
           else focusFirstError(result.errors);
+        } else {
+          setNotice(result.error || 'We could not register your team. Please try again.');
         }
-        else setNotice(result.error || 'We could not register your team. Please try again.');
         return;
       }
       onRegistered(result.payment);
@@ -186,23 +216,155 @@ export default function RegistrationForm({ onRegistered }) {
     }
   };
 
-  if (registrationClosed) return <section className="event-section event-registration" id="registration"><h2>Registration closed.</h2><p>The registration deadline has passed.</p></section>;
+  const isClosed = eventSettings ? !eventSettings.registrationsOpen : false;
+  const isSoldOut = eventSettings ? eventSettings.spotsRemaining <= 0 : false;
+  const entryFee = eventSettings?.ticketPrice || 300;
+
+  if (!loadingSettings && (isClosed || isSoldOut)) {
+    return (
+      <section className="event-section event-registration" id="registration" aria-labelledby="registration-title">
+        <div className="event-section-inner event-registration__inner">
+          <div className="event-section__heading">
+            <h2 id="registration-title">{isSoldOut ? 'Event Sold Out.' : 'Registration Closed.'}</h2>
+            <p>
+              {isSoldOut
+                ? 'All team slots for Hack-O-Lantern have been filled.'
+                : eventSettings?.closeReason || 'Registrations are currently closed.'}
+            </p>
+          </div>
+          <div className="event-form-actions" style={{ justifyContent: 'center', marginTop: '2rem' }}>
+            <button
+              type="button"
+              className="event-register-button"
+              onClick={() => onRegistered({ status: 'lookup', orderRef: '' })}
+            >
+              Check Existing Registration Status <span>↘</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="event-section event-registration" id="registration" aria-labelledby="registration-title">
       <div className="event-section-inner event-registration__inner">
         <RevealHeading />
-        <p className="event-registration__note">Teams of exactly 3. Entry: {EVENT_CONTENT.entryLabel}.</p>
-        {deadlineIsConfigured && <p className="event-registration__deadline">Register by {EVENT_CONTENT.registrationDeadline}</p>}
-        <ol className="event-form-progress" aria-label="Registration progress">{steps.map((label, index) => <li key={label} className={index === step ? 'is-current' : index < step ? 'is-complete' : ''}><span>{index + 1}</span>{label}</li>)}</ol>
+        <p className="event-registration__note">
+          Teams of exactly 3. Entry: ₹{entryFee} per team.{' '}
+          {eventSettings && eventSettings.spotsRemaining < 50 && (
+            <span style={{ color: '#ff9a4d', fontWeight: 600 }}>
+              ({eventSettings.spotsRemaining} spots remaining){' '}
+            </span>
+          )}
+          <button
+            type="button"
+            className="event-inline-status-link"
+            onClick={() => onRegistered({ status: 'lookup', orderRef: '' })}
+          >
+            Already registered? Check status
+          </button>
+        </p>
+
+        {eventSettings?.eventDate && (
+          <p className="event-registration__deadline">Event: {eventSettings.eventDate}</p>
+        )}
+
+        <ol className="event-form-progress" aria-label="Registration progress">
+          {steps.map((label, index) => (
+            <li key={label} className={index === step ? 'is-current' : index < step ? 'is-complete' : ''}>
+              <span>{index + 1}</span>{label}
+            </li>
+          ))}
+        </ol>
+
         <form className="event-registration-form" onSubmit={submit} noValidate>
-          <div className="event-honeypot" aria-hidden="true"><label htmlFor="company">Company</label><input id="company" name="company" value={values.company} onChange={onChange} tabIndex="-1" autoComplete="off" /></div>
-          {step === 0 && <div className="event-step"><label className="event-field event-field--wide" htmlFor="teamName">Team name<input id="teamName" name="teamName" type="text" minLength="2" maxLength="40" value={values.teamName} onChange={onChange} autoComplete="off" aria-invalid={Boolean(errors.teamName)} aria-describedby={errors.teamName ? 'teamName-error' : undefined} /><FieldError message={errors.teamName} id="teamName-error" /></label></div>}
-          {step === 1 && <div className="event-step"><MemberFields memberKey="leader" title="Member 1" leader values={values} onChange={onChange} errors={errors} /></div>}
-          {step === 2 && <div className="event-step"><MemberFields memberKey="member2" title="Member 2" values={values} onChange={onChange} errors={errors} /><MemberFields memberKey="member3" title="Member 3" values={values} onChange={onChange} errors={errors} /></div>}
-          {step === 3 && <div className="event-step event-review"><h3>Review your team</h3><p><strong>{values.teamName || 'Team name'}</strong></p>{memberKeys.map((memberKey, index) => <p key={memberKey}>{index === 0 ? 'Team leader' : `Member ${index + 1}`}: {values[memberKey].fullName || '—'} · {values[memberKey].college || '—'}</p>)}<label className="event-agreement"><input type="checkbox" name="agreed" checked={values.agreed} onChange={onChange} aria-invalid={Boolean(errors.agreed)} aria-describedby={errors.agreed ? 'agreed-error' : undefined} /> <span>I agree to the event rules and let Vulcan Club use these details to run this event. <a href="#privacy-note">Read the privacy note.</a></span></label><FieldError message={errors.agreed} id="agreed-error" /><p className="event-privacy-note" id="privacy-note">{EVENT_CONTENT.privacyNote}</p><Turnstile onToken={setTurnstileToken} onError={setNotice} /></div>}
+          <div className="event-honeypot" aria-hidden="true">
+            <label htmlFor="company">Company</label>
+            <input id="company" name="company" value={values.company} onChange={onChange} tabIndex="-1" autoComplete="off" />
+          </div>
+
+          {step === 0 && (
+            <div className="event-step">
+              <label className="event-field event-field--wide" htmlFor="teamName">
+                Team name
+                <input
+                  id="teamName"
+                  name="teamName"
+                  type="text"
+                  minLength="2"
+                  maxLength="40"
+                  value={values.teamName}
+                  onChange={onChange}
+                  autoComplete="off"
+                  aria-invalid={Boolean(errors.teamName)}
+                  aria-describedby={errors.teamName ? 'teamName-error' : undefined}
+                />
+                <FieldError message={errors.teamName} id="teamName-error" />
+              </label>
+            </div>
+          )}
+
+          {step === 1 && (
+            <div className="event-step">
+              <MemberFields memberKey="leader" title="Member 1" leader values={values} onChange={onChange} errors={errors} />
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="event-step">
+              <MemberFields memberKey="member2" title="Member 2" values={values} onChange={onChange} errors={errors} />
+              <MemberFields memberKey="member3" title="Member 3" values={values} onChange={onChange} errors={errors} />
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="event-step event-review">
+              <h3>Review your team</h3>
+              <p><strong>{values.teamName || 'Team name'}</strong></p>
+              {memberKeys.map((memberKey, index) => (
+                <p key={memberKey}>
+                  {index === 0 ? 'Team leader' : `Member ${index + 1}`}: {values[memberKey].fullName || '—'} · {values[memberKey].college || '—'}
+                </p>
+              ))}
+              <label className="event-agreement">
+                <input
+                  type="checkbox"
+                  name="agreed"
+                  checked={values.agreed}
+                  onChange={onChange}
+                  aria-invalid={Boolean(errors.agreed)}
+                  aria-describedby={errors.agreed ? 'agreed-error' : undefined}
+                />
+                <span>
+                  I agree to the event rules and let Vulcan Club use these details to run this event.{' '}
+                  <a href="#privacy-note">Read the privacy note.</a>
+                </span>
+              </label>
+              <FieldError message={errors.agreed} id="agreed-error" />
+              <p className="event-privacy-note" id="privacy-note">{EVENT_CONTENT.privacyNote}</p>
+              <Turnstile onToken={setTurnstileToken} onError={setNotice} />
+            </div>
+          )}
+
           {notice && <p className="event-form-notice" role="status">{notice}</p>}
-          <div className="event-form-actions">{step > 0 && <button type="button" className="event-secondary-button" onClick={back} disabled={isSubmitting}>Back</button>}{step < 3 ? <button type="button" className="event-register-button" onClick={next}>Continue <span aria-hidden="true">↘</span></button> : <button type="submit" className="event-register-button" disabled={isSubmitting}>{isSubmitting ? 'Registering…' : 'Confirm team'} <span aria-hidden="true">↘</span></button>}</div>
+
+          <div className="event-form-actions">
+            {step > 0 && (
+              <button type="button" className="event-secondary-button" onClick={back} disabled={isSubmitting}>
+                Back
+              </button>
+            )}
+            {step < 3 ? (
+              <button type="button" className="event-register-button" onClick={next}>
+                Continue <span aria-hidden="true">↘</span>
+              </button>
+            ) : (
+              <button type="submit" className="event-register-button" disabled={isSubmitting}>
+                {isSubmitting ? 'Registering…' : 'Confirm team'} <span aria-hidden="true">↘</span>
+              </button>
+            )}
+          </div>
         </form>
       </div>
     </section>
@@ -210,5 +372,10 @@ export default function RegistrationForm({ onRegistered }) {
 }
 
 function RevealHeading() {
-  return <div className="event-section__heading"><h2 id="registration-title">Bring your whole coven.</h2><p>Register your three-person team here.</p></div>;
+  return (
+    <div className="event-section__heading">
+      <h2 id="registration-title">Bring your whole coven.</h2>
+      <p>Register your three-person team here.</p>
+    </div>
+  );
 }
