@@ -6,19 +6,15 @@ export default function CustomCursor() {
   const [hovered, setHovered] = useState(false);
   const [isFinePointer, setIsFinePointer] = useState(false);
 
-  const mouseX = useMotionValue(-100);
-  const mouseY = useMotionValue(-100);
+  const mouseX = useMotionValue(-500);
+  const mouseY = useMotionValue(-500);
 
-  // Emil Kowalski spring configuration for natural physical momentum
-  const springX = useSpring(mouseX, { stiffness: 450, damping: 28 });
-  const springY = useSpring(mouseY, { stiffness: 450, damping: 28 });
-
-  // Trailing ember spring
-  const trailX = useSpring(mouseX, { stiffness: 220, damping: 22 });
-  const trailY = useSpring(mouseY, { stiffness: 220, damping: 22 });
+  // Smooth physical spring tracking (Emil Kowalski design specs)
+  const springX = useSpring(mouseX, { stiffness: 600, damping: 36 });
+  const springY = useSpring(mouseY, { stiffness: 600, damping: 36 });
 
   useEffect(() => {
-    // Only activate cursor on fine pointer devices (desktops/laptops)
+    // Only desktop / fine pointer devices
     const media = window.matchMedia('(hover: hover) and (pointer: fine)');
     setIsFinePointer(media.matches);
 
@@ -33,6 +29,7 @@ export default function CustomCursor() {
       if (!visible) setVisible(true);
     };
 
+    const onMouseLeave = () => setVisible(false);
     const onMouseEnter = (e) => {
       if (e.clientX && e.clientY) {
         mouseX.set(e.clientX);
@@ -40,9 +37,7 @@ export default function CustomCursor() {
         setVisible(true);
       }
     };
-    const onMouseLeave = () => setVisible(false);
 
-    // Track interactive hovers
     const handleMouseOver = (e) => {
       const target = e.target;
       if (
@@ -59,63 +54,41 @@ export default function CustomCursor() {
     };
 
     window.addEventListener('mousemove', onMouseMove, { passive: true });
-    document.addEventListener('mouseenter', onMouseEnter);
     document.addEventListener('mouseleave', onMouseLeave);
+    document.addEventListener('mouseenter', onMouseEnter);
     document.addEventListener('mouseover', handleMouseOver);
+    window.addEventListener('blur', onMouseLeave);
 
     return () => {
       media.removeEventListener('change', updateMedia);
       window.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseenter', onMouseEnter);
       document.removeEventListener('mouseleave', onMouseLeave);
+      document.removeEventListener('mouseenter', onMouseEnter);
       document.removeEventListener('mouseover', handleMouseOver);
+      window.removeEventListener('blur', onMouseLeave);
     };
   }, [mouseX, mouseY, visible]);
 
   if (!isFinePointer || !visible) return null;
 
   return (
-    <>
-      {/* Primary Dot Cursor */}
+    <motion.div
+      className="fixed top-0 left-0 pointer-events-none z-[9999]"
+      style={{
+        transform: 'translate(-50%, -50%)',
+        x: springX,
+        y: springY,
+      }}
+      aria-hidden="true"
+    >
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference"
-        style={{
-          transform: 'translate(-50%, -50%)',
-          x: springX,
-          y: springY,
+        animate={{
+          scale: hovered ? 1.75 : 1,
+          opacity: hovered ? 0.95 : 0.8,
         }}
-        aria-hidden="true"
-      >
-        <motion.div
-          animate={{
-            scale: hovered ? 2.2 : 1,
-            backgroundColor: hovered ? '#ffffff' : '#ffffff',
-          }}
-          transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}
-          className="w-2.5 h-2.5 rounded-full"
-        />
-      </motion.div>
-
-      {/* Trailing Gold Pixel Spark Motif */}
-      <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[9998]"
-        style={{
-          transform: 'translate(-50%, -50%)',
-          x: trailX,
-          y: trailY,
-        }}
-        aria-hidden="true"
-      >
-        <motion.div
-          animate={{
-            scale: hovered ? 1.5 : 1,
-            rotate: hovered ? 45 : 0,
-            opacity: hovered ? 0.9 : 0.6,
-          }}
-          transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-          className="w-1.5 h-1.5 bg-vulcan-gold shadow-[0_0_8px_rgba(245,166,35,0.7)]"
-        />
-      </motion.div>
-    </>
+        transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}
+        className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.4)]"
+      />
+    </motion.div>
   );
 }
