@@ -9,8 +9,8 @@
 export const CLUB_INFO = {
   name: "vulcan club",
   shortName: "vulcan",
-  tagline: "[CLUB TAGLINE]",
-  college: "[COLLEGE NAME]",
+  tagline: "Forging software from first principles.",
+  college: "Mirai School of Technology",
   about: {
     line1: "Vulcan is a tech club.",
     line2: "We organise hackathons, open source contributions, guidance, competitive programming and project building.",
@@ -76,9 +76,9 @@ export const EVENTS = [
   {
     id: "event-1",
     date: "[EVENT DATE]",
-    title: "[EVENT NAME]",
+    title: "Hack-O-Lantern",
     description: "Internal sprint session and competitive technical challenge.",
-    link: null
+    link: "/halloween-hack"
   },
   {
     id: "event-2",

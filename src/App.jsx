@@ -7,6 +7,7 @@ import CustomCursor from './components/ui/CustomCursor';
 import IntroLoader from './components/sections/IntroLoader';
 import Hero from './components/sections/Hero';
 import About from './components/sections/About';
+import HackOLanternTeaser from './components/sections/HackOLanternTeaser';
 import WhatWeDo from './components/sections/WhatWeDo';
 import Events from './components/sections/Events';
 import Projects from './components/sections/Projects';
@@ -68,7 +69,10 @@ export default function App() {
         {/* 3. About */}
         <About prefersReducedMotion={prefersReducedMotion} />
 
-        {/* 4. What we do */}
+        {/* 4. Hack-O-Lantern Teaser Section */}
+        <HackOLanternTeaser prefersReducedMotion={prefersReducedMotion} />
+
+        {/* 5. What we do */}
         <WhatWeDo prefersReducedMotion={prefersReducedMotion} />
 
         {/* 5. Events */}

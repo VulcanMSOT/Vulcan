@@ -1156,16 +1156,16 @@
   width: 100%;
 }
 
-.event-prizes__hero-col {
+.event-prizes__layout--single {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  width: 100%;
 }
 
-.event-prizes__secondary-col {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(12px, 1.4vw, 16px);
-  justify-content: space-between;
+.event-prizes__hero-card--single {
+  max-width: 820px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 /* HERO PRIZE CARD */

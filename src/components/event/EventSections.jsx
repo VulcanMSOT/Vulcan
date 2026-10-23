@@ -400,58 +400,19 @@ export function EventRules() {
 }
 
 /**
- * REWARDS CONFIGURATION (Data-Driven Source of Truth)
- * Edit this array to update prize values, titles, and descriptions.
- * Placeholders are marked with isTba: true.
+ * REWARDS CONFIGURATION (Single First Prize Only)
+ * Reads first prize directly from EVENT_CONTENT.firstPrize / EVENT_CONTENT.prizes.
  */
 export const REWARDS_CONFIG = {
-  eyebrow: 'Rewards',
+  eyebrow: 'Reward',
   heading: 'What is at stake.',
   hero: {
-    badge: '1ST PLACE · GRAND CHAMPION',
-    label: 'PRIZE POOL',
-    amount: '₹10,000',
+    badge: '1ST PLACE',
+    label: 'FIRST PRIZE',
+    amount: EVENT_CONTENT.firstPrize || EVENT_CONTENT.prizes || '[FIRST PRIZE]',
     subtext: 'for 1st place',
-    description: 'Awarded to the highest-scoring hackathon team across technical craft, challenge execution, and overnight demo polish.',
-    perks: [
-      '₹10,000 Cash Pool for 1st place',
-      'Hack-O-Lantern Champion Trophy',
-      'Official Winner Certificates & Title',
-      'Featured team spotlight on Vulcan MSOT',
-    ],
+    description: 'The single prize awarded to the winning team of Hack-O-Lantern.',
   },
-  secondary: [
-    {
-      id: 'second-place',
-      badge: '2ND PLACE',
-      title: 'Runner Up',
-      value: '₹TBA', // [PLACEHOLDER] Replace with confirmed cash/reward value
-      isTba: true,
-      description: 'Awarded to the first runner-up team delivering standout architecture, reliability, and code execution.',
-      perk: 'Runner-up trophy + Verified certificates',
-      icon: 'medal',
-    },
-    {
-      id: 'third-place',
-      badge: '3RD PLACE',
-      title: 'Second Runner Up',
-      value: '₹TBA', // [PLACEHOLDER] Replace with confirmed cash/reward value
-      isTba: true,
-      description: 'Awarded for exceptional product creativity, original design thinking, and overnight persistence.',
-      perk: 'Podium certificate + Special mentions',
-      icon: 'award',
-    },
-    {
-      id: 'all-participants',
-      badge: 'EVERY HACKER',
-      title: 'All Participants',
-      value: 'Swag & Certificates', // [PLACEHOLDER] Replace with confirmed perks
-      isTba: false,
-      description: 'Every team that builds through the 12 hours earns official credentials and exclusive midnight event drops.',
-      perk: 'Official participation pass + Vulcan sticker pack',
-      icon: 'sparkles',
-    },
-  ],
 };
 
 function RewardIcon({ name, className = '' }) {
@@ -467,48 +428,12 @@ function RewardIcon({ name, className = '' }) {
       </svg>
     );
   }
-  if (name === 'medal') {
-    return (
-      <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="m15.5 8.5-3.5 3.5-3.5-3.5" />
-        <path d="M7 21h10" />
-        <circle cx="12" cy="8" r="6" />
-        <path d="M8.21 13.89 7 21l5-2 5 2-1.21-7.11" />
-      </svg>
-    );
-  }
-  if (name === 'award') {
-    return (
-      <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <circle cx="12" cy="8" r="6" />
-        <path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" />
-      </svg>
-    );
-  }
-  if (name === 'sparkles' || name === 'gift') {
-    return (
-      <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-        <path d="M5 3v4" />
-        <path d="M19 17v4" />
-        <path d="M3 5h4" />
-        <path d="M17 19h4" />
-      </svg>
-    );
-  }
-  if (name === 'check') {
-    return (
-      <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-    );
-  }
   return null;
 }
 
 export function PrizeHero({ hero }) {
   return (
-    <div className="event-prizes__hero-card">
+    <div className="event-prizes__hero-card event-prizes__hero-card--single">
       <div className="event-prizes__hero-ambient" aria-hidden="true" />
       <div className="event-prizes__hero-glow" aria-hidden="true" />
 
@@ -528,56 +453,12 @@ export function PrizeHero({ hero }) {
 
         <p className="event-prizes__hero-desc">{hero.description}</p>
       </div>
-
-      {hero.perks && hero.perks.length > 0 && (
-        <ul className="event-prizes__hero-perks" aria-label="Grand prize inclusions">
-          {hero.perks.map((perk, i) => (
-            <li key={i}>
-              <span className="event-prizes__hero-perk-icon">
-                <RewardIcon name="check" />
-              </span>
-              <span>{perk}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-export function RewardCard({ item }) {
-  return (
-    <div className="event-prizes__secondary-card">
-      <div className="event-prizes__secondary-head">
-        <div className="event-prizes__secondary-icon" aria-hidden="true">
-          <RewardIcon name={item.icon} />
-        </div>
-        <div className="event-prizes__secondary-meta">
-          <span className="event-prizes__secondary-badge">{item.badge}</span>
-          <h3 className="event-prizes__secondary-title">{item.title}</h3>
-        </div>
-        <div className="event-prizes__secondary-value-box">
-          <span className={`event-prizes__secondary-value ${item.isTba ? 'is-tba' : ''}`}>
-            {item.value}
-          </span>
-          {item.isTba && (
-            <span className="event-prizes__secondary-tba-tag" aria-label="To be announced">TBA</span>
-          )}
-        </div>
-      </div>
-      <p className="event-prizes__secondary-desc">{item.description}</p>
-      {item.perk && (
-        <div className="event-prizes__secondary-perk">
-          <span className="event-prizes__secondary-perk-bullet" aria-hidden="true">✦</span>
-          <span>{item.perk}</span>
-        </div>
-      )}
     </div>
   );
 }
 
 export function EventPrizes() {
-  const { eyebrow, heading, hero, secondary } = REWARDS_CONFIG;
+  const { eyebrow, heading, hero } = REWARDS_CONFIG;
   return (
     <section className="event-section event-prizes" id="prizes" aria-labelledby="prizes-title">
       <div className="event-section-inner">
@@ -586,15 +467,8 @@ export function EventPrizes() {
           <h2 id="prizes-title">{heading}</h2>
         </Reveal>
 
-        <Reveal className="event-prizes__layout" delay={120}>
-          <div className="event-prizes__hero-col">
-            <PrizeHero hero={hero} />
-          </div>
-          <div className="event-prizes__secondary-col">
-            {secondary.map((item) => (
-              <RewardCard key={item.id} item={item} />
-            ))}
-          </div>
+        <Reveal className="event-prizes__layout event-prizes__layout--single" delay={120}>
+          <PrizeHero hero={hero} />
         </Reveal>
       </div>
     </section>

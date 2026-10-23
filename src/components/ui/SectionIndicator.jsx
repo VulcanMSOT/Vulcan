@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 const SECTIONS = [
   { id: 'hero', label: 'Intro' },
   { id: 'about', label: 'About' },
+  { id: 'hack-o-lantern', label: 'Hackathon' },
   { id: 'what-we-do', label: 'Pillars' },
   { id: 'events', label: 'Events' },
   { id: 'projects', label: 'Projects' },
@@ -60,6 +61,8 @@ export default function SectionIndicator({ prefersReducedMotion }) {
               ? 'bg-vulcan-gold/[0.035] scale-100'
               : activeSection === 'about'
               ? 'bg-amber-500/[0.045] scale-105'
+              : activeSection === 'hack-o-lantern'
+              ? 'bg-orange-600/[0.09] scale-110'
               : activeSection === 'what-we-do'
               ? 'bg-vulcan-gold/[0.03] scale-95'
               : activeSection === 'events'

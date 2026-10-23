@@ -18,21 +18,23 @@ export const EVENT_CONTENT = {
   teamLabel: 'Teams of 3',
   entryLabel: '₹300 per team',
   registrationFee: 300,
-  venue: 'Mirai Floor, Mirai School of Technology',
-  venueAddress: 'Survey No, 137, South, Doddakkammanahalli, Phase 2, Begur Hobli, Bengaluru, Karnataka 560083',
+  venue: 'Mirai Floor, Mirai School of Technology, Bengaluru',
+  venueAddress: 'Bengaluru, Karnataka',
   collegeName: 'Mirai School of Technology',
+  coPresenter: 'Mirai School of Technology',
+  firstPrize: '₹10,000',
   prizes: '₹10,000 for 1st place',
   tagline: 'Build through the night. Ship before sunrise.',
   subtagline: 'Code / Create / Celebrate',
-  eligibility: 'Open to all student and creator teams of exactly 3 members.',
+  eligibility: 'Teams of exactly 3 members.',
   themes: '',
   themesReveal: 'The themes will be revealed at the start of the event.',
   rules: 'Bring your laptop, charger, student ID, and your sharpest ideas. Teams must consist of exactly 3 members. All code must be written during the 12-hour build window.',
   schedule: '[SCHEDULE]',
 
-  // Experience & Quests Content
-  experienceHeading: 'More than a hackathon.',
-  experienceLead: 'Along with the build, there are quests and surprises through the night.',
+  // Experience & Quests Content (sealed details)
+  experienceHeading: 'A Halloween hackathon.',
+  experienceLead: 'Teams of 3. Quests and surprises along the way.',
   questRules: '[QUEST RULES]',
   howQuestsWork: '[HOW QUESTS WORK]',
   questRewards: '[QUEST REWARDS]',
@@ -45,5 +47,5 @@ export const EVENT_CONTENT = {
   privacyNote: 'Vulcan Club and Mirai School of Technology respect your privacy. Team details are used exclusively for hackathon credentials, ticketing, and event communications.',
   aboutLead: 'Vulcan Club and Mirai School of Technology present Hack-O-Lantern, an overnight Halloween hackathon.',
   about:
-    'Build through the night. Ship before sunrise. Teams of exactly three will build for 12 hours from 7:00 PM on 31 October to 7:00 AM on 1 November. The themes will be revealed at the start of the event. Registration is ₹300 per team.',
+    'Teams of exactly 3 will build for 12 hours from 7:00 PM on 31 October to 7:00 AM on 1 November. Quests and surprises along the way. Themes will be revealed at the start. Registration is ₹300 per team.',
 };
