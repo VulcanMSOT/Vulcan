@@ -10,14 +10,35 @@ function TicketBat({ className }) {
 
 export default function TicketSuccess({ ticket, onStartOver }) {
   const ticketRef = useRef(null);
+  const stageRef = useRef(null);
   const [qrSrc, setQrSrc] = useState('');
   const [downloading, setDownloading] = useState('');
   const [downloadError, setDownloadError] = useState('');
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0, mx: 50, my: 50 });
   const verifyUrl = ticket.verifyUrl || `${window.location.origin}/verify/${ticket.ticketId}`;
 
   useEffect(() => {
     QRCode.toDataURL(verifyUrl, { errorCorrectionLevel: 'H', margin: 3, width: 360, color: { dark: '#090b0d', light: '#f7f4eb' } }).then(setQrSrc);
   }, [verifyUrl]);
+
+  const handlePointerMove = (e) => {
+    if (!stageRef.current || window.matchMedia('(pointer: coarse)').matches) return;
+    const rect = stageRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const normX = (x / rect.width - 0.5) * 2;
+    const normY = (y / rect.height - 0.5) * 2;
+    setTilt({
+      rx: -normY * 8,
+      ry: normX * 8,
+      mx: Math.round((x / rect.width) * 100),
+      my: Math.round((y / rect.height) * 100),
+    });
+  };
+
+  const handlePointerLeave = () => {
+    setTilt({ rx: 0, ry: 0, mx: 50, my: 50 });
+  };
 
   const download = async (format) => {
     setDownloading(format);
@@ -39,14 +60,81 @@ export default function TicketSuccess({ ticket, onStartOver }) {
     } finally { setDownloading(''); }
   };
 
-  return <section className="event-ticket-success" aria-labelledby="ticket-success-title">
-    <div className="event-ticket-success__intro"><p className="event-kicker">Registration confirmed</p><h2 id="ticket-success-title">Keep this close.<br />It gets you in.</h2><p>Save your ticket now. Show its QR code at the entrance.</p></div>
-    <div className="event-ticket-stage"><article className="event-ticket" ref={ticketRef} aria-label={`Entry ticket ${ticket.ticketId}`}>
-      <div className="event-ticket__scene" aria-hidden="true"><span className="event-ticket__moon" /><TicketBat className="event-ticket__bat event-ticket__bat--a" /><TicketBat className="event-ticket__bat event-ticket__bat--b" /><span className="event-ticket__web" /></div>
-      <div className="event-ticket__main"><div className="event-ticket__brand"><img src="/assets/vulcan-logo.png" alt="" /><span>vulcan club</span></div><p className="event-ticket__label">{EVENT_CONTENT.label}</p><h3>{EVENT_CONTENT.name}</h3><dl className="event-ticket__facts"><div><dt>Date & time</dt><dd>{EVENT_CONTENT.dateLabel}</dd></div><div><dt>Duration</dt><dd>{EVENT_CONTENT.durationLabel}</dd></div><div><dt>Venue</dt><dd>{EVENT_CONTENT.venue}</dd></div></dl><div className="event-ticket__team"><span>Team</span><strong>{ticket.teamName}</strong><p>{ticket.members.map((member) => `${member.position === 1 ? 'Leader: ' : ''}${member.fullName}`).join(' · ')}</p></div></div>
-      <div className="event-ticket__stub"><span className="event-ticket__admit">Admit team of 3</span>{qrSrc ? <img src={qrSrc} alt={`QR code for ticket ${ticket.ticketId}`} /> : <div className="event-ticket__qr-loading">Preparing QR</div>}<strong>{ticket.ticketId}</strong><small>Scan at entry</small></div>
-    </article></div>
-    <div className="event-ticket-success__actions"><button className="event-register-button" onClick={() => download('png')} disabled={Boolean(downloading) || !qrSrc}>{downloading === 'png' ? 'Making PNG…' : 'Download PNG'}</button><button className="event-secondary-button" onClick={() => download('pdf')} disabled={Boolean(downloading) || !qrSrc}>{downloading === 'pdf' ? 'Making PDF…' : 'Download PDF'}</button><button className="event-text-button" onClick={onStartOver}>Register another team</button></div>
-    {downloadError && <p className="event-form-notice" role="alert">{downloadError}</p>}
-  </section>;
+  return (
+    <section className="event-ticket-success" aria-labelledby="ticket-success-title">
+      <div className="event-ticket-success__intro">
+        <p className="event-kicker">Registration confirmed</p>
+        <h2 id="ticket-success-title">Keep this close.<br />It gets you in.</h2>
+        <p>Save your ticket now. Show its QR code at the entrance.</p>
+      </div>
+
+      <div
+        className="event-ticket-stage"
+        ref={stageRef}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+      >
+        {/* Short ember burst on 3D reveal (< 1.5s) */}
+        <div className="event-ticket-burst" aria-hidden="true">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <span key={i} className={`event-ticket-burst__ember event-ticket-burst__ember--${i + 1}`} />
+          ))}
+        </div>
+
+        <article
+          className="event-ticket"
+          ref={ticketRef}
+          aria-label={`Entry ticket ${ticket.ticketId}`}
+          style={{
+            transform: `perspective(1200px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+            '--mouse-x': `${tilt.mx}%`,
+            '--mouse-y': `${tilt.my}%`,
+          }}
+        >
+          <div className="event-ticket__glow-highlight" aria-hidden="true" />
+          <div className="event-ticket__scene" aria-hidden="true">
+            <span className="event-ticket__moon" />
+            <TicketBat className="event-ticket__bat event-ticket__bat--a" />
+            <TicketBat className="event-ticket__bat event-ticket__bat--b" />
+            <span className="event-ticket__web" />
+          </div>
+          <div className="event-ticket__main">
+            <div className="event-ticket__brand">
+              <img src="/assets/vulcan-logo.png" alt="" />
+              <span>vulcan club</span>
+            </div>
+            <p className="event-ticket__label">{EVENT_CONTENT.label}</p>
+            <h3>{EVENT_CONTENT.name}</h3>
+            <dl className="event-ticket__facts">
+              <div><dt>Date & time</dt><dd>{EVENT_CONTENT.dateLabel}</dd></div>
+              <div><dt>Duration</dt><dd>{EVENT_CONTENT.durationLabel}</dd></div>
+              <div><dt>Venue</dt><dd>{EVENT_CONTENT.venue}</dd></div>
+            </dl>
+            <div className="event-ticket__team">
+              <span>Team</span>
+              <strong>{ticket.teamName}</strong>
+              <p>{ticket.members.map((member) => `${member.position === 1 ? 'Leader: ' : ''}${member.fullName}`).join(' · ')}</p>
+            </div>
+          </div>
+          <div className="event-ticket__stub">
+            <span className="event-ticket__admit">Admit team of 3</span>
+            {qrSrc ? <img src={qrSrc} alt={`QR code for ticket ${ticket.ticketId}`} /> : <div className="event-ticket__qr-loading">Preparing QR</div>}
+            <strong>{ticket.ticketId}</strong>
+            <small>Scan at entry</small>
+          </div>
+        </article>
+      </div>
+
+      <div className="event-ticket-success__actions">
+        <button className="event-register-button" onClick={() => download('png')} disabled={Boolean(downloading) || !qrSrc}>
+          {downloading === 'png' ? 'Making PNG…' : 'Download PNG'}
+        </button>
+        <button className="event-secondary-button" onClick={() => download('pdf')} disabled={Boolean(downloading) || !qrSrc}>
+          {downloading === 'pdf' ? 'Making PDF…' : 'Download PDF'}
+        </button>
+        <button className="event-text-button" onClick={onStartOver}>Register another team</button>
+      </div>
+      {downloadError && <p className="event-form-notice" role="alert">{downloadError}</p>}
+    </section>
+  );
 }

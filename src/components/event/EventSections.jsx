@@ -23,8 +23,40 @@ function isEmpty(value) {
   return !value || !value.trim();
 }
 
-function Reveal({ children, className = '' }) {
-  return <div className={`event-reveal ${className}`}>{children}</div>;
+function Reveal({ children, className = '', delay = 0 }) {
+  const ref = useRef(null);
+  const [isRevealed, setIsRevealed] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setIsRevealed(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsRevealed(true);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`event-reveal ${isRevealed ? 'is-revealed' : ''} ${className}`}
+      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+    >
+      {children}
+    </div>
+  );
 }
 
 export function EventAbout() {
