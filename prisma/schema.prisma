@@ -6,17 +6,33 @@ datasource db {
   provider = "postgresql"
 }
 
+enum PaymentStatus {
+  PENDING_PAYMENT
+  PENDING_REVIEW
+  PAID
+  REJECTED
+  EXPIRED
+}
+
 model Registration {
   id                 String   @id @default(cuid())
-  ticketId           String   @unique @db.VarChar(32)
+  ticketId           String?  @unique @db.VarChar(32)
   teamName           String   @db.VarChar(40)
   normalizedTeamName String   @unique @db.VarChar(40)
   createdAt          DateTime @default(now())
+  paymentStatus      PaymentStatus @default(PENDING_PAYMENT)
+  paymentReference   String?  @unique @db.VarChar(100)
+  paymentTokenHash   String?  @unique @db.VarChar(64)
+  paymentSubmittedAt DateTime?
+  paymentApprovedAt  DateTime?
+  paymentApprovedBy  String?  @db.VarChar(100)
+  paymentNote        String?  @db.VarChar(500)
   checkedInAt        DateTime?
   members            TeamMember[]
 
   @@index([createdAt])
   @@index([checkedInAt])
+  @@index([paymentStatus, createdAt])
 }
 
 model TeamMember {

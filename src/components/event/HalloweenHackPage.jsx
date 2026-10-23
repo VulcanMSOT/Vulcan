@@ -3,13 +3,13 @@ import { useLenis } from '../../hooks/useLenis';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import HalloweenHero from './HalloweenHero';
 import RegistrationForm from './RegistrationForm';
-import TicketSuccess from './TicketSuccess';
+import PaymentPending from './PaymentPending';
 import { EventAbout, EventFaq, EventFooter, EventPrizesSponsors, EventRules, EventTimeline, EventTracks } from './EventSections';
 import './halloween.css';
 
 export default function HalloweenHackPage() {
   const reducedMotion = usePrefersReducedMotion();
-  const [ticket, setTicket] = useState(null);
+  const [payment, setPayment] = useState(null);
   useLenis();
 
   useEffect(() => {
@@ -24,14 +24,14 @@ export default function HalloweenHackPage() {
 
   return (
     <main className="event-page">
-      {ticket ? <TicketSuccess ticket={ticket} onStartOver={() => { setTicket(null); window.location.hash = 'registration'; }} /> : <>
+      {payment ? <PaymentPending payment={payment} onStartOver={() => { setPayment(null); window.location.hash = 'registration'; }} /> : <>
         <HalloweenHero reducedMotion={reducedMotion} />
         <EventAbout />
         <EventTimeline />
         <EventTracks />
         <EventRules />
         <EventPrizesSponsors />
-        <RegistrationForm onRegistered={setTicket} />
+        <RegistrationForm onRegistered={setPayment} />
         <EventFaq />
         <EventFooter />
       </>}
