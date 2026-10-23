@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown, ArrowUpRight } from 'lucide-react';
 import HeroCanvas from '../3d/HeroCanvas';
 import { CLUB_INFO } from '../../content';
 
@@ -47,11 +47,20 @@ export default function Hero({ prefersReducedMotion, introSettled = true }) {
           </span>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1 rounded-full border border-vulcan-border/70 bg-vulcan-card/60 backdrop-blur-md">
-          <span className="w-1.5 h-1.5 rounded-full bg-vulcan-gold animate-pulse" />
-          <span className="font-mono text-xs text-vulcan-textMuted tracking-tight">
-            closed intake
-          </span>
+        <div className="flex items-center gap-3">
+          <a
+            href="/halloween-hack"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-vulcan-gold text-vulcan-bg text-xs font-semibold transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-vulcan-gold"
+          >
+            Hack-O-Lantern
+            <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
+          </a>
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full border border-vulcan-border/70 bg-vulcan-card/60 backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-vulcan-gold animate-pulse" />
+            <span className="font-mono text-xs text-vulcan-textMuted tracking-tight">
+              closed intake
+            </span>
+          </div>
         </div>
       </motion.header>
 
