@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { EVENT_CONTENT } from '../../eventContent';
+import HalloweenHeroScene3D from './HalloweenHeroScene3D';
 
 const START = new Date(EVENT_CONTENT.startIso).getTime();
 const END = new Date(EVENT_CONTENT.endIso).getTime();
@@ -54,29 +55,10 @@ function Countdown() {
   );
 }
 
-function Bats() {
-  return (
-    <div className="event-bats" aria-hidden="true">
-      <svg className="event-bat event-bat--one" viewBox="0 0 72 30"><path d="M1 14c10-9 18-7 26 2 2-9 7-14 9-14s7 5 9 14c8-9 16-11 26-2-9 1-14 5-18 13-3-6-8-8-17-8s-14 2-17 8C15 19 10 15 1 14Z" /></svg>
-      <svg className="event-bat event-bat--two" viewBox="0 0 72 30"><path d="M1 14c10-9 18-7 26 2 2-9 7-14 9-14s7 5 9 14c8-9 16-11 26-2-9 1-14 5-18 13-3-6-8-8-17-8s-14 2-17 8C15 19 10 15 1 14Z" /></svg>
-      <svg className="event-bat event-bat--three" viewBox="0 0 72 30"><path d="M1 14c10-9 18-7 26 2 2-9 7-14 9-14s7 5 9 14c8-9 16-11 26-2-9 1-14 5-18 13-3-6-8-8-17-8s-14 2-17 8C15 19 10 15 1 14Z" /></svg>
-    </div>
-  );
-}
-
-const embers = Array.from({ length: 18 }, (_, index) => index);
-
 export default function HalloweenHero({ reducedMotion }) {
   return (
-    <section className="event-hero" aria-labelledby="event-title">
-      <div className="event-hero__spotlight" aria-hidden="true" />
-      <div className="event-hero__fog event-hero__fog--far" aria-hidden="true" />
-      <div className="event-hero__fog event-hero__fog--near" aria-hidden="true" />
-      <div className="event-hero__moon" aria-hidden="true"><span /></div>
-      <Bats />
-      <div className="event-embers" aria-hidden="true">
-        {embers.map((ember) => <i key={ember} style={{ '--ember': ember }} />)}
-      </div>
+    <section className="event-hero" id="hero" aria-labelledby="event-title">
+      <HalloweenHeroScene3D reducedMotion={reducedMotion} />
       <div className="event-cobweb event-cobweb--left" aria-hidden="true" />
       <div className="event-cobweb event-cobweb--right" aria-hidden="true" />
 
@@ -94,7 +76,16 @@ export default function HalloweenHero({ reducedMotion }) {
           <h1 id="event-title">
             <span>{EVENT_CONTENT.name}</span>
           </h1>
-          <p className="event-hero__intro">Hosted by {EVENT_CONTENT.host} with {EVENT_CONTENT.collegeName}. An overnight hackathon for teams of exactly three.</p>
+          <p className="event-hero__subtitle">{EVENT_CONTENT.heroSubtitle}</p>
+          <div className="event-hero__tags" aria-label="Event highlights">
+            {EVENT_CONTENT.heroTags.map((tag) => (
+              <span key={tag} className="event-hero__tag">
+                <span className="event-hero__tag-dot" aria-hidden="true" />
+                {tag}
+              </span>
+            ))}
+          </div>
+          <p className="event-hero__intro">Hosted by {EVENT_CONTENT.host} with {EVENT_CONTENT.collegeName}.</p>
         </div>
 
         <div className="event-hero__bottom">

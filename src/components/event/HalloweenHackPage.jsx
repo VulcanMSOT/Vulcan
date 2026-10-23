@@ -5,7 +5,7 @@ import HalloweenHero from './HalloweenHero';
 import RegistrationForm from './RegistrationForm';
 import PaymentPending from './PaymentPending';
 import TicketSuccess from './TicketSuccess';
-import { EventAbout, EventFaq, EventFooter, EventPrizes, EventRules, EventTimeline, EventTracks } from './EventSections';
+import { EventAbout, EventExperience, EventFaq, EventFooter, EventPrizes, EventRules, EventTimeline, EventTracks } from './EventSections';
 import './halloween.css';
 
 export default function HalloweenHackPage() {
@@ -30,6 +30,7 @@ export default function HalloweenHackPage() {
       {flow?.type === 'ticket' ? <TicketSuccess ticket={flow.ticket} onStartOver={() => { window.localStorage.removeItem('hack-o-lantern-payment'); setFlow(null); window.location.hash = 'registration'; }} /> : flow?.type === 'payment' ? <PaymentPending payment={flow.payment} onTicketIssued={(ticket) => { window.localStorage.removeItem('hack-o-lantern-payment'); setFlow({ type: 'ticket', ticket }); }} onStartOver={() => { window.localStorage.removeItem('hack-o-lantern-payment'); setFlow(null); window.location.hash = 'registration'; }} /> : <>
         <HalloweenHero reducedMotion={reducedMotion} />
         <EventAbout />
+        <EventExperience />
         <EventTimeline />
         <EventTracks />
         <EventRules />
