@@ -5,14 +5,14 @@ import { CLUB_INFO } from '../../content';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Exact geometric SVG paths derived from the official 3D Vulcan emblem
+// Exact geometric centreline SVG paths derived from the official Vulcan emblem (Thinner ~50% stroke weight)
 const LEFT_BRACE_PATH =
-  'M 40.0,0.0 L 100.0,0.0 L 100.0,40.0 L 75.0,40.0 L 75.0,113.0 L 35.0,145.0 L 75.0,177.0 L 75.0,250.0 L 100.0,250.0 L 100.0,290.0 L 40.0,290.0 L 40.0,230.0 L 20.0,230.0 L 0.0,145.0 L 20.0,60.0 L 40.0,60.0 Z';
+  'M 100 9 L 50 9 L 50 55 L 40 55 L 40 95 L 11 145 L 40 195 L 40 235 L 50 235 L 50 281 L 100 281';
 
 const RIGHT_BRACE_PATH =
-  'M 60.0,0.0 L 0.0,0.0 L 0.0,40.0 L 25.0,40.0 L 25.0,113.0 L 65.0,145.0 L 25.0,177.0 L 25.0,250.0 L 0.0,250.0 L 0.0,290.0 L 60.0,290.0 L 60.0,230.0 L 80.0,230.0 L 100.0,145.0 L 80.0,60.0 L 60.0,60.0 Z';
+  'M 0 9 L 50 9 L 50 55 L 60 55 L 60 95 L 89 145 L 60 195 L 60 235 L 50 235 L 50 281 L 0 281';
 
-// Small floating gold pixels motif
+// Small floating gold pixels motif (positioned around braces, never over text)
 const FLOATING_PIXELS = [
   { id: 1, top: '15%', left: '4%', size: 6, driftX: -18, driftY: -35 },
   { id: 2, top: '48%', left: '2%', size: 5, driftX: -24, driftY: 20 },
@@ -20,8 +20,8 @@ const FLOATING_PIXELS = [
   { id: 4, top: '18%', right: '4%', size: 5, driftX: 22, driftY: -30 },
   { id: 5, top: '52%', right: '2%', size: 6, driftX: 20, driftY: 25 },
   { id: 6, top: '78%', right: '5%', size: 5, driftX: -14, driftY: 35 },
-  { id: 7, top: '8%', left: '28%', size: 4, driftX: -10, driftY: -20 },
-  { id: 8, bottom: '10%', right: '26%', size: 4, driftX: 12, driftY: 25 },
+  { id: 7, top: '10%', left: '7%', size: 4, driftX: -10, driftY: -20 },
+  { id: 8, bottom: '12%', right: '7%', size: 4, driftX: 12, driftY: 25 },
 ];
 
 export default function About({ prefersReducedMotion }) {
@@ -183,10 +183,17 @@ export default function About({ prefersReducedMotion }) {
         >
           <svg
             viewBox="0 0 100 290"
-            className="w-8 sm:w-12 md:w-16 lg:w-20 h-auto text-zinc-100 transition-colors drop-shadow-[0_0_16px_rgba(255,255,255,0.22)] drop-shadow-[0_0_32px_rgba(245,166,35,0.12)]"
-            fill="currentColor"
+            className="w-8 sm:w-12 md:w-16 lg:w-20 h-auto transition-colors drop-shadow-[0_0_12px_rgba(245,245,242,0.18)] drop-shadow-[0_0_24px_rgba(245,166,35,0.12)]"
           >
-            <path d={LEFT_BRACE_PATH} />
+            <path
+              d={LEFT_BRACE_PATH}
+              fill="none"
+              stroke="#F5F5F2"
+              strokeWidth="18"
+              strokeLinecap="butt"
+              strokeLinejoin="miter"
+              strokeMiterlimit="4"
+            />
           </svg>
         </div>
 
@@ -194,8 +201,19 @@ export default function About({ prefersReducedMotion }) {
         <div className="flex-1 px-4 sm:px-8 md:px-12 text-center max-w-3xl mx-auto space-y-6 md:space-y-8 z-10 overflow-hidden">
           {/* Line 1: Tightly enclosed at start */}
           <div className="relative">
-            <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight font-sans">
-              {CLUB_INFO.about.line1}
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[clamp(1.85rem,2.8vw,2.75rem)] font-bold tracking-tight text-white leading-[1.18] font-sans">
+              {CLUB_INFO.about.line1.includes('compete') ? (
+                <>
+                  <span className="block">
+                    {CLUB_INFO.about.line1.split('compete')[0]}compete
+                  </span>
+                  <span className="block">
+                    {CLUB_INFO.about.line1.split('compete')[1].trim()}
+                  </span>
+                </>
+              ) : (
+                CLUB_INFO.about.line1
+              )}
             </h2>
           </div>
 
@@ -205,7 +223,7 @@ export default function About({ prefersReducedMotion }) {
               ref={line2InnerRef}
               className={prefersReducedMotion ? 'opacity-100' : ''}
             >
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-zinc-300 font-normal leading-relaxed max-w-2xl mx-auto">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-zinc-300 font-normal leading-relaxed max-w-[60ch] mx-auto">
                 {CLUB_INFO.about.line2}
               </p>
             </div>
@@ -235,10 +253,17 @@ export default function About({ prefersReducedMotion }) {
         >
           <svg
             viewBox="0 0 100 290"
-            className="w-8 sm:w-12 md:w-16 lg:w-20 h-auto text-zinc-100 transition-colors drop-shadow-[0_0_16px_rgba(255,255,255,0.22)] drop-shadow-[0_0_32px_rgba(245,166,35,0.12)]"
-            fill="currentColor"
+            className="w-8 sm:w-12 md:w-16 lg:w-20 h-auto transition-colors drop-shadow-[0_0_12px_rgba(245,245,242,0.18)] drop-shadow-[0_0_24px_rgba(245,166,35,0.12)]"
           >
-            <path d={RIGHT_BRACE_PATH} />
+            <path
+              d={RIGHT_BRACE_PATH}
+              fill="none"
+              stroke="#F5F5F2"
+              strokeWidth="18"
+              strokeLinecap="butt"
+              strokeLinejoin="miter"
+              strokeMiterlimit="4"
+            />
           </svg>
         </div>
       </div>

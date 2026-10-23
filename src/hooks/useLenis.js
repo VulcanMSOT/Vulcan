@@ -24,6 +24,11 @@ export function useLenis() {
       touchMultiplier: 1.5,
     });
 
+    if (process.env.NODE_ENV !== 'production') {
+      window.__lenis = lenis;
+      window.__ScrollTrigger = ScrollTrigger;
+    }
+
     // Synchronize Lenis scroll position with GSAP ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update);
 

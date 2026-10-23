@@ -12,8 +12,8 @@ export const CLUB_INFO = {
   tagline: "Forging software from first principles.",
   college: "Mirai School of Technology",
   about: {
-    line1: "Vulcan is a tech club.",
-    line2: "We organise hackathons, open source contributions, guidance, competitive programming and project building.",
+    line1: "We build, compete and contribute.",
+    line2: "Vulcan is a tech club. We run hackathons, work on open source, practise competitive programming and build projects together.",
     line3: "Our members have cracked GSoC and LFX."
   },
   contact: {

@@ -23,13 +23,23 @@ export default function CustomCursor() {
 
     if (!media.matches) return () => media.removeEventListener('change', updateMedia);
 
+    let idleTimeout = null;
+
     const onMouseMove = (e) => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
-      if (!visible) setVisible(true);
+      setVisible(true);
+      clearTimeout(idleTimeout);
+      idleTimeout = setTimeout(() => {
+        setVisible(false);
+      }, 2200);
     };
 
-    const onMouseLeave = () => setVisible(false);
+    const onMouseLeave = () => {
+      clearTimeout(idleTimeout);
+      setVisible(false);
+    };
+
     const onMouseEnter = (e) => {
       if (e.clientX && e.clientY) {
         mouseX.set(e.clientX);
