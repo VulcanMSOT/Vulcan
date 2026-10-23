@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { TEAM } from '../../content';
+import { SectionHeader, DrawLine, CardNumber } from '../ui/Reveal';
 
 function TeamCard({ member, index, prefersReducedMotion }) {
   const cardRef = useRef(null);
@@ -32,7 +33,7 @@ function TeamCard({ member, index, prefersReducedMotion }) {
       className="flex flex-col space-y-4 group"
       style={{ perspective: 1000 }}
     >
-      {/* Photo Frame with Emil Kowalski clip-path mask reveal */}
+      {/* Photo Frame with Emil Kowalski clip-path mask reveal & inner parallax */}
       <div
         className="relative aspect-square w-full rounded-xl overflow-hidden bg-vulcan-card border border-vulcan-border group-hover:border-vulcan-gold/40 transition-all duration-300 shadow-md"
         style={{
@@ -62,7 +63,13 @@ function TeamCard({ member, index, prefersReducedMotion }) {
             /* Architectural Avatar Placeholder */
             <div className="flex flex-col items-center justify-center gap-2 select-none">
               <div className="w-14 h-14 rounded-full border border-vulcan-border flex items-center justify-center font-mono text-xl text-zinc-500 group-hover:border-vulcan-gold/50 group-hover:text-vulcan-gold transition-colors duration-200">
-                <span>&#123;0{index + 1}&#125;</span>
+                <CardNumber
+                  delay={index * 0.08}
+                  prefersReducedMotion={prefersReducedMotion}
+                  className="text-zinc-500 group-hover:text-vulcan-gold"
+                >
+                  0{index + 1}
+                </CardNumber>
               </div>
               <span className="font-mono text-[10px] text-zinc-600 tracking-widest uppercase">
                 team member
@@ -79,7 +86,7 @@ function TeamCard({ member, index, prefersReducedMotion }) {
 
       {/* Name and Role Under Each */}
       <div className="space-y-1">
-        <h3 className="font-semibold text-base text-white tracking-tight group-hover:text-zinc-100">
+        <h3 className="font-semibold text-base text-white tracking-tight group-hover:text-zinc-100 transition-colors">
           {member.name}
         </h3>
         <p className="font-mono text-xs text-vulcan-textMuted tracking-tight">
@@ -94,21 +101,21 @@ export default function Team({ prefersReducedMotion }) {
   return (
     <section
       id="team"
-      className="relative w-full py-28 px-6 bg-vulcan-bg border-t border-vulcan-border/30"
+      className="relative w-full py-28 px-6 bg-vulcan-bg"
     >
+      {/* Top Section Divider */}
+      <div className="max-w-6xl mx-auto mb-20">
+        <DrawLine prefersReducedMotion={prefersReducedMotion} />
+      </div>
+
       <div className="max-w-6xl mx-auto space-y-16">
-        {/* Section Header */}
-        <div className="space-y-2">
-          <span className="font-mono text-xs text-vulcan-gold uppercase tracking-widest font-medium">
-            collective members
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">
-            Team
-          </h2>
-          <p className="text-sm text-vulcan-textMuted max-w-lg">
-            Core members and contributors behind club operations and project development.
-          </p>
-        </div>
+        {/* Section Header with mask reveal */}
+        <SectionHeader
+          label="collective members"
+          title="Team"
+          description="Core members and contributors behind club operations and project development."
+          prefersReducedMotion={prefersReducedMotion}
+        />
 
         {/* Team Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">

@@ -3,6 +3,12 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ExternalLink } from 'lucide-react';
 import { PROJECTS } from '../../content';
+import {
+  SectionHeader,
+  RevealCard,
+  CardNumber,
+  DrawLine,
+} from '../ui/Reveal';
 
 function GithubIcon({ className = "w-4 h-4" }) {
   return (
@@ -48,31 +54,35 @@ export default function Projects({ prefersReducedMotion }) {
     <section
       id="projects"
       ref={containerRef}
-      className="relative w-full py-28 px-6 bg-vulcan-bg border-t border-vulcan-border/30 overflow-hidden"
+      className="relative w-full py-28 px-6 bg-vulcan-bg overflow-hidden"
     >
-      <div className="max-w-6xl mx-auto space-y-16">
-        {/* Section Header */}
-        <div className="space-y-2">
-          <span className="font-mono text-xs text-vulcan-gold uppercase tracking-widest font-medium">
-            systems & tools
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">
-            Projects
-          </h2>
-          <p className="text-sm text-vulcan-textMuted max-w-lg">
-            Engineering architectures, systems software, and utilities engineered by club members.
-          </p>
-        </div>
+      {/* Top Section Divider */}
+      <div className="max-w-6xl mx-auto mb-20">
+        <DrawLine prefersReducedMotion={prefersReducedMotion} />
+      </div>
 
-        {/* Project Cards (Large with Parallax) */}
+      <div className="max-w-6xl mx-auto space-y-16">
+        {/* Section Header with mask reveal */}
+        <SectionHeader
+          label="systems & tools"
+          title="Projects"
+          description="Engineering architectures, systems software, and utilities engineered by club members."
+          prefersReducedMotion={prefersReducedMotion}
+        />
+
+        {/* Project Cards (Large with Parallax & Self-drawing border) */}
         <div className="space-y-10">
           {PROJECTS.map((project, index) => (
-            <div
+            <RevealCard
               key={project.id}
-              ref={(el) => (cardRefs.current[index] = el)}
-              className="group relative rounded-2xl border border-vulcan-border bg-vulcan-card/90 p-8 sm:p-10 transition-all duration-300 hover:border-vulcan-gold/40 hover:bg-vulcan-surface hover:shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
+              index={index}
+              prefersReducedMotion={prefersReducedMotion}
+              className="p-8 sm:p-10 rounded-2xl"
             >
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+              <div
+                ref={(el) => (cardRefs.current[index] = el)}
+                className="flex flex-col lg:flex-row lg:items-center justify-between gap-8"
+              >
                 {/* Project Info */}
                 <div className="space-y-4 max-w-2xl">
                   <div className="flex items-center gap-3">
@@ -80,9 +90,13 @@ export default function Projects({ prefersReducedMotion }) {
                       {project.category}
                     </span>
                     <span className="text-zinc-600 font-mono text-xs">•</span>
-                    <span className="font-mono text-xs text-zinc-500">
+                    <CardNumber
+                      delay={index * 0.08}
+                      prefersReducedMotion={prefersReducedMotion}
+                      className="text-zinc-500 font-mono text-xs"
+                    >
                       SYS-0{index + 1}
-                    </span>
+                    </CardNumber>
                   </div>
 
                   <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-zinc-100 transition-colors">
@@ -98,7 +112,7 @@ export default function Projects({ prefersReducedMotion }) {
                     {project.stack.map((tech) => (
                       <span
                         key={tech}
-                        className="px-2.5 py-1 rounded-md bg-vulcan-bg/80 border border-vulcan-border text-xs font-mono text-zinc-300 group-hover:border-vulcan-borderHover transition-colors"
+                        className="px-2.5 py-1 rounded-md bg-vulcan-bg/80 border border-vulcan-border text-xs font-mono text-zinc-300 group-hover:border-vulcan-gold/30 transition-colors"
                       >
                         {tech}
                       </span>
@@ -112,7 +126,7 @@ export default function Projects({ prefersReducedMotion }) {
                     href={project.github}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-vulcan-border bg-vulcan-bg hover:bg-vulcan-card hover:border-vulcan-gold/50 text-sm font-medium text-white transition-all duration-160 active:scale-[0.97]"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-vulcan-border bg-vulcan-bg hover:bg-vulcan-surface hover:border-vulcan-gold/50 text-sm font-medium text-white transition-all duration-160 active:scale-[0.97]"
                     aria-label={`View ${project.title} on GitHub`}
                   >
                     <GithubIcon className="w-4 h-4 text-zinc-300 group-hover:text-vulcan-gold transition-colors" />
@@ -126,7 +140,7 @@ export default function Projects({ prefersReducedMotion }) {
               <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <span className="block w-2 h-2 bg-vulcan-gold/80 shadow-[0_0_8px_#F5A623]" />
               </div>
-            </div>
+            </RevealCard>
           ))}
         </div>
       </div>

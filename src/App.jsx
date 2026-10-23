@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLenis } from './hooks/useLenis';
 import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
 import ScrollProgress from './components/ui/ScrollProgress';
+import SectionIndicator from './components/ui/SectionIndicator';
 import CustomCursor from './components/ui/CustomCursor';
 import IntroLoader from './components/sections/IntroLoader';
 import Hero from './components/sections/Hero';
@@ -40,6 +41,9 @@ export default function App() {
     <div className="relative min-h-screen bg-vulcan-bg text-white selection:bg-vulcan-gold/20 selection:text-vulcan-gold">
       {/* Top Scroll Indicator */}
       <ScrollProgress />
+
+      {/* Side Section Indicator */}
+      <SectionIndicator prefersReducedMotion={prefersReducedMotion} />
 
       {/* Spring-damped Custom Cursor (desktop only) */}
       <CustomCursor />
@@ -80,7 +84,7 @@ export default function App() {
         <Closing prefersReducedMotion={prefersReducedMotion} />
 
         {/* 9. Footer */}
-        <Footer />
+        <Footer prefersReducedMotion={prefersReducedMotion} />
       </main>
     </div>
   );

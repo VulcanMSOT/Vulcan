@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Mail, ArrowUpRight } from 'lucide-react';
 import ClosingCanvas from '../3d/ClosingCanvas';
 import { CLUB_INFO } from '../../content';
+import { MaskHeading, FadeParagraph, DrawLine } from '../ui/Reveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -34,8 +35,13 @@ export default function Closing({ prefersReducedMotion }) {
     <section
       id="closing"
       ref={sectionRef}
-      className="relative w-full py-28 px-6 bg-vulcan-bg border-t border-vulcan-border/30 overflow-hidden flex flex-col items-center justify-center text-center"
+      className="relative w-full py-28 px-6 bg-vulcan-bg overflow-hidden flex flex-col items-center justify-center text-center"
     >
+      {/* Top Section Divider */}
+      <div className="max-w-4xl mx-auto w-full mb-16">
+        <DrawLine prefersReducedMotion={prefersReducedMotion} />
+      </div>
+
       {/* 3D Canvas with Converging Pixels */}
       <div className="w-full max-w-md h-56 sm:h-64 mx-auto mb-8 relative">
         <ClosingCanvas
@@ -44,17 +50,26 @@ export default function Closing({ prefersReducedMotion }) {
         />
       </div>
 
-      {/* Short Line & Information */}
-      <div className="max-w-xl mx-auto space-y-4 mb-10 z-10">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight text-white">
+      {/* Mask Heading & Fade Paragraph */}
+      <div className="max-w-xl mx-auto space-y-4 mb-10 z-10 flex flex-col items-center">
+        <MaskHeading
+          as="h2"
+          className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight text-white"
+          prefersReducedMotion={prefersReducedMotion}
+        >
           Code, systems, and algorithms.
-        </h2>
-        <p className="text-sm text-vulcan-textMuted font-mono">
+        </MaskHeading>
+
+        <FadeParagraph
+          className="text-sm text-vulcan-textMuted font-mono"
+          delay={0.15}
+          prefersReducedMotion={prefersReducedMotion}
+        >
           An engineering collective of students focused on craftsmanship and execution.
-        </p>
+        </FadeParagraph>
       </div>
 
-      {/* Contact & Social Links (No Join / Apply Buttons!) */}
+      {/* Contact & Social Links with soft press effect */}
       <div className="flex flex-wrap items-center justify-center gap-4 z-10">
         <a
           href={`mailto:${CLUB_INFO.contact.email}`}
@@ -70,7 +85,7 @@ export default function Closing({ prefersReducedMotion }) {
             href={social.url}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-vulcan-border bg-vulcan-card/60 hover:bg-vulcan-surface hover:border-vulcan-borderHover text-sm text-zinc-300 transition-all duration-160 active:scale-[0.97]"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-vulcan-border bg-vulcan-card/60 hover:bg-vulcan-surface hover:border-vulcan-gold/30 text-sm text-zinc-300 transition-all duration-160 active:scale-[0.97]"
           >
             <span>{social.name}</span>
             <ArrowUpRight className="w-3.5 h-3.5 text-zinc-500" />

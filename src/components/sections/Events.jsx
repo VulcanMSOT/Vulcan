@@ -3,6 +3,12 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowUpRight, Calendar } from 'lucide-react';
 import { EVENTS } from '../../content';
+import {
+  SectionHeader,
+  RevealCard,
+  CardNumber,
+  DrawLine,
+} from '../ui/Reveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -45,21 +51,21 @@ export default function Events({ prefersReducedMotion }) {
     <section
       id="events"
       ref={sectionRef}
-      className="relative w-full min-h-screen bg-vulcan-bg py-24 flex flex-col justify-center overflow-hidden border-t border-vulcan-border/30"
+      className="relative w-full min-h-screen bg-vulcan-bg py-24 flex flex-col justify-center overflow-hidden"
     >
-      {/* Section Header */}
+      {/* Top Section Divider */}
+      <div className="max-w-6xl mx-auto w-full px-6 mb-16">
+        <DrawLine prefersReducedMotion={prefersReducedMotion} />
+      </div>
+
+      {/* Section Header with mask reveal */}
       <div className="max-w-6xl mx-auto w-full px-6 mb-12">
-        <div className="space-y-2">
-          <span className="font-mono text-xs text-vulcan-gold uppercase tracking-widest font-medium">
-            timeline & milestones
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">
-            Club events
-          </h2>
-          <p className="text-sm text-vulcan-textMuted max-w-lg">
-            Internal sprints, architecture workshops, and competitive sessions.
-          </p>
-        </div>
+        <SectionHeader
+          label="timeline & milestones"
+          title="Club events"
+          description="Internal sprints, architecture workshops, and competitive sessions."
+          prefersReducedMotion={prefersReducedMotion}
+        />
       </div>
 
       {/* Horizontal Scroll Track */}
@@ -68,9 +74,11 @@ export default function Events({ prefersReducedMotion }) {
         className="flex gap-6 px-6 md:px-16 w-full overflow-x-auto md:overflow-visible no-scrollbar pb-6 md:pb-0"
       >
         {EVENTS.map((event, index) => (
-          <div
+          <RevealCard
             key={event.id}
-            className="w-[300px] sm:w-[360px] md:w-[420px] shrink-0 rounded-xl border border-vulcan-border bg-vulcan-card/80 p-7 flex flex-col justify-between transition-all duration-200 hover:border-vulcan-gold/40 hover:bg-vulcan-surface/90 hover:-translate-y-1 shadow-lg"
+            index={index}
+            prefersReducedMotion={prefersReducedMotion}
+            className="w-[300px] sm:w-[360px] md:w-[420px] shrink-0 flex flex-col justify-between"
           >
             <div className="space-y-4">
               {/* Date & Index */}
@@ -79,14 +87,19 @@ export default function Events({ prefersReducedMotion }) {
                   <Calendar className="w-3.5 h-3.5 text-vulcan-gold" />
                   <span>{event.date}</span>
                 </div>
-                <span className="font-mono text-xs text-vulcan-textFaint">
+
+                <CardNumber
+                  delay={index * 0.08}
+                  prefersReducedMotion={prefersReducedMotion}
+                  className="text-vulcan-textFaint"
+                >
                   0{index + 1}
-                </span>
+                </CardNumber>
               </div>
 
               {/* Title & Description */}
               <div className="space-y-2">
-                <h3 className="text-xl font-semibold text-white tracking-tight">
+                <h3 className="text-xl font-semibold text-white tracking-tight group-hover:text-zinc-100 transition-colors">
                   {event.title}
                 </h3>
                 <p className="text-sm text-vulcan-textMuted leading-relaxed">
@@ -95,13 +108,13 @@ export default function Events({ prefersReducedMotion }) {
               </div>
             </div>
 
-            {/* Optional Link / Footer Action */}
+            {/* Optional Link / Footer Action with animated underline */}
             <div className="mt-8 pt-4 border-t border-vulcan-border/60 flex items-center justify-between text-xs font-mono text-zinc-400">
               <span>Internal Session</span>
               {event.link ? (
                 <a
                   href={event.link}
-                  className="inline-flex items-center gap-1 text-vulcan-gold hover:underline"
+                  className="inline-flex items-center gap-1 text-vulcan-gold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-vulcan-gold after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-left"
                 >
                   Details <ArrowUpRight className="w-3.5 h-3.5" />
                 </a>
@@ -109,7 +122,7 @@ export default function Events({ prefersReducedMotion }) {
                 <span className="text-vulcan-textFaint">[optional link]</span>
               )}
             </div>
-          </div>
+          </RevealCard>
         ))}
       </div>
     </section>

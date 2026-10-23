@@ -1,11 +1,17 @@
 import { useState } from 'react';
 import { CLUB_INFO } from '../../content';
+import { DrawLine } from '../ui/Reveal';
 
-export default function Footer() {
+export default function Footer({ prefersReducedMotion }) {
   const [bracketHover, setBracketHover] = useState(false);
 
   return (
-    <footer className="w-full bg-vulcan-bg border-t border-vulcan-border/60 py-12 px-6 select-none">
+    <footer className="w-full bg-vulcan-bg py-12 px-6 select-none relative">
+      {/* Top Divider */}
+      <div className="max-w-6xl mx-auto mb-10">
+        <DrawLine prefersReducedMotion={prefersReducedMotion} />
+      </div>
+
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 text-xs font-mono text-vulcan-textMuted">
         {/* Left: Branding & College Name */}
         <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
@@ -54,7 +60,12 @@ export default function Footer() {
 
         {/* Right: Contact & System Tag */}
         <div className="flex items-center gap-5 text-center sm:text-right">
-          <span>{CLUB_INFO.contact.email}</span>
+          <a
+            href={`mailto:${CLUB_INFO.contact.email}`}
+            className="text-zinc-400 hover:text-white relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-vulcan-gold after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-left transition-colors"
+          >
+            {CLUB_INFO.contact.email}
+          </a>
           <span className="text-zinc-700">|</span>
           <span className="text-zinc-600">no open recruitment</span>
         </div>
