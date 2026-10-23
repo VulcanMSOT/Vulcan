@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { EVENT_CONTENT } from '../../eventContent';
+import { apiFetch } from '../../lib/api.js';
 
 const memberKeys = ['leader', 'member2', 'member3'];
 const initialMember = { fullName: '', email: '', phone: '', college: '' };
@@ -108,14 +109,13 @@ export default function RegistrationForm({ onRegistered }) {
   // Fetch live server event settings
   useEffect(() => {
     let active = true;
-    fetch('/api/event-settings')
-      .then((res) => (res.ok ? res.json() : null))
+    apiFetch('/api/event-settings')
       .then((data) => {
         if (active && data) {
           setEventSettings(data);
         }
       })
-      .catch((err) => console.warn('Could not load dynamic settings:', err))
+      .catch((err) => console.warn('Could not load dynamic settings:', err.message))
       .finally(() => {
         if (active) setLoadingSettings(false);
       });
@@ -192,25 +192,20 @@ export default function RegistrationForm({ onRegistered }) {
     setIsSubmitting(true);
     setNotice('');
     try {
-      const response = await fetch('/api/register', {
+      const result = await apiFetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...values, turnstileToken }),
       });
-      const result = await response.json();
-      if (!response.ok) {
-        if (result.errors) {
-          setErrors(result.errors);
-          if (result.errors.registration) setNotice(result.errors.registration);
-          else focusFirstError(result.errors);
-        } else {
-          setNotice(result.error || 'We could not register your team. Please try again.');
-        }
-        return;
-      }
       onRegistered(result.payment);
-    } catch {
-      setNotice('We could not reach registration securely. Please try again.');
+    } catch (error) {
+      if (error.data?.errors) {
+        setErrors(error.data.errors);
+        if (error.data.errors.registration) setNotice(error.data.errors.registration);
+        else focusFirstError(error.data.errors);
+      } else {
+        setNotice(error.message || 'We could not register your team. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }

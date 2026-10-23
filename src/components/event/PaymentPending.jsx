@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import { supabase } from '../../lib/supabaseClient';
+import { apiFetch } from '../../lib/api';
 
 function CopyBadge({ label, value }) {
   const [copied, setCopied] = useState(false);
@@ -146,7 +147,7 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
         }
       }
 
-      const response = await fetch('/api/payment-reference', {
+      const result = await apiFetch('/api/payment-reference', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -157,12 +158,6 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
         }),
       });
 
-      const result = await response.json();
-      if (!response.ok) {
-        setError(result.error || 'We could not submit that payment reference.');
-        return;
-      }
-
       setCurrentPayment((prev) => ({
         ...prev,
         utr: cleanUtr,
@@ -170,8 +165,8 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
       }));
       setView('under_review');
       setNotice(result.message || 'Payment submitted for organiser review.');
-    } catch {
-      setError('We could not reach the server securely. Please try again.');
+    } catch (err) {
+      setError(err.message || 'We could not submit that payment reference.');
     } finally {
       setSubmitting(false);
     }
@@ -182,7 +177,7 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
     setError('');
     setChecking(true);
     try {
-      const response = await fetch('/api/payment-status', {
+      const result = await apiFetch('/api/payment-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -192,12 +187,6 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
           paymentRef,
         }),
       });
-
-      const result = await response.json();
-      if (!response.ok) {
-        setError(result.error || 'Could not verify status.');
-        return;
-      }
 
       if (result.ticket) {
         onTicketIssued(result.ticket);
@@ -220,8 +209,8 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
       } else {
         setNotice('Payment not yet submitted.');
       }
-    } catch {
-      setError('Could not connect to ticket service.');
+    } catch (err) {
+      setError(err.message || 'Could not verify status.');
     } finally {
       setChecking(false);
     }
@@ -235,7 +224,7 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
     setLookupBusy(true);
 
     try {
-      const response = await fetch('/api/payment-lookup', {
+      const result = await apiFetch('/api/payment-lookup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -243,12 +232,6 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
           email: lookupEmail.trim(),
         }),
       });
-
-      const result = await response.json();
-      if (!response.ok) {
-        setError(result.error || 'No matching registration found.');
-        return;
-      }
 
       setCurrentPayment({
         registrationId: result.registrationId,
@@ -278,8 +261,8 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
       } else {
         setView('pay');
       }
-    } catch {
-      setError('Network error while checking status.');
+    } catch (err) {
+      setError(err.message || 'Error checking status.');
     } finally {
       setLookupBusy(false);
     }
