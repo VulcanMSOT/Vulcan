@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useLenis } from '../../hooks/useLenis';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import HalloweenHero from './HalloweenHero';
+import RegistrationForm from './RegistrationForm';
+import { EventAbout, EventFaq, EventFooter, EventPrizesSponsors, EventRules, EventTimeline, EventTracks } from './EventSections';
 import './halloween.css';
 
 export default function HalloweenHackPage() {
@@ -21,7 +23,14 @@ export default function HalloweenHackPage() {
   return (
     <main className="event-page">
       <HalloweenHero reducedMotion={reducedMotion} />
-      <span id="registration" className="event-registration-anchor" aria-hidden="true" />
+      <EventAbout />
+      <EventTimeline />
+      <EventTracks />
+      <EventRules />
+      <EventPrizesSponsors />
+      <RegistrationForm />
+      <EventFaq />
+      <EventFooter />
     </main>
   );
 }
