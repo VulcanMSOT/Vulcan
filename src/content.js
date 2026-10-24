@@ -200,6 +200,36 @@ export const TEAM = [
   },
   {
     id: "team-3",
+    name: "Akshara P",
+    role: "Vice-President",
+    image: "/assets/team/akshara.jpg",
+    links: {
+      github: "https://github.com/vasakb",
+      linkedin: "https://www.linkedin.com/in/akshara-p-441674381/"
+    }
+  },
+  {
+    id: "team-4",
+    name: "Sapnil Biswas",
+    role: "Development",
+    image: "/assets/team/sapnil.jpg",
+    links: {
+      github: "https://github.com/sapnilbiswas",
+      linkedin: "https://www.linkedin.com/in/sapnil-biswas-992841403/"
+    }
+  },
+  {
+    id: "team-5",
+    name: "Dhruvesh Mishra",
+    role: "Development",
+    image: "/assets/team/dhruvesh.jpg",
+    links: {
+      github: "https://github.com/dhruveshmishra",
+      linkedin: "https://www.linkedin.com/in/dhruvesh-mishra-291845376/"
+    }
+  },
+  {
+    id: "team-6",
     name: "Pawan Tiwari",
     role: "Competitive Programming",
     image: "/assets/team/pawan.jpg",
@@ -209,7 +239,7 @@ export const TEAM = [
     }
   },
   {
-    id: "team-4",
+    id: "team-7",
     name: "Anushka Dewangan",
     role: "Competitive Programming / PR",
     image: "/assets/team/anushka.jpg",
@@ -219,7 +249,7 @@ export const TEAM = [
     }
   },
   {
-    id: "team-5",
+    id: "team-8",
     name: "Padmasri Chikle",
     role: "Competitive Programming / WebDev / PR",
     image: "/assets/team/padmasri.jpg",
@@ -230,13 +260,44 @@ export const TEAM = [
     }
   },
   {
-    id: "team-6",
+    id: "team-9",
     name: "Jhalak Yadav",
     role: "Development",
     image: "/assets/team/jhalak.jpg",
     links: {
       github: "https://github.com/jhalak101205-cpu",
       linkedin: "https://www.linkedin.com/in/jhalak-yadav-0b17b32b5/"
+    }
+  },
+  {
+    id: "team-10",
+    name: "Harsh Koli",
+    role: "Development",
+    image: "/assets/team/harsh.jpg",
+    links: {
+      github: "https://github.com/harshkoli1255",
+      linkedin: "https://www.linkedin.com/in/koliharsh/"
+    }
+  },
+  {
+    id: "team-11",
+    name: "Krishna Negi",
+    role: "WebDevelopment / Management",
+    image: "/assets/team/krishna.jpg",
+    links: {
+      github: "https://github.com/WKr1shna",
+      linkedin: "https://www.linkedin.com/in/krishnanegi7/"
+    }
+  },
+  {
+    id: "team-12",
+    name: "Keerthi Kumar",
+    role: "Development",
+    image: "/assets/team/keerthi.jpg",
+    links: {
+      github: "https://github.com/KeerthiKumarR",
+      linkedin: "https://www.linkedin.com/in/keerthi-kumar-r/",
+      codeforces: "https://codeforces.com/profile/Kr1shna._."
     }
   }
 ];
