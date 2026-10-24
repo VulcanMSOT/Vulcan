@@ -1,6 +1,39 @@
 import { useState } from 'react';
+import { Mail, ArrowUpRight } from 'lucide-react';
 import { CLUB_INFO } from '../../content';
 import { DrawLine } from '../ui/Reveal';
+
+function XIcon({ className = "w-3 h-3" }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+function LinkedInIcon({ className = "w-3 h-3" }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+    </svg>
+  );
+}
+
+function InstagramIcon({ className = "w-3 h-3" }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
+
+const SOCIAL_ICONS = {
+  X: XIcon,
+  LinkedIn: LinkedInIcon,
+  Instagram: InstagramIcon,
+};
 
 export default function Footer({ prefersReducedMotion }) {
   const [bracketHover, setBracketHover] = useState(false);
@@ -37,7 +70,7 @@ export default function Footer({ prefersReducedMotion }) {
         <div
           onMouseEnter={() => setBracketHover(true)}
           onMouseLeave={() => setBracketHover(false)}
-          className="flex items-center gap-1 cursor-pointer transition-transform duration-200 hover:scale-110"
+          className="flex items-center gap-1 cursor-pointer transition-transform duration-200 hover:scale-110 py-1 px-2"
           title="build with precision"
           aria-label="Vulcan syntax bracket"
         >
@@ -58,16 +91,44 @@ export default function Footer({ prefersReducedMotion }) {
           </span>
         </div>
 
-        {/* Right: Contact & System Tag */}
-        <div className="flex items-center gap-5 text-center sm:text-right">
+        {/* Right: Polished Social & Contact Links */}
+        <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5 sm:gap-3">
+          {/* Socials Group */}
+          <div className="flex items-center gap-2">
+            {CLUB_INFO.contact.socials.map((social) => {
+              const Icon = SOCIAL_ICONS[social.name];
+              return (
+                <a
+                  key={social.name}
+                  href={social.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/90 hover:border-vulcan-gold/40 text-zinc-300 hover:text-white transition-all duration-200 active:scale-[0.96] shadow-sm hover:shadow-[0_0_12px_rgba(245,166,35,0.12)]"
+                  aria-label={social.name}
+                >
+                  {Icon && <Icon className="w-3 h-3 text-zinc-400 group-hover:text-vulcan-gold transition-colors duration-200" />}
+                  <span>{social.name}</span>
+                  <ArrowUpRight className="w-3 h-3 text-zinc-500 group-hover:text-vulcan-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" />
+                </a>
+              );
+            })}
+          </div>
+
+          {/* Email Pill */}
           <a
             href={`mailto:${CLUB_INFO.contact.email}`}
-            className="text-zinc-400 hover:text-white relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-vulcan-gold after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-left transition-colors"
+            className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-vulcan-gold/30 bg-vulcan-gold/[0.05] hover:bg-vulcan-gold/[0.14] hover:border-vulcan-gold/60 text-zinc-200 hover:text-white transition-all duration-200 active:scale-[0.96] shadow-sm hover:shadow-[0_0_16px_rgba(245,166,35,0.2)]"
+            title="Email Vulcan Club"
           >
-            {CLUB_INFO.contact.email}
+            <Mail className="w-3.5 h-3.5 text-vulcan-gold group-hover:scale-110 transition-transform duration-200" />
+            <span>{CLUB_INFO.contact.email}</span>
           </a>
-          <span className="text-zinc-700">|</span>
-          <span className="text-zinc-600">no open recruitment</span>
+
+          {/* Status Tag */}
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono text-zinc-500 border border-zinc-800/50 rounded-full bg-zinc-900/40">
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 inline-block" />
+            <span>no open recruitment</span>
+          </div>
         </div>
       </div>
     </footer>
