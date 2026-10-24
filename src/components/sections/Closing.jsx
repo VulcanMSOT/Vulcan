@@ -44,6 +44,11 @@ export default function Closing({ prefersReducedMotion }) {
 
       {/* 3D Canvas with Converging Pixels */}
       <div className="w-full max-w-md h-56 sm:h-64 mx-auto mb-8 relative">
+        {/* Ambient Vulcan Orange Glow */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 sm:w-80 h-44 sm:h-52 bg-[#ff7a1a]/[0.12] rounded-full blur-[85px] pointer-events-none"
+          aria-hidden="true"
+        />
         <ClosingCanvas
           progress={convergenceProgress}
           prefersReducedMotion={prefersReducedMotion}
