@@ -40,9 +40,13 @@ export function useLenis(enabled = true) {
     gsap.ticker.add(updateTicker);
     gsap.ticker.lagSmoothing(0);
 
+    if (enabled) {
+      ScrollTrigger.refresh();
+    }
+
     return () => {
       lenis.destroy();
       gsap.ticker.remove(updateTicker);
     };
-  }, []);
+  }, [enabled]);
 }

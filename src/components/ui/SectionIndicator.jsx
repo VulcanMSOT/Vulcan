@@ -12,7 +12,7 @@ const SECTIONS = [
   { id: 'closing', label: 'Connect' },
 ];
 
-export default function SectionIndicator({ prefersReducedMotion }) {
+export default function SectionIndicator({ prefersReducedMotion, introSettled = true }) {
   const [activeSection, setActiveSection] = useState('hero');
   const [hoveredSection, setHoveredSection] = useState(null);
 
@@ -52,7 +52,9 @@ export default function SectionIndicator({ prefersReducedMotion }) {
     <>
       {/* Background ambient lighting transition across sections */}
       <div
-        className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-1000"
+        className={`fixed inset-0 pointer-events-none z-0 transition-opacity duration-700 ${
+          introSettled ? 'opacity-100' : 'opacity-0'
+        }`}
         aria-hidden="true"
       >
         <div
@@ -77,7 +79,9 @@ export default function SectionIndicator({ prefersReducedMotion }) {
       {/* Floating Side Section Indicator (Desktop only) */}
       <nav
         aria-label="Section navigation"
-        className="hidden lg:flex fixed right-6 top-1/2 -translate-y-1/2 z-40 flex-col items-end gap-3.5 select-none pointer-events-auto"
+        className={`hidden lg:flex fixed right-6 top-1/2 -translate-y-1/2 z-40 flex-col items-end gap-3.5 select-none pointer-events-auto transition-opacity duration-500 ${
+          introSettled ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
       >
         {SECTIONS.map((section, index) => {
           const isActive = activeSection === section.id;

@@ -3,7 +3,11 @@ import { ArrowDown, ArrowUpRight } from 'lucide-react';
 import HeroCanvas from '../3d/HeroCanvas';
 import { CLUB_INFO } from '../../content';
 
-export default function Hero({ prefersReducedMotion, introSettled = true }) {
+export default function Hero({
+  prefersReducedMotion,
+  introSettled = true,
+  heroCanvasVisible = true,
+}) {
   const scrollToWork = () => {
     const target = document.getElementById('about');
     if (target) {
@@ -65,7 +69,12 @@ export default function Hero({ prefersReducedMotion, introSettled = true }) {
       </motion.header>
 
       {/* Center 3D Showcase */}
-      <div className="relative w-full max-w-4xl h-[52vh] sm:h-[58vh] md:h-[64vh] my-auto flex items-center justify-center z-10">
+      <div
+        id="hero-canvas-container"
+        className={`relative w-full max-w-4xl h-[52vh] sm:h-[58vh] md:h-[64vh] my-auto flex items-center justify-center z-10 transition-opacity duration-300 ease-out ${
+          heroCanvasVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      >
         <HeroCanvas prefersReducedMotion={prefersReducedMotion} />
       </div>
 

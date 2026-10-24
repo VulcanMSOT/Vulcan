@@ -7,6 +7,16 @@
     <meta name="theme-color" content="#050506" />
     <meta name="description" content="vulcan club — engineering, open source, hackathons, and systems building." />
     
+    <style>
+      html, body, #root {
+        background-color: #050506 !important;
+        color: #ffffff;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+    </style>
+
     <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,7 +25,7 @@
     <title>vulcan club</title>
   </head>
   <body class="bg-vulcan-bg text-white font-sans antialiased selection:bg-vulcan-gold/25 selection:text-vulcan-gold overflow-x-hidden" style="background-color: #050506; color: #ffffff;">
-    <div id="root"></div>
+    <div id="root"><div style="position:fixed;inset:0;background-color:#050506;z-index:9999;"></div></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

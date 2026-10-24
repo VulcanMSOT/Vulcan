@@ -26,14 +26,20 @@ const V_MATRIX = [
   [1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
 ];
 
-export default function IntroLoader({ onComplete, onSettled, prefersReducedMotion }) {
+export default function IntroLoader({
+  onComplete,
+  onSettled,
+  onCrossfadeStart,
+  prefersReducedMotion,
+}) {
   // URL phase override for deterministic visual inspection & testing
   const urlPhase = typeof window !== 'undefined'
     ? new URLSearchParams(window.location.search).get('phase')
     : null;
 
-  // 'assembling' -> 'assembled' (hold beat) -> 'zooming' (camera pull back 1.2s) -> 'done'
+  // 'assembling' -> 'assembled' (hold beat) -> 'zooming' (continuous pull back 1.2s) -> 'done'
   const [phase, setPhase] = useState(() => urlPhase || 'assembling');
+  const [crossfadeActive, setCrossfadeActive] = useState(() => urlPhase === 'done');
 
   // Skip immediately if reduced motion or user already scrolled down (unless testing)
   const shouldSkip = useMemo(() => {
@@ -45,6 +51,33 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
     if (typeof window !== 'undefined' && window.scrollY > 50) return true;
     return false;
   }, [prefersReducedMotion, urlPhase]);
+
+  // Dynamically compute exact target scale and Y offset to seamlessly match 3D HeroCanvas
+  const [targetMetrics, setTargetMetrics] = useState(() => {
+    if (typeof window === 'undefined') return { scale: 2.71, y: -67.0 };
+    const isMobile = window.innerWidth < 768;
+    return isMobile ? { scale: 1.06, y: -59.0 } : { scale: 2.71, y: -67.0 };
+  });
+
+  useEffect(() => {
+    const updateMetrics = () => {
+      const isMobile = window.innerWidth < 768;
+      const container = document.getElementById('hero-canvas-container');
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        const centerY = rect.top + rect.height / 2;
+        const viewportCenterY = window.innerHeight / 2;
+        const offsetY = centerY - viewportCenterY;
+        const scale = isMobile ? 1.06 : 2.71;
+        setTargetMetrics({ scale, y: Math.round(offsetY * 10) / 10 });
+      } else {
+        setTargetMetrics(isMobile ? { scale: 1.06, y: -59.0 } : { scale: 2.71, y: -67.0 });
+      }
+    };
+    updateMetrics();
+    window.addEventListener('resize', updateMetrics);
+    return () => window.removeEventListener('resize', updateMetrics);
+  }, []);
 
   // Extract pixel coordinates for grid
   const pixelPoints = useMemo(() => {
@@ -80,11 +113,21 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
     return points;
   }, []);
 
-  // Lock scrolling during the loader and release cleanly
+  const triggerSkip = () => {
+    document.body.style.overflow = '';
+    setPhase('done');
+    setCrossfadeActive(true);
+    if (onCrossfadeStart) onCrossfadeStart();
+    if (onSettled) onSettled();
+    if (onComplete) onComplete();
+  };
+
+  // Lock scrolling during the loader and release cleanly on settle or skip
   useEffect(() => {
     if (urlPhase === 'done' || shouldSkip) {
-      if (onComplete) onComplete();
+      if (onCrossfadeStart) onCrossfadeStart();
       if (onSettled) onSettled();
+      if (onComplete) onComplete();
       return;
     }
     if (urlPhase) return;
@@ -92,7 +135,7 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
-    // 1. Assembling (0.0s -> 1.1s)
+    // 1. Assembling (0.0s -> 1.15s)
     const holdTimer = setTimeout(() => {
       setPhase('assembled'); // Hold for a beat
     }, 1150);
@@ -100,29 +143,48 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
     // 2. Hold beat (1.15s -> 1.65s) -> Begin zoom-out camera transition (1.2s duration)
     const zoomTimer = setTimeout(() => {
       setPhase('zooming');
-      // Release body scroll cleanly as camera pullback begins
-      document.body.style.overflow = originalOverflow;
     }, 1650);
 
-    // 3. Zoom-out transition settles (1.65s + 1.2s = 2.85s)
+    // 2.5 Crossfade start (2.55s, 300ms before settle): 3D canvas fades in, 2D loader dissolves
+    const crossfadeTimer = setTimeout(() => {
+      setCrossfadeActive(true);
+      if (onCrossfadeStart) onCrossfadeStart();
+    }, 2550);
+
+    // 3. Zoom-out transition settles (1.65s + 1.2s = 2.85s): unlock scroll cleanly
     const settleTimer = setTimeout(() => {
+      document.body.style.overflow = originalOverflow;
       if (onSettled) onSettled();
     }, 2850);
 
-    // 4. Complete and unmount loader
+    // 4. Complete and unmount loader (2.95s)
     const completeTimer = setTimeout(() => {
       setPhase('done');
       if (onComplete) onComplete();
     }, 2950);
 
+    // Keyboard skip support ("press any key to enter")
+    const handleKeyDown = (e) => {
+      if (['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) return;
+      document.body.style.overflow = originalOverflow;
+      setPhase('done');
+      setCrossfadeActive(true);
+      if (onCrossfadeStart) onCrossfadeStart();
+      if (onSettled) onSettled();
+      if (onComplete) onComplete();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
       clearTimeout(holdTimer);
       clearTimeout(zoomTimer);
+      clearTimeout(crossfadeTimer);
       clearTimeout(settleTimer);
       clearTimeout(completeTimer);
     };
-  }, [shouldSkip, onComplete, onSettled]);
+  }, [shouldSkip, urlPhase, onComplete, onSettled, onCrossfadeStart]);
 
   if (shouldSkip || phase === 'done') return null;
 
@@ -138,38 +200,49 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
         }`}
         initial={{ opacity: 1 }}
         animate={{
-          opacity: isMidZoom ? 0.45 : isZooming ? 0 : 1,
+          opacity: crossfadeActive ? 0 : 1,
         }}
         exit={{ opacity: 0 }}
         transition={{
-          duration: isMidZoom ? 0 : 1.2,
-          ease: [0.65, 0, 0.35, 1], // Smooth continuous camera ease-in-out
+          duration: 0.3,
+          ease: 'easeOut',
         }}
-        onClick={() => {
-          document.body.style.overflow = '';
-          setPhase('done');
-          if (onComplete) onComplete();
-          if (onSettled) onSettled();
-        }}
+        onClick={triggerSkip}
         title="Click to skip"
       >
         {/* Subtle radial background glow */}
         <div className="absolute w-[500px] h-[500px] bg-vulcan-gold/5 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Central Logo Container with Camera Zoom Out */}
-        <motion.div
-          className="relative flex flex-col items-center justify-center"
-          animate={{
-            scale: isMidZoom ? 0.94 : isZooming ? 0.88 : 1,
-            y: isMidZoom ? -6 : isZooming ? -12 : 0,
-          }}
-          transition={{
-            duration: isMidZoom ? 0 : 1.2,
-            ease: [0.65, 0, 0.35, 1], // Smooth continuous camera pullback
-          }}
-        >
-          {/* Assembled Pixel Grid */}
-          <div className="relative w-72 h-64 flex items-center justify-center">
+        {/* Central Logo Container with Camera Zoom Out matching 3D Hero scale & position */}
+        <div className="relative flex flex-col items-center justify-center">
+          <motion.div
+            className="relative w-72 h-36 flex items-center justify-center"
+            animate={{
+              scale: isMidZoom ? 1.8 : isZooming ? targetMetrics.scale : 1,
+              y: isMidZoom ? targetMetrics.y * 0.5 : isZooming ? targetMetrics.y : 0,
+              opacity: crossfadeActive ? 0 : 1,
+              filter: crossfadeActive ? 'blur(2px)' : 'blur(0px)',
+            }}
+            transition={{
+              scale: {
+                duration: isMidZoom ? 0 : 1.2,
+                ease: [0.65, 0, 0.35, 1], // Smooth continuous camera pullback
+              },
+              y: {
+                duration: isMidZoom ? 0 : 1.2,
+                ease: [0.65, 0, 0.35, 1],
+              },
+              opacity: {
+                duration: 0.3,
+                ease: 'easeOut',
+              },
+              filter: {
+                duration: 0.3,
+                ease: 'easeOut',
+              },
+            }}
+          >
+            {/* Assembled Pixel Grid */}
             {pixelPoints.map((p) => (
               <motion.div
                 key={p.id}
@@ -191,7 +264,7 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
                 animate={{
                   x: p.targetX,
                   y: p.targetY,
-                  opacity: isMidZoom ? 0.7 : isZooming ? 0 : 1,
+                  opacity: 1,
                   scale: isAssembledOrLater && p.isGold ? [1, 1.25, 1] : 1,
                 }}
                 transition={{
@@ -206,25 +279,25 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
                     ease: [0.23, 1, 0.32, 1],
                   },
                   opacity: {
-                    duration: isZooming ? 0.8 : 0.4,
-                    delay: isZooming ? 0.2 : p.delay,
+                    duration: 0.4,
+                    delay: p.delay,
                   },
                   scale: { duration: 0.4, delay: isAssembledOrLater ? 0.05 : p.delay },
                 }}
               />
             ))}
-          </div>
+          </motion.div>
 
-          {/* Wordmark Reveal under Logo (fades out first during zoom) */}
+          {/* Wordmark Reveal under Logo (positioned relative to logo, fades out in first 200ms of zoom) */}
           <motion.div
-            className="mt-6 flex flex-col items-center gap-1.5"
+            className="absolute top-[calc(100%+16px)] flex flex-col items-center gap-1.5 pointer-events-none"
             initial={{ opacity: 0, y: 10 }}
             animate={{
               opacity: isZooming ? 0 : isAssembledOrLater ? 1 : 0,
               y: isZooming ? -5 : isAssembledOrLater ? 0 : 10,
             }}
             transition={{
-              duration: isZooming ? 0.35 : 0.4,
+              duration: isZooming ? 0.2 : 0.4,
               ease: [0.23, 1, 0.32, 1],
             }}
           >
@@ -235,9 +308,9 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
               assembling system
             </span>
           </motion.div>
-        </motion.div>
+        </div>
 
-        {/* Skip hint */}
+        {/* Skip hint (fades out in first 200ms of zoom) */}
         <motion.div
           className="absolute bottom-6 font-mono text-[10px] text-vulcan-textFaint tracking-widest uppercase"
           animate={{ opacity: isZooming ? 0 : 1 }}
