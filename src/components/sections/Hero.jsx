@@ -83,11 +83,14 @@ export default function Hero({ prefersReducedMotion, introSettled = true }) {
           delay: prefersReducedMotion ? 0 : 0.15,
         }}
       >
-        {/* Tagline */}
-        <div className="space-y-1.5">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-medium tracking-tight text-zinc-300 max-w-xl mx-auto">
-            {CLUB_INFO.tagline}
+        {/* Title & Tagline */}
+        <div className="space-y-2">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-[0.22em] text-white uppercase">
+            Vulcan
           </h1>
+          <p className="text-base sm:text-lg md:text-xl font-normal tracking-tight text-zinc-400 max-w-xl mx-auto">
+            {CLUB_INFO.tagline}
+          </p>
         </div>
 
         {/* Scroll Action Button */}

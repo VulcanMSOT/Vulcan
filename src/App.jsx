@@ -16,8 +16,12 @@ import Closing from './components/sections/Closing';
 import Footer from './components/sections/Footer';
 
 export default function App() {
-  const [loaderComplete, setLoaderComplete] = useState(false);
-  const [introSettled, setIntroSettled] = useState(false);
+  const urlPhase = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('phase')
+    : null;
+
+  const [loaderComplete, setLoaderComplete] = useState(() => urlPhase === 'done');
+  const [introSettled, setIntroSettled] = useState(() => urlPhase === 'done');
   const prefersReducedMotion = usePrefersReducedMotion();
 
   // Prevent browser scroll restoration jump on refresh

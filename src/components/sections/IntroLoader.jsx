@@ -82,13 +82,12 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
 
   // Lock scrolling during the loader and release cleanly
   useEffect(() => {
-    if (urlPhase) return;
-
-    if (shouldSkip) {
+    if (urlPhase === 'done' || shouldSkip) {
       if (onComplete) onComplete();
       if (onSettled) onSettled();
       return;
     }
+    if (urlPhase) return;
 
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';

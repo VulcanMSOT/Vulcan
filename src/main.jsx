@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import HalloweenHackPage from './components/event/HalloweenHackPage.jsx'
+import LogoDebugPage from './components/3d/LogoDebugPage.jsx'
 
 function RoutedApp() {
   const [path, setPath] = useState(() => (typeof window !== 'undefined' ? window.location.pathname : '/'))
@@ -56,6 +57,11 @@ function RoutedApp() {
     normalized === '/hack-o-lantern'
   ) {
     return <HalloweenHackPage />
+  }
+
+  // Dev-only /logo-debug route for visual verification
+  if (import.meta.env.DEV && normalized === '/logo-debug') {
+    return <LogoDebugPage />
   }
 
   return <App />
