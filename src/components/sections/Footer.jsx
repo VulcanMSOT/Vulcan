@@ -58,8 +58,22 @@ export default function Footer({ prefersReducedMotion }) {
           </span>
         </div>
 
-        {/* Right: Contact & System Tag */}
-        <div className="flex items-center gap-5 text-center sm:text-right">
+        {/* Right: Socials, Contact & System Tag */}
+        <div className="flex flex-wrap items-center justify-center sm:justify-end gap-4 sm:gap-5 text-center sm:text-right">
+          <div className="flex items-center gap-3">
+            {CLUB_INFO.contact.socials.map((social) => (
+              <a
+                key={social.name}
+                href={social.url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-zinc-400 hover:text-vulcan-gold transition-colors"
+              >
+                {social.name}
+              </a>
+            ))}
+          </div>
+          <span className="text-zinc-700 hidden sm:inline">|</span>
           <a
             href={`mailto:${CLUB_INFO.contact.email}`}
             className="text-zinc-400 hover:text-white relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-vulcan-gold after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-left transition-colors"

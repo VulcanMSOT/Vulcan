@@ -17,12 +17,11 @@ export const CLUB_INFO = {
     line3: "Our members have cracked GSoC and LFX."
   },
   contact: {
-    email: "[CONTACT EMAIL]",
+    email: "vulcan.techclub@gmail.com",
     socials: [
-      { name: "GitHub", url: "[SOCIAL LINKS]" },
-      { name: "Twitter / X", url: "[SOCIAL LINKS]" },
-      { name: "LinkedIn", url: "[SOCIAL LINKS]" },
-      { name: "Discord", url: "[SOCIAL LINKS]" }
+      { name: "X", url: "https://x.com/VulcanTechClub" },
+      { name: "LinkedIn", url: "https://www.linkedin.com/in/vulcantechclub/" },
+      { name: "Instagram", url: "https://www.instagram.com/vulcan_tech_club" }
     ]
   }
 };
