@@ -150,25 +150,30 @@ export default function About({ prefersReducedMotion }) {
         aria-hidden="true"
       />
 
-      {/* Decorative Drifting Gold Pixels */}
-      {FLOATING_PIXELS.map((p, index) => (
-        <div
-          key={p.id}
-          ref={(el) => (pixelRefs.current[index] = el)}
-          className="absolute pointer-events-none z-0 rounded-[1px] bg-vulcan-gold"
-          style={{
-            top: p.top,
-            bottom: p.bottom,
-            left: p.left,
-            right: p.right,
-            width: `${p.size}px`,
-            height: `${p.size}px`,
-            opacity: prefersReducedMotion ? 0.6 : 0.4,
-            boxShadow: '0 0 10px rgba(245, 166, 35, 0.65), 0 0 3px rgba(245, 166, 35, 0.9)',
-          }}
-          aria-hidden="true"
-        />
-      ))}
+      {/* Decorative Drifting Orange Pixels */}
+      {FLOATING_PIXELS.map((p, index) => {
+        const orangeShades = ['#E8590C', '#D9480F', '#F76707', '#EB6318', '#DE520A'];
+        const color = orangeShades[index % orangeShades.length];
+        return (
+          <div
+            key={p.id}
+            ref={(el) => (pixelRefs.current[index] = el)}
+            className="absolute pointer-events-none z-0 rounded-[1px]"
+            style={{
+              top: p.top,
+              bottom: p.bottom,
+              left: p.left,
+              right: p.right,
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              backgroundColor: color,
+              opacity: 1.0,
+              boxShadow: `0 0 10px ${color}aa, 0 0 3px ${color}`,
+            }}
+            aria-hidden="true"
+          />
+        );
+      })}
 
       {/* Main Pinned Center Stage */}
       <div

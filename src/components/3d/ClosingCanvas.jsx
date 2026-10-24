@@ -80,11 +80,11 @@ function ConvergingPixels({ progress }) {
   const cubeGeo = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
   const whiteMat = useMemo(() => new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }), []);
   const goldMat = useMemo(() => new THREE.MeshStandardMaterial({
-    color: 0xF5A623,
-    emissive: 0xd97706,
-    emissiveIntensity: 0.7,
-    roughness: 0.2,
-    metalness: 0.8,
+    color: 0xE8590C,
+    emissive: 0xD9480F,
+    emissiveIntensity: 0.85,
+    roughness: 0.28,
+    metalness: 0.05,
   }), []);
 
   useFrame((state) => {
@@ -139,7 +139,7 @@ export default function ClosingCanvas({ progress, prefersReducedMotion }) {
       >
         <ambientLight intensity={0.7} />
         <directionalLight position={[4, 5, 4]} intensity={1.5} />
-        <pointLight position={[0, 0, 2]} intensity={1.8} color="#F5A623" distance={6} />
+        <pointLight position={[0, 0, 2]} intensity={1.8} color="#E8590C" distance={6} />
         <ConvergingPixels progress={progress} />
       </Canvas>
     </div>

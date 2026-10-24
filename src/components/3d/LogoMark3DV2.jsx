@@ -2,10 +2,23 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+import LogoAssemblyMesh from './LogoAssemblyMesh';
 
 const WHITE_COLOR = 0xF5F5F2;
-const GOLD_COLOR = 0xD9B857;
-const GOLD_EMISSIVE = 0xB8860B;
+
+/**
+ * Deep orange particle palette:
+ * Base: #E8590C (primary warm deep orange)
+ * Range: #D9480F (deeper rich orange) to #F76707 (bright vibrant orange)
+ * No yellow, cream, or gold tones.
+ */
+export const ORANGE_PARTICLE_PALETTE = [
+  { color: 0xE8590C, emissive: 0xD9480F, hex: '#E8590C' }, // base warm deep orange
+  { color: 0xD9480F, emissive: 0xC23B08, hex: '#D9480F' }, // deeper rich burnt orange
+  { color: 0xF76707, emissive: 0xE8590C, hex: '#F76707' }, // bright vibrant orange
+  { color: 0xEB6318, emissive: 0xD9480F, hex: '#EB6318' }, // medium-bright orange
+  { color: 0xDE520A, emissive: 0xC23B08, hex: '#DE520A' }, // saturated deep orange
+];
 
 const VULCAN_SVG_STRING = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 410 230" fill="none">
   <g id="left-brace" fill="#F5F5F2">
@@ -39,6 +52,11 @@ export default function LogoMark3DV2({
   frozen = false,
   prefersReducedMotion = false,
   scaleOverride = null,
+  assemblyProgress = 1.0,
+  fuseProgress = 1.0,
+  showAssemblyMesh = false,
+  solidOpacity = 1.0,
+  glint = 0.0,
 }) {
   const groupRef = useRef();
   const particlesGroupRef = useRef();
@@ -96,40 +114,61 @@ export default function LogoMark3DV2({
     return { geometries: geoms, materials: mats };
   }, []);
 
-  // 2. Gold Pixels Setup
-  const goldMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      color: GOLD_COLOR,
-      emissive: GOLD_EMISSIVE,
-      emissiveIntensity: 0.45,
-      roughness: 0.25,
-      metalness: 0.2,
-      transparent: true,
-      opacity: 0.95,
-    });
-  }, []);
-
-  // Measured static pixel meshes (for frozen preview or reduced motion)
+  // 2. Measured static pixel meshes (for frozen preview or reduced motion)
   const staticGoldMeshes = useMemo(() => {
     return MEASURED_GOLD_PIXELS.map((p, idx) => {
       const geo = new THREE.BoxGeometry(p.size, p.size, 1.8);
-      return { id: idx, geo, x: p.x, y: p.y, size: p.size };
+      const palette = ORANGE_PARTICLE_PALETTE[idx % ORANGE_PARTICLE_PALETTE.length];
+      const mat = new THREE.MeshStandardMaterial({
+        color: palette.color,
+        emissive: palette.emissive,
+        emissiveIntensity: 0.9,
+        roughness: 0.28,
+        metalness: 0.05,
+        blending: THREE.NormalBlending,
+        transparent: false,
+        opacity: 1.0,
+      });
+      return { id: idx, geo, material: mat, x: p.x, y: p.y, z: 6.5 + idx * 0.25, size: p.size };
     });
   }, []);
 
-  // Dynamic stream particles (6 to 10 pixels breaking off stepped bite)
+  // Dynamic stream particles (9 pixels breaking off stepped bite with anti-overlap offsets)
   const dynamicPixels = useMemo(() => {
     const stream = [];
     for (let i = 0; i < 9; i++) {
       const base = MEASURED_GOLD_PIXELS[i % MEASURED_GOLD_PIXELS.length];
+      const palette = ORANGE_PARTICLE_PALETTE[i % ORANGE_PARTICLE_PALETTE.length];
+
+      // Anti-overlap: minimum spatial separation and distinct depth planes
+      const spatialOffsetX = ((i % 3) - 1) * 2.8;
+      const spatialOffsetY = (((i + 1) % 3) - 1) * 2.0;
+      const baseZ = 6.2 + i * 0.35;
+
+      const mat = new THREE.MeshStandardMaterial({
+        color: palette.color,
+        emissive: palette.emissive,
+        emissiveIntensity: 0.9,
+        roughness: 0.28,
+        metalness: 0.05,
+        blending: THREE.NormalBlending,
+        transparent: false,
+        opacity: 1.0,
+        depthWrite: true,
+      });
+
       stream.push({
-        baseX: base.x,
-        baseY: base.y,
-        size: base.size * (0.8 + Math.random() * 0.35),
-        offsetTime: i * 0.45,
-        speedX: 6.0 + Math.random() * 10.0,
-        speedY: 10.0 + Math.random() * 14.0,
+        id: i,
+        baseX: base.x + spatialOffsetX,
+        baseY: base.y + spatialOffsetY,
+        baseZ,
+        size: base.size * (0.85 + (i % 3) * 0.12),
+        offsetTime: i * 0.42,
+        speedX: 6.5 + (i % 3) * 4.0,
+        speedY: 10.0 + (i % 4) * 3.5,
         geo: new THREE.BoxGeometry(base.size, base.size, 1.8),
+        material: mat,
+        palette,
       });
     }
     return stream;
@@ -140,21 +179,50 @@ export default function LogoMark3DV2({
     return () => {
       geometries.forEach((g) => g.dispose());
       materials.forEach((m) => m.dispose());
-      goldMaterial.dispose();
-      staticGoldMeshes.forEach((m) => m.geo.dispose());
-      dynamicPixels.forEach((p) => p.geo.dispose());
+      staticGoldMeshes.forEach((m) => {
+        m.geo.dispose();
+        m.material.dispose();
+      });
+      dynamicPixels.forEach((p) => {
+        p.geo.dispose();
+        p.material.dispose();
+      });
     };
-  }, [geometries, materials, goldMaterial, staticGoldMeshes, dynamicPixels]);
+  }, [geometries, materials, staticGoldMeshes, dynamicPixels]);
 
   // 4. Subtle physical damping & parallax tilt (max 8 deg on each axis)
   useFrame((state, delta) => {
+    const curSolidOpacity = (typeof solidOpacity === 'object' && solidOpacity !== null && 'current' in solidOpacity)
+      ? solidOpacity.current
+      : solidOpacity;
+    const curGlint = (typeof glint === 'object' && glint !== null && 'current' in glint)
+      ? glint.current
+      : glint;
+
+    // Update extruded materials opacity and glint in useFrame
+    materials.forEach((m) => {
+      if (curSolidOpacity >= 0.999) {
+        if (m.transparent) m.transparent = false;
+        m.opacity = 1.0;
+      } else {
+        if (!m.transparent) m.transparent = true;
+        m.opacity = Math.max(0, curSolidOpacity);
+      }
+      if (curGlint > 0.01) {
+        m.emissive.set(0xffffff);
+        m.emissiveIntensity = curGlint * 0.45;
+      } else {
+        m.emissiveIntensity = 0;
+      }
+    });
+
     if (!groupRef.current || frozen) return;
 
     const time = state.clock.elapsedTime;
 
-    // Limit tilt to 8 degrees (~0.14 rad) with smooth damping
-    const maxTiltX = 0.14;
-    const maxTiltY = 0.14;
+    // Limit tilt to 8 degrees (~0.14 rad) with smooth damping (only after assembly settled)
+    const maxTiltX = showAssemblyMesh ? 0.02 : 0.14;
+    const maxTiltY = showAssemblyMesh ? 0.02 : 0.14;
 
     const targetRotX = THREE.MathUtils.clamp(mousePosition.y * 0.14, -maxTiltX, maxTiltX) + Math.sin(time * 0.7) * 0.018;
     const targetRotY = THREE.MathUtils.clamp(mousePosition.x * 0.14, -maxTiltY, maxTiltY) + Math.cos(time * 0.5) * 0.022;
@@ -164,8 +232,8 @@ export default function LogoMark3DV2({
     groupRef.current.rotation.y = THREE.MathUtils.damp(groupRef.current.rotation.y, targetRotY, 4, delta);
     groupRef.current.position.y = THREE.MathUtils.damp(groupRef.current.position.y, targetPosY, 3, delta);
 
-    // Live drift of gold pixels
-    if (particlesGroupRef.current && !prefersReducedMotion) {
+    // Live drift of orange pixels (scale-shrink fading to zero, no opacity fade)
+    if (particlesGroupRef.current && !prefersReducedMotion && curSolidOpacity > 0.05) {
       const children = particlesGroupRef.current.children;
       dynamicPixels.forEach((p, idx) => {
         const mesh = children[idx];
@@ -175,20 +243,31 @@ export default function LogoMark3DV2({
         const t = (time + p.offsetTime) % cycle;
         const progress = t / cycle;
 
-        // Break off stepped bite and drift up-right
+        // Break off stepped bite and drift up-right with distinct depth
         const curX = p.baseX + progress * p.speedX + (mousePosition.x * 3);
         const curY = p.baseY + progress * p.speedY + (mousePosition.y * 3);
-        const curZ = 6.0 + progress * 2.0;
+        const curZ = p.baseZ + progress * 2.2;
 
         mesh.position.set(curX, curY, curZ);
-        // Face camera (axis-aligned, only gentle view-axis wobble)
         mesh.rotation.z = Math.sin(time + idx) * 0.05;
 
-        // Fade out as it floats away
-        const fade = progress < 0.15 ? progress / 0.15 : 1 - (progress - 0.15) / 0.85;
-        if (mesh.material) {
-          mesh.material.opacity = Math.max(0, fade * 0.95);
+        // Fading: shrink scale to zero over last 28% of life, slight emissive reduction.
+        // Keep opacity = 1.0 and transparent = false to eliminate dark see-through look.
+        const birthScale = progress < 0.10 ? Math.sin((progress / 0.10) * Math.PI * 0.5) : 1.0;
+        const exitProgress = progress > 0.72 ? (progress - 0.72) / 0.28 : 0.0;
+        const exitScale = progress > 0.72 ? Math.max(0, 1.0 - Math.pow(exitProgress, 1.8)) : 1.0;
+        const currentScale = birthScale * exitScale;
+
+        mesh.scale.set(currentScale, currentScale, currentScale);
+
+        // Modest emissive reduction during exit so it stays rich without snapping
+        if (p.material) {
+          p.material.emissiveIntensity = 0.9 * (1.0 - exitProgress * 0.35);
+          p.material.opacity = 1.0;
+          p.material.transparent = false;
         }
+
+        mesh.visible = currentScale > 0.005;
       });
     }
   });
@@ -197,7 +276,16 @@ export default function LogoMark3DV2({
 
   return (
     <group ref={groupRef} scale={baseScale}>
-      {/* 3D Extruded White Logo Shapes (left brace, V, right brace) */}
+      {/* 1. Instanced Pixel Grid Assembly (active during loader) */}
+      {showAssemblyMesh && (
+        <LogoAssemblyMesh
+          progress={assemblyProgress}
+          isMobile={isMobile}
+          fuseProgress={fuseProgress}
+        />
+      )}
+
+      {/* 2. 3D Extruded White Logo Shapes (pre-compiled and fades in seamlessly during fuse) */}
       {geometries.map((geometry, index) => (
         <mesh
           key={geometry.uuid || index}
@@ -208,26 +296,26 @@ export default function LogoMark3DV2({
         />
       ))}
 
-      {/* Gold Pixels Stream */}
+      {/* 3. Deep Orange Pixels (static during assembly/reduced-motion, dynamic during live hero) */}
       {frozen || prefersReducedMotion ? (
         <group>
           {staticGoldMeshes.map((p) => (
             <mesh
               key={p.id}
               geometry={p.geo}
-              material={goldMaterial}
-              position={[p.x, p.y, 6.5]}
+              material={p.material}
+              position={[p.x, p.y, p.z]}
             />
           ))}
         </group>
       ) : (
         <group ref={particlesGroupRef}>
-          {dynamicPixels.map((p, idx) => (
+          {dynamicPixels.map((p) => (
             <mesh
-              key={idx}
+              key={p.id}
               geometry={p.geo}
-              material={goldMaterial.clone()}
-              position={[p.baseX, p.baseY, 6.5]}
+              material={p.material}
+              position={[p.baseX, p.baseY, p.baseZ]}
             />
           ))}
         </group>
