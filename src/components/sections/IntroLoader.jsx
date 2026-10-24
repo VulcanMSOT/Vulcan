@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
@@ -27,6 +27,7 @@ const V_MATRIX = [
 ];
 
 export default function IntroLoader({
+  onTransitionStart,
   onComplete,
   onSettled,
   onCrossfadeStart,
@@ -37,9 +38,23 @@ export default function IntroLoader({
     ? new URLSearchParams(window.location.search).get('phase')
     : null;
 
-  // 'assembling' -> 'assembled' (hold beat) -> 'zooming' (continuous pull back 1.2s) -> 'done'
+  // Strict state machine: 'assembling' -> 'assembled' -> 'transitioning' -> 'done'
   const [phase, setPhase] = useState(() => urlPhase || 'assembling');
-  const [crossfadeActive, setCrossfadeActive] = useState(() => urlPhase === 'done');
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
+
+  // Cache callbacks to prevent re-render timer invalidation
+  const callbacksRef = useRef({
+    onTransitionStart: onTransitionStart || onCrossfadeStart,
+    onComplete: onComplete || onSettled,
+  });
+  callbacksRef.current = {
+    onTransitionStart: onTransitionStart || onCrossfadeStart,
+    onComplete: onComplete || onSettled,
+  };
+
+  const startedRef = useRef(false);
+  const originalOverflowRef = useRef('');
 
   // Skip immediately if reduced motion or user already scrolled down (unless testing)
   const shouldSkip = useMemo(() => {
@@ -51,33 +66,6 @@ export default function IntroLoader({
     if (typeof window !== 'undefined' && window.scrollY > 50) return true;
     return false;
   }, [prefersReducedMotion, urlPhase]);
-
-  // Dynamically compute exact target scale and Y offset to seamlessly match 3D HeroCanvas
-  const [targetMetrics, setTargetMetrics] = useState(() => {
-    if (typeof window === 'undefined') return { scale: 2.71, y: -67.0 };
-    const isMobile = window.innerWidth < 768;
-    return isMobile ? { scale: 1.06, y: -59.0 } : { scale: 2.71, y: -67.0 };
-  });
-
-  useEffect(() => {
-    const updateMetrics = () => {
-      const isMobile = window.innerWidth < 768;
-      const container = document.getElementById('hero-canvas-container');
-      if (container) {
-        const rect = container.getBoundingClientRect();
-        const centerY = rect.top + rect.height / 2;
-        const viewportCenterY = window.innerHeight / 2;
-        const offsetY = centerY - viewportCenterY;
-        const scale = isMobile ? 1.06 : 2.71;
-        setTargetMetrics({ scale, y: Math.round(offsetY * 10) / 10 });
-      } else {
-        setTargetMetrics(isMobile ? { scale: 1.06, y: -59.0 } : { scale: 2.71, y: -67.0 });
-      }
-    };
-    updateMetrics();
-    window.addEventListener('resize', updateMetrics);
-    return () => window.removeEventListener('resize', updateMetrics);
-  }, []);
 
   // Extract pixel coordinates for grid
   const pixelPoints = useMemo(() => {
@@ -113,136 +101,123 @@ export default function IntroLoader({
     return points;
   }, []);
 
-  const triggerSkip = () => {
-    document.body.style.overflow = '';
-    setPhase('done');
-    setCrossfadeActive(true);
-    if (onCrossfadeStart) onCrossfadeStart();
-    if (onSettled) onSettled();
-    if (onComplete) onComplete();
-  };
+  // Initiate the full-screen zoom-out & slow dissolve (800ms)
+  const triggerTransition = useCallback(() => {
+    if (phaseRef.current === 'transitioning' || phaseRef.current === 'done') return;
+    phaseRef.current = 'transitioning';
+    setPhase('transitioning');
 
-  // Lock scrolling during the loader and release cleanly on settle or skip
+    if (callbacksRef.current.onTransitionStart) {
+      callbacksRef.current.onTransitionStart();
+    }
+
+    // Complete after 800ms smooth dissolve
+    setTimeout(() => {
+      document.body.style.overflow = originalOverflowRef.current || '';
+      phaseRef.current = 'done';
+      setPhase('done');
+      if (callbacksRef.current.onComplete) {
+        callbacksRef.current.onComplete();
+      }
+    }, 800);
+  }, []);
+
+  // Sequence timers
   useEffect(() => {
     if (urlPhase === 'done' || shouldSkip) {
-      if (onCrossfadeStart) onCrossfadeStart();
-      if (onSettled) onSettled();
-      if (onComplete) onComplete();
+      document.body.style.overflow = '';
+      if (callbacksRef.current.onComplete) {
+        callbacksRef.current.onComplete();
+      }
       return;
     }
-    if (urlPhase) return;
+    if (urlPhase === 'assembled' || urlPhase === 'transitioning') {
+      return;
+    }
 
-    const originalOverflow = document.body.style.overflow;
+    originalOverflowRef.current = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
     // 1. Assembling (0.0s -> 1.15s)
     const holdTimer = setTimeout(() => {
-      setPhase('assembled'); // Hold for a beat
+      if (phaseRef.current === 'assembling') {
+        phaseRef.current = 'assembled';
+        setPhase('assembled');
+      }
     }, 1150);
 
-    // 2. Hold beat (1.15s -> 1.65s) -> Begin zoom-out camera transition (1.2s duration)
-    const zoomTimer = setTimeout(() => {
-      setPhase('zooming');
-    }, 1650);
+    // 2. Hold beat (1.15s -> 1.55s) -> Begin full-screen zoom-out & dissolve
+    const autoTransitionTimer = setTimeout(() => {
+      if (phaseRef.current === 'assembled') {
+        triggerTransition();
+      }
+    }, 1550);
 
-    // 2.5 Crossfade start (2.55s, 300ms before settle): 3D canvas fades in, 2D loader dissolves
-    const crossfadeTimer = setTimeout(() => {
-      setCrossfadeActive(true);
-      if (onCrossfadeStart) onCrossfadeStart();
-    }, 2550);
-
-    // 3. Zoom-out transition settles (1.65s + 1.2s = 2.85s): unlock scroll cleanly
-    const settleTimer = setTimeout(() => {
-      document.body.style.overflow = originalOverflow;
-      if (onSettled) onSettled();
-    }, 2850);
-
-    // 4. Complete and unmount loader (2.95s)
-    const completeTimer = setTimeout(() => {
-      setPhase('done');
-      if (onComplete) onComplete();
-    }, 2950);
-
-    // Keyboard skip support ("press any key to enter")
+    // Keyboard trigger ("press any key to enter")
     const handleKeyDown = (e) => {
       if (['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) return;
-      document.body.style.overflow = originalOverflow;
-      setPhase('done');
-      setCrossfadeActive(true);
-      if (onCrossfadeStart) onCrossfadeStart();
-      if (onSettled) onSettled();
-      if (onComplete) onComplete();
+      triggerTransition();
     };
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.body.style.overflow = originalOverflow;
+      document.body.style.overflow = originalOverflowRef.current || '';
       window.removeEventListener('keydown', handleKeyDown);
       clearTimeout(holdTimer);
-      clearTimeout(zoomTimer);
-      clearTimeout(crossfadeTimer);
-      clearTimeout(settleTimer);
-      clearTimeout(completeTimer);
+      clearTimeout(autoTransitionTimer);
     };
-  }, [shouldSkip, urlPhase, onComplete, onSettled, onCrossfadeStart]);
+  }, [shouldSkip, urlPhase, triggerTransition]);
 
   if (shouldSkip || phase === 'done') return null;
 
-  const isMidZoom = phase === 'midzoom';
-  const isZooming = phase === 'zooming' || isMidZoom;
-  const isAssembledOrLater = phase === 'assembled' || isZooming;
+  const isTransitioning = phase === 'transitioning';
+  const isAssembledOrLater = phase === 'assembled' || isTransitioning;
 
   return (
     <AnimatePresence>
       <motion.div
         className={`fixed inset-0 z-[100] bg-vulcan-bg flex flex-col items-center justify-center overflow-hidden select-none ${
-          isZooming ? 'pointer-events-none' : 'cursor-pointer'
+          isTransitioning ? 'pointer-events-none' : 'cursor-pointer'
         }`}
         initial={{ opacity: 1 }}
         animate={{
-          opacity: crossfadeActive ? 0 : 1,
+          opacity: isTransitioning ? 0 : 1,
         }}
         exit={{ opacity: 0 }}
         transition={{
-          duration: 0.3,
-          ease: 'easeOut',
+          duration: 0.75,
+          ease: [0.16, 1, 0.3, 1], // Smooth physical deceleration curve
         }}
-        onClick={triggerSkip}
-        title="Click to skip"
+        onClick={triggerTransition}
+        title="Click to enter"
       >
         {/* Subtle radial background glow */}
         <div className="absolute w-[500px] h-[500px] bg-vulcan-gold/5 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Central Logo Container with Camera Zoom Out matching 3D Hero scale & position */}
-        <div className="relative flex flex-col items-center justify-center">
+        {/* Central Logo Container with Camera Zoom Out */}
+        <motion.div
+          className="relative flex flex-col items-center justify-center"
+          animate={{
+            scale: isTransitioning ? 0.92 : 1,
+            y: isTransitioning ? -8 : 0,
+          }}
+          transition={{
+            duration: 0.75,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        >
+          {/* Assembled Pixel Grid (softly blurs and dissolves out cleanly in first 220ms) */}
           <motion.div
             className="relative w-72 h-36 flex items-center justify-center"
             animate={{
-              scale: isMidZoom ? 1.8 : isZooming ? targetMetrics.scale : 1,
-              y: isMidZoom ? targetMetrics.y * 0.5 : isZooming ? targetMetrics.y : 0,
-              opacity: crossfadeActive ? 0 : 1,
-              filter: crossfadeActive ? 'blur(2px)' : 'blur(0px)',
+              opacity: isTransitioning ? 0 : 1,
+              filter: isTransitioning ? 'blur(3px)' : 'blur(0px)',
             }}
             transition={{
-              scale: {
-                duration: isMidZoom ? 0 : 1.2,
-                ease: [0.65, 0, 0.35, 1], // Smooth continuous camera pullback
-              },
-              y: {
-                duration: isMidZoom ? 0 : 1.2,
-                ease: [0.65, 0, 0.35, 1],
-              },
-              opacity: {
-                duration: 0.3,
-                ease: 'easeOut',
-              },
-              filter: {
-                duration: 0.3,
-                ease: 'easeOut',
-              },
+              duration: isTransitioning ? 0.22 : 0.4,
+              ease: 'easeOut',
             }}
           >
-            {/* Assembled Pixel Grid */}
             {pixelPoints.map((p) => (
               <motion.div
                 key={p.id}
@@ -288,16 +263,16 @@ export default function IntroLoader({
             ))}
           </motion.div>
 
-          {/* Wordmark Reveal under Logo (positioned relative to logo, fades out in first 200ms of zoom) */}
+          {/* Wordmark Reveal under Logo (fades out immediately when transition begins) */}
           <motion.div
-            className="absolute top-[calc(100%+16px)] flex flex-col items-center gap-1.5 pointer-events-none"
+            className="mt-6 flex flex-col items-center gap-1.5"
             initial={{ opacity: 0, y: 10 }}
             animate={{
-              opacity: isZooming ? 0 : isAssembledOrLater ? 1 : 0,
-              y: isZooming ? -5 : isAssembledOrLater ? 0 : 10,
+              opacity: isTransitioning ? 0 : isAssembledOrLater ? 1 : 0,
+              y: isTransitioning ? -5 : isAssembledOrLater ? 0 : 10,
             }}
             transition={{
-              duration: isZooming ? 0.2 : 0.4,
+              duration: isTransitioning ? 0.12 : 0.4,
               ease: [0.23, 1, 0.32, 1],
             }}
           >
@@ -308,13 +283,13 @@ export default function IntroLoader({
               assembling system
             </span>
           </motion.div>
-        </div>
+        </motion.div>
 
-        {/* Skip hint (fades out in first 200ms of zoom) */}
+        {/* Skip hint (fades out immediately when transition begins) */}
         <motion.div
           className="absolute bottom-6 font-mono text-[10px] text-vulcan-textFaint tracking-widest uppercase"
-          animate={{ opacity: isZooming ? 0 : 1 }}
-          transition={{ duration: 0.2 }}
+          animate={{ opacity: isTransitioning ? 0 : 1 }}
+          transition={{ duration: 0.12 }}
         >
           [click or press any key to enter]
         </motion.div>

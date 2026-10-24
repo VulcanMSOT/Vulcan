@@ -55,6 +55,9 @@ export default function SectionIndicator({ prefersReducedMotion, introSettled = 
         className={`fixed inset-0 pointer-events-none z-0 transition-opacity duration-700 ${
           introSettled ? 'opacity-100' : 'opacity-0'
         }`}
+        style={{
+          visibility: introSettled ? 'visible' : 'hidden',
+        }}
         aria-hidden="true"
       >
         <div
@@ -82,6 +85,10 @@ export default function SectionIndicator({ prefersReducedMotion, introSettled = 
         className={`hidden lg:flex fixed right-6 top-1/2 -translate-y-1/2 z-40 flex-col items-end gap-3.5 select-none pointer-events-auto transition-opacity duration-500 ${
           introSettled ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
+        style={{
+          visibility: introSettled ? 'visible' : 'hidden',
+        }}
+        inert={!introSettled ? '' : undefined}
       >
         {SECTIONS.map((section, index) => {
           const isActive = activeSection === section.id;

@@ -6,6 +6,7 @@ import { CLUB_INFO } from '../../content';
 export default function Hero({
   prefersReducedMotion,
   introSettled = true,
+  isTransitioning = false,
   heroCanvasVisible = true,
 }) {
   const scrollToWork = () => {
@@ -39,6 +40,11 @@ export default function Hero({
           ease: [0.23, 1, 0.32, 1],
           delay: prefersReducedMotion ? 0 : 0.05,
         }}
+        style={{
+          visibility: introSettled ? 'visible' : 'hidden',
+          pointerEvents: introSettled ? 'auto' : 'none',
+        }}
+        inert={!introSettled ? '' : undefined}
       >
         <div className="flex items-center gap-3">
           <img
@@ -68,15 +74,37 @@ export default function Hero({
         </div>
       </motion.header>
 
-      {/* Center 3D Showcase */}
-      <div
+      {/* Center 3D Showcase with smooth full-screen zoom-out */}
+      <motion.div
         id="hero-canvas-container"
-        className={`relative w-full max-w-4xl h-[52vh] sm:h-[58vh] md:h-[64vh] my-auto flex items-center justify-center z-10 transition-opacity duration-300 ease-out ${
-          heroCanvasVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        className={`relative w-full max-w-4xl h-[52vh] sm:h-[58vh] md:h-[64vh] my-auto flex items-center justify-center z-10 ${
+          heroCanvasVisible ? 'pointer-events-auto' : 'pointer-events-none'
         }`}
+        initial={{
+          opacity: 0,
+          scale: 1.4,
+        }}
+        animate={{
+          opacity: heroCanvasVisible ? 1 : 0,
+          scale: introSettled ? 1 : isTransitioning ? [1.4, 1] : 1.4,
+        }}
+        transition={{
+          opacity: {
+            duration: 0.5,
+            delay: isTransitioning ? 0.12 : 0,
+            ease: 'easeOut',
+          },
+          scale: {
+            duration: 0.8,
+            ease: [0.16, 1, 0.3, 1], // Smooth physical deceleration curve
+          },
+        }}
+        style={{
+          visibility: heroCanvasVisible ? 'visible' : 'hidden',
+        }}
       >
         <HeroCanvas prefersReducedMotion={prefersReducedMotion} />
-      </div>
+      </motion.div>
 
       {/* Bottom Hero Narrative: Tagline & Explore Button */}
       <motion.div
@@ -91,6 +119,11 @@ export default function Hero({
           ease: [0.23, 1, 0.32, 1],
           delay: prefersReducedMotion ? 0 : 0.15,
         }}
+        style={{
+          visibility: introSettled ? 'visible' : 'hidden',
+          pointerEvents: introSettled ? 'auto' : 'none',
+        }}
+        inert={!introSettled ? '' : undefined}
       >
         {/* Title & Tagline */}
         <div className="space-y-2">

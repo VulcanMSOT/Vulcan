@@ -20,10 +20,15 @@ export default function App() {
     ? new URLSearchParams(window.location.search).get('phase')
     : null;
 
-  const [loaderComplete, setLoaderComplete] = useState(() => urlPhase === 'done');
-  const [introSettled, setIntroSettled] = useState(() => urlPhase === 'done');
-  const [heroCanvasVisible, setHeroCanvasVisible] = useState(() => urlPhase === 'done');
+  // Single authoritative state machine: 'loading' | 'transitioning' | 'done'
+  const [introPhase, setIntroPhase] = useState(() => (urlPhase === 'done' ? 'done' : 'loading'));
   const prefersReducedMotion = usePrefersReducedMotion();
+
+  // Derived state flags
+  const isTransitioning = introPhase === 'transitioning';
+  const introSettled = introPhase === 'done';
+  const heroCanvasVisible = introPhase === 'transitioning' || introPhase === 'done';
+  const loaderComplete = introPhase === 'done';
 
   // Prevent browser scroll restoration jump on refresh
   useEffect(() => {
@@ -35,9 +40,7 @@ export default function App() {
       window.scrollY > 50 &&
       !window.location.search.includes('intro=true')
     ) {
-      setLoaderComplete(true);
-      setIntroSettled(true);
-      setHeroCanvasVisible(true);
+      setIntroPhase('done');
     }
   }, []);
 
@@ -58,15 +61,11 @@ export default function App() {
       {/* Spring-damped Custom Cursor (desktop only) */}
       <CustomCursor />
 
-      {/* 1. Intro Pixel Loader with continuous camera zoom-out */}
+      {/* 1. Intro Pixel Loader with continuous full-screen zoom-out & slow dissolve */}
       {!loaderComplete && (
         <IntroLoader
-          onCrossfadeStart={() => setHeroCanvasVisible(true)}
-          onComplete={() => setLoaderComplete(true)}
-          onSettled={() => {
-            setIntroSettled(true);
-            setHeroCanvasVisible(true);
-          }}
+          onTransitionStart={() => setIntroPhase('transitioning')}
+          onComplete={() => setIntroPhase('done')}
           prefersReducedMotion={prefersReducedMotion}
         />
       )}
@@ -77,6 +76,7 @@ export default function App() {
         <Hero
           prefersReducedMotion={prefersReducedMotion}
           introSettled={introSettled}
+          isTransitioning={isTransitioning}
           heroCanvasVisible={heroCanvasVisible}
         />
 
