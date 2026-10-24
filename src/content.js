@@ -68,39 +68,7 @@ export const WHAT_WE_DO = [
   }
 ];
 
-/**
- * Events (Horizontal Scroll Section)
- */
-export const EVENTS = [
-  {
-    id: "event-1",
-    date: "[EVENT DATE]",
-    title: "Hack-O-Lantern",
-    description: "Internal sprint session and competitive technical challenge.",
-    link: "/halloween-hack"
-  },
-  {
-    id: "event-2",
-    date: "[EVENT DATE]",
-    title: "[EVENT NAME]",
-    description: "Open source contribution workshop and architecture teardown.",
-    link: null
-  },
-  {
-    id: "event-3",
-    date: "[EVENT DATE]",
-    title: "[EVENT NAME]",
-    description: "Algorithmic showdown and timed problem-solving contest.",
-    link: null
-  },
-  {
-    id: "event-4",
-    date: "[EVENT DATE]",
-    title: "[EVENT NAME]",
-    description: "Demo day showcasing member-built tools and open projects.",
-    link: null
-  }
-];
+
 
 /**
  * Featured Projects
