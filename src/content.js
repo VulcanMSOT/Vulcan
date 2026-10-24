@@ -180,26 +180,64 @@ export const projects = PROJECTS;
 export const TEAM = [
   {
     id: "team-1",
-    name: "[MEMBER NAME]",
-    role: "[MEMBER ROLE]",
-    image: null
+    name: "Saicharan Draksharapu",
+    role: "President",
+    image: "/assets/team/saicharan.jpg",
+    links: {
+      github: "https://github.com/dsaicharan072-cmyk",
+      linkedin: "https://www.linkedin.com/in/saicharan-draksharapu-050065380/",
+      codeforces: "https://codeforces.com/profile/saicharan072"
+    }
   },
   {
     id: "team-2",
-    name: "[MEMBER NAME]",
-    role: "[MEMBER ROLE]",
-    image: null
+    name: "Himangshu Yadav",
+    role: "Treasurer",
+    image: "/assets/team/himangshu.jpg",
+    links: {
+      github: "https://github.com/HimangshuYadav",
+      linkedin: "https://www.linkedin.com/in/himangshuyadav"
+    }
   },
   {
     id: "team-3",
-    name: "[MEMBER NAME]",
-    role: "[MEMBER ROLE]",
-    image: null
+    name: "Pawan Tiwari",
+    role: "Competitive Programming",
+    image: "/assets/team/pawan.jpg",
+    links: {
+      linkedin: "https://www.linkedin.com/in/pawan-kumar-tiwari-/",
+      codeforces: "https://codeforces.com/profile/tiwaripawankumar217"
+    }
   },
   {
     id: "team-4",
-    name: "[MEMBER NAME]",
-    role: "[MEMBER ROLE]",
-    image: null
+    name: "Anushka Dewangan",
+    role: "Competitive Programming / PR",
+    image: "/assets/team/anushka.jpg",
+    links: {
+      linkedin: "https://www.linkedin.com/in/anushka-dewangan/",
+      codeforces: "https://codeforces.com/profile/anushkadewangan08102006"
+    }
+  },
+  {
+    id: "team-5",
+    name: "Padmasri Chikle",
+    role: "Competitive Programming / WebDev / PR",
+    image: "/assets/team/padmasri.jpg",
+    links: {
+      github: "https://github.com/padmasri-web",
+      linkedin: "https://www.linkedin.com/in/padmasri-chikle/",
+      codeforces: "https://codeforces.com/profile/padmasri2310"
+    }
+  },
+  {
+    id: "team-6",
+    name: "Jhalak Yadav",
+    role: "Development",
+    image: "/assets/team/jhalak.jpg",
+    links: {
+      github: "https://github.com/jhalak101205-cpu",
+      linkedin: "https://www.linkedin.com/in/jhalak-yadav-0b17b32b5/"
+    }
   }
 ];
