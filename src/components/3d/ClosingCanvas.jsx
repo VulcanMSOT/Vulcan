@@ -19,11 +19,10 @@ function sampleSegment(p1, p2, count) {
 
 /**
  * Generates the official Vulcan {V} 3D particle target points.
- * Traced with geometric precision from assets/vulcan-logo.png and
- * the official centerline brace paths in src/components/sections/About.jsx.
- *
- * Exclusively renders the pure, crisp {V} emblem with distinct separation
- * between the left brace {, the central V, and the right brace }.
+ * Traced with geometric precision:
+ * - Left brace { and right brace } from the official centerline paths in About.jsx
+ * - Central V defined as a clean, symmetrical, solid bold font V
+ * - Distinct visual separation between { and V and }
  */
 function generateVulcanEmblemPoints() {
   // Left Brace: 10 segments tracing official SVG path
@@ -41,7 +40,7 @@ function generateVulcanEmblemPoints() {
     { seg: [{ x: -1.82, y: -1.10 }, { x: -1.32, y: -1.10 }], count: 6 }, // Bottom hook
   ];
 
-  const leftBrace = [];
+  let leftBrace = [];
   lbSegments.forEach(({ seg, count }) => {
     const pts = sampleSegment(seg[0], seg[1], count);
     if (leftBrace.length > 0) pts.shift(); // Deduplicate corner vertices
@@ -51,29 +50,33 @@ function generateVulcanEmblemPoints() {
   // Right Brace: Exact horizontal reflection
   const rightBrace = leftBrace.map((p) => ({ x: -p.x, y: p.y }));
 
-  // Central V Body:
-  // 1. Flat top horizontal serif
-  const vTop = sampleSegment({ x: -0.92, y: 1.10 }, { x: -0.42, y: 1.10 }, 7);
-  // 2. Bold Left Arm (double-traced for geometric weight & crisp silhouette)
-  const vLeftOuter = sampleSegment({ x: -0.42, y: 1.10 }, { x: 0.00, y: -1.10 }, 15);
-  const vLeftInner = sampleSegment({ x: -0.74, y: 0.90 }, { x: -0.05, y: -0.95 }, 12);
-  // 3. Apex reinforcement
+  // Central V: Clean, symmetrical, bold font V
+  // Left arm (outer + inner double track for bold weight, plus top cap)
+  const vLeftOuter = sampleSegment({ x: -0.64, y: 1.10 }, { x: 0.00, y: -1.10 }, 16);
+  const vLeftInner = sampleSegment({ x: -0.46, y: 1.10 }, { x: 0.00, y: -0.76 }, 14);
+  const vLeftCap = sampleSegment({ x: -0.64, y: 1.10 }, { x: -0.46, y: 1.10 }, 3);
+
+  // Right arm (outer + inner double track for bold weight, plus top cap)
+  const vRightOuter = sampleSegment({ x: 0.64, y: 1.10 }, { x: 0.00, y: -1.10 }, 16);
+  const vRightInner = sampleSegment({ x: 0.46, y: 1.10 }, { x: 0.00, y: -0.76 }, 14);
+  const vRightCap = sampleSegment({ x: 0.46, y: 1.10 }, { x: 0.64, y: 1.10 }, 3);
+
+  // Solid apex junction at bottom
   const apex = [
-    { x: -0.06, y: -1.05 },
-    { x: 0.06, y: -1.05 },
+    { x: -0.05, y: -1.04 },
+    { x: 0.00, y: -1.10 },
+    { x: 0.05, y: -1.04 },
   ];
-  // 4. Right Arm ascending to top level
-  const vRightOuter = sampleSegment({ x: 0.00, y: -1.10 }, { x: 0.68, y: 1.10 }, 16);
-  const vRightInner = sampleSegment({ x: 0.05, y: -0.95 }, { x: 0.48, y: 1.10 }, 12);
 
   return [
     ...leftBrace,
-    ...vTop,
+    ...vLeftCap,
     ...vLeftOuter,
     ...vLeftInner,
     ...apex,
-    ...vRightOuter,
     ...vRightInner,
+    ...vRightOuter,
+    ...vRightCap,
     ...rightBrace,
   ];
 }
@@ -97,7 +100,7 @@ function ConvergingPixels({ progress }) {
       const startZ = Math.sin(elevation) * radius * 0.9 + (((i % 5) - 2) * 0.4);
 
       // Stagger threshold: Braces first, V body settles in rhythm
-      const isBrace = pt.x < -1.1 || pt.x > 1.1;
+      const isBrace = pt.x < -1.0 || pt.x > 1.0;
       const staggerBase = isBrace ? 0.00 : 0.04;
       const stagger = staggerBase + ((i % 8) * 0.015);
 
