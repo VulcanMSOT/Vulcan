@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
-import LogoAssemblyMesh from './LogoAssemblyMesh';
 
 const WHITE_COLOR = 0xF5F5F2;
 
@@ -52,11 +51,6 @@ export default function LogoMark3DV2({
   frozen = false,
   prefersReducedMotion = false,
   scaleOverride = null,
-  assemblyProgress = 1.0,
-  fuseProgress = 1.0,
-  showAssemblyMesh = false,
-  solidOpacity = 1.0,
-  glint = 0.0,
 }) {
   const groupRef = useRef();
   const particlesGroupRef = useRef();
@@ -192,37 +186,13 @@ export default function LogoMark3DV2({
 
   // 4. Subtle physical damping & parallax tilt (max 8 deg on each axis)
   useFrame((state, delta) => {
-    const curSolidOpacity = (typeof solidOpacity === 'object' && solidOpacity !== null && 'current' in solidOpacity)
-      ? solidOpacity.current
-      : solidOpacity;
-    const curGlint = (typeof glint === 'object' && glint !== null && 'current' in glint)
-      ? glint.current
-      : glint;
-
-    // Update extruded materials opacity and glint in useFrame
-    materials.forEach((m) => {
-      if (curSolidOpacity >= 0.999) {
-        if (m.transparent) m.transparent = false;
-        m.opacity = 1.0;
-      } else {
-        if (!m.transparent) m.transparent = true;
-        m.opacity = Math.max(0, curSolidOpacity);
-      }
-      if (curGlint > 0.01) {
-        m.emissive.set(0xffffff);
-        m.emissiveIntensity = curGlint * 0.45;
-      } else {
-        m.emissiveIntensity = 0;
-      }
-    });
-
     if (!groupRef.current || frozen) return;
 
     const time = state.clock.elapsedTime;
 
-    // Limit tilt to 8 degrees (~0.14 rad) with smooth damping (only after assembly settled)
-    const maxTiltX = showAssemblyMesh ? 0.02 : 0.14;
-    const maxTiltY = showAssemblyMesh ? 0.02 : 0.14;
+    // Limit tilt to 8 degrees (~0.14 rad) with smooth damping
+    const maxTiltX = 0.14;
+    const maxTiltY = 0.14;
 
     const targetRotX = THREE.MathUtils.clamp(mousePosition.y * 0.14, -maxTiltX, maxTiltX) + Math.sin(time * 0.7) * 0.018;
     const targetRotY = THREE.MathUtils.clamp(mousePosition.x * 0.14, -maxTiltY, maxTiltY) + Math.cos(time * 0.5) * 0.022;
@@ -233,7 +203,7 @@ export default function LogoMark3DV2({
     groupRef.current.position.y = THREE.MathUtils.damp(groupRef.current.position.y, targetPosY, 3, delta);
 
     // Live drift of orange pixels (scale-shrink fading to zero, no opacity fade)
-    if (particlesGroupRef.current && !prefersReducedMotion && curSolidOpacity > 0.05) {
+    if (particlesGroupRef.current && !prefersReducedMotion) {
       const children = particlesGroupRef.current.children;
       dynamicPixels.forEach((p, idx) => {
         const mesh = children[idx];
@@ -276,16 +246,7 @@ export default function LogoMark3DV2({
 
   return (
     <group ref={groupRef} scale={baseScale}>
-      {/* 1. Instanced Pixel Grid Assembly (active during loader) */}
-      {showAssemblyMesh && (
-        <LogoAssemblyMesh
-          progress={assemblyProgress}
-          isMobile={isMobile}
-          fuseProgress={fuseProgress}
-        />
-      )}
-
-      {/* 2. 3D Extruded White Logo Shapes (pre-compiled and fades in seamlessly during fuse) */}
+      {/* 3D Extruded White Logo Shapes */}
       {geometries.map((geometry, index) => (
         <mesh
           key={geometry.uuid || index}

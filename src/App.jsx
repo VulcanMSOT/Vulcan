@@ -4,6 +4,7 @@ import { usePrefersReducedMotion } from './hooks/usePrefersReducedMotion';
 import ScrollProgress from './components/ui/ScrollProgress';
 import SectionIndicator from './components/ui/SectionIndicator';
 import CustomCursor from './components/ui/CustomCursor';
+import IntroLoader from './components/sections/IntroLoader';
 import Hero from './components/sections/Hero';
 import About from './components/sections/About';
 import HackOLanternTeaser from './components/sections/HackOLanternTeaser';
@@ -19,6 +20,7 @@ export default function App() {
     ? new URLSearchParams(window.location.search).get('phase')
     : null;
 
+  const [loaderComplete, setLoaderComplete] = useState(() => urlPhase === 'done');
   const [introSettled, setIntroSettled] = useState(() => urlPhase === 'done');
   const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -32,12 +34,13 @@ export default function App() {
       window.scrollY > 50 &&
       !window.location.search.includes('intro=true')
     ) {
+      setLoaderComplete(true);
       setIntroSettled(true);
     }
   }, []);
 
-  // Initialize Lenis smooth scroll coordinated with GSAP ScrollTrigger once intro settles
-  useLenis(introSettled);
+  // Initialize Lenis smooth scroll coordinated with GSAP ScrollTrigger
+  useLenis();
 
   return (
     <div className="relative min-h-screen bg-vulcan-bg text-white selection:bg-vulcan-gold/20 selection:text-vulcan-gold">
@@ -50,13 +53,21 @@ export default function App() {
       {/* Spring-damped Custom Cursor (desktop only) */}
       <CustomCursor />
 
+      {/* 1. Intro Pixel Loader with continuous camera zoom-out */}
+      {!loaderComplete && (
+        <IntroLoader
+          onComplete={() => setLoaderComplete(true)}
+          onSettled={() => setIntroSettled(true)}
+          prefersReducedMotion={prefersReducedMotion}
+        />
+      )}
+
       {/* Main Landing Flow */}
       <main className="relative w-full overflow-hidden">
-        {/* 1. Hero with integrated persistent 3D loader and camera zoom-out */}
+        {/* 2. Hero */}
         <Hero
           prefersReducedMotion={prefersReducedMotion}
           introSettled={introSettled}
-          onSettled={() => setIntroSettled(true)}
         />
 
         {/* 3. About */}
