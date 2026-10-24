@@ -20,9 +20,9 @@ function sampleSegment(p1, p2, count) {
 /**
  * Generates the official Vulcan {V} 3D particle target points.
  * Traced with geometric precision:
- * - Left brace { and right brace } from the official centerline paths in About.jsx
+ * - Left brace { and right brace } from official centerline paths in About.jsx
  * - Central V defined as a clean, symmetrical, solid bold font V
- * - Distinct visual separation between { and V and }
+ * - Separated into braces and V groups for vibrant theme-orange material styling
  */
 function generateVulcanEmblemPoints() {
   // Left Brace: 10 segments tracing official SVG path
@@ -68,156 +68,192 @@ function generateVulcanEmblemPoints() {
     { x: 0.05, y: -1.04 },
   ];
 
-  return [
-    ...leftBrace,
-    ...vLeftCap,
-    ...vLeftOuter,
-    ...vLeftInner,
-    ...apex,
-    ...vRightInner,
-    ...vRightOuter,
-    ...vRightCap,
-    ...rightBrace,
-  ];
+  return {
+    braces: [...leftBrace, ...rightBrace],
+    v: [
+      ...vLeftCap,
+      ...vLeftOuter,
+      ...vLeftInner,
+      ...apex,
+      ...vRightInner,
+      ...vRightOuter,
+      ...vRightCap,
+    ],
+  };
 }
 
 function ConvergingPixels({ progress }) {
-  const meshRef = useRef();
+  const braceMeshRef = useRef();
+  const vMeshRef = useRef();
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   // Compute points with deterministic 3D dispersal & vortex dynamics
-  const particles = useMemo(() => {
-    const rawPoints = generateVulcanEmblemPoints();
+  const { braceParticles, vParticles } = useMemo(() => {
+    const { braces, v } = generateVulcanEmblemPoints();
 
-    return rawPoints.map((pt, i) => {
-      // Dispersed 3D coordinates using golden-ratio distribution
-      const goldenAngle = (i * 137.5 * Math.PI) / 180;
-      const radius = 3.6 + ((i * 29) % 23) * 0.12;
-      const elevation = ((((i * 67) % 19) - 9) / 9) * 0.9;
+    const buildParticleGroup = (pts, isBraceGroup) =>
+      pts.map((pt, i) => {
+        // Dispersed 3D coordinates using golden-ratio distribution
+        const goldenAngle = (i * 137.5 * Math.PI) / 180;
+        const radius = 3.6 + ((i * 29) % 23) * 0.12;
+        const elevation = ((((i * 67) % 19) - 9) / 9) * 0.9;
 
-      const startX = Math.cos(goldenAngle) * Math.cos(elevation) * radius;
-      const startY = Math.sin(goldenAngle) * Math.cos(elevation) * radius * 0.85;
-      const startZ = Math.sin(elevation) * radius * 0.9 + (((i % 5) - 2) * 0.4);
+        const startX = Math.cos(goldenAngle) * Math.cos(elevation) * radius;
+        const startY = Math.sin(goldenAngle) * Math.cos(elevation) * radius * 0.85;
+        const startZ = Math.sin(elevation) * radius * 0.9 + (((i % 5) - 2) * 0.4);
 
-      // Stagger threshold: Braces first, V body settles in rhythm
-      const isBrace = pt.x < -1.0 || pt.x > 1.0;
-      const staggerBase = isBrace ? 0.00 : 0.04;
-      const stagger = staggerBase + ((i % 8) * 0.015);
+        // Stagger threshold: Braces assemble first, V body settles in rhythm
+        const staggerBase = isBraceGroup ? 0.00 : 0.04;
+        const stagger = staggerBase + ((i % 8) * 0.015);
 
-      // Vortex swirl direction and speed
-      const swirlDir = i % 2 === 0 ? 1 : -1;
-      const swirlSpeed = swirlDir * (1.1 + (i % 5) * 0.2);
+        // Vortex swirl direction and speed
+        const swirlDir = i % 2 === 0 ? 1 : -1;
+        const swirlSpeed = swirlDir * (1.1 + (i % 5) * 0.2);
 
-      // Parabolic z-depth arc during flight
-      const zArcStrength = (((i % 7) - 3) * 0.28) + 0.35;
+        // Parabolic z-depth arc during flight
+        const zArcStrength = (((i % 7) - 3) * 0.28) + 0.35;
 
-      // Random spin angular velocities for dispersed tumbling
-      const spinX = 0.8 + ((i % 4) * 0.4);
-      const spinY = 1.0 + ((i % 5) * 0.3);
-      const spinZ = 0.6 + ((i % 3) * 0.5);
+        // Random spin angular velocities for dispersed tumbling
+        const spinX = 0.8 + ((i % 4) * 0.4);
+        const spinY = 1.0 + ((i % 5) * 0.3);
+        const spinZ = 0.6 + ((i % 3) * 0.5);
 
-      return {
-        id: i,
-        startX,
-        startY,
-        startZ,
-        targetX: pt.x,
-        targetY: pt.y,
-        targetZ: 0,
-        size: 0.074,
-        stagger,
-        swirlSpeed,
-        zArcStrength,
-        spinX,
-        spinY,
-        spinZ,
-      };
-    });
+        return {
+          id: i,
+          startX,
+          startY,
+          startZ,
+          targetX: pt.x,
+          targetY: pt.y,
+          targetZ: 0,
+          size: isBraceGroup ? 0.074 : 0.076,
+          stagger,
+          swirlSpeed,
+          zArcStrength,
+          spinX,
+          spinY,
+          spinZ,
+        };
+      });
+
+    return {
+      braceParticles: buildParticleGroup(braces, true),
+      vParticles: buildParticleGroup(v, false),
+    };
   }, []);
 
   const cubeGeo = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
 
-  // Premium titanium white material matching About.jsx #F5F5F2
-  const whiteMat = useMemo(
+  // Vulcan Gold / Amber Material for the Braces { } (#F5A623)
+  const braceMat = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: 0xF5F5F2,
-        roughness: 0.22,
-        metalness: 0.42,
+        color: 0xF5A623,
+        emissive: 0xB84800,
+        emissiveIntensity: 1.15,
+        roughness: 0.18,
+        metalness: 0.72,
+      }),
+    []
+  );
+
+  // Vibrant Website Theme Orange Material for Central V (#FF7A1A)
+  const vMat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: 0xFF7A1A,
+        emissive: 0xD95A00,
+        emissiveIntensity: 1.85,
+        roughness: 0.15,
+        metalness: 0.80,
       }),
     []
   );
 
   useFrame((state) => {
-    if (!meshRef.current) return;
     const time = state.clock.elapsedTime;
     const globalT = THREE.MathUtils.clamp(progress, 0, 1);
 
-    particles.forEach((p, i) => {
-      // Individual staggered progress
-      const localT = THREE.MathUtils.clamp((globalT - p.stagger) / (1 - p.stagger), 0, 1);
+    const updateMesh = (meshRef, particles) => {
+      if (!meshRef.current) return;
 
-      // Cubic-bezier ease out with magnetic snap
-      const ease = 1 - Math.pow(1 - localT, 3.2);
+      particles.forEach((p, i) => {
+        // Individual staggered progress
+        const localT = THREE.MathUtils.clamp((globalT - p.stagger) / (1 - p.stagger), 0, 1);
 
-      // Dynamic vortex / spiral tangential swirl that smoothly decays to 0 at ease=1
-      const swirlAngle = (1 - ease) * p.swirlSpeed * Math.PI * 0.75;
-      const swirlFactor = Math.sin((1 - ease) * Math.PI * 0.5);
-      const cosSwirl = Math.cos(swirlAngle * swirlFactor);
-      const sinSwirl = Math.sin(swirlAngle * swirlFactor);
+        // Cubic-bezier ease out with magnetic snap
+        const ease = 1 - Math.pow(1 - localT, 3.2);
 
-      // Lerp base trajectory
-      const lerpX = THREE.MathUtils.lerp(p.startX, p.targetX, ease);
-      const lerpY = THREE.MathUtils.lerp(p.startY, p.targetY, ease);
+        // Dynamic vortex / spiral tangential swirl that smoothly decays to 0 at ease=1
+        const swirlAngle = (1 - ease) * p.swirlSpeed * Math.PI * 0.75;
+        const swirlFactor = Math.sin((1 - ease) * Math.PI * 0.5);
+        const cosSwirl = Math.cos(swirlAngle * swirlFactor);
+        const sinSwirl = Math.sin(swirlAngle * swirlFactor);
 
-      // Apply swirling orbital curve
-      const curX = lerpX * cosSwirl - lerpY * sinSwirl;
-      const curY = lerpX * sinSwirl + lerpY * cosSwirl;
+        // Lerp base trajectory
+        const lerpX = THREE.MathUtils.lerp(p.startX, p.targetX, ease);
+        const lerpY = THREE.MathUtils.lerp(p.startY, p.targetY, ease);
 
-      // Depth swoop along Z arc
-      const zArc = Math.sin(localT * Math.PI) * p.zArcStrength;
-      const curZ = THREE.MathUtils.lerp(p.startZ, p.targetZ, ease) + zArc;
+        // Apply swirling orbital curve
+        const curX = lerpX * cosSwirl - lerpY * sinSwirl;
+        const curY = lerpX * sinSwirl + lerpY * cosSwirl;
 
-      // Micro-idle motion once converged (localT > 0.85)
-      const idleWeight = Math.max(0, (localT - 0.85) / 0.15);
-      let finalX = curX;
-      let finalY = curY;
-      let finalZ = curZ;
+        // Depth swoop along Z arc
+        const zArc = Math.sin(localT * Math.PI) * p.zArcStrength;
+        const curZ = THREE.MathUtils.lerp(p.startZ, p.targetZ, ease) + zArc;
 
-      // Subtly breathing collective levitation
-      finalY += Math.sin(time * 1.6 + p.targetX * 0.8) * 0.018 * idleWeight;
-      finalX += Math.cos(time * 1.3 + p.targetY * 0.8) * 0.010 * idleWeight;
-      finalZ += Math.sin(time * 2.0 + p.id * 0.4) * 0.015 * idleWeight;
+        // Micro-idle motion once converged (localT > 0.85)
+        const idleWeight = Math.max(0, (localT - 0.85) / 0.15);
+        let finalX = curX;
+        let finalY = curY;
+        let finalZ = curZ;
 
-      dummy.position.set(finalX, finalY, finalZ);
-      dummy.scale.setScalar(p.size);
+        // Subtly breathing collective levitation
+        finalY += Math.sin(time * 1.6 + p.targetX * 0.8) * 0.018 * idleWeight;
+        finalX += Math.cos(time * 1.3 + p.targetY * 0.8) * 0.010 * idleWeight;
+        finalZ += Math.sin(time * 2.0 + p.id * 0.4) * 0.015 * idleWeight;
 
-      // Rotational tumbling in dispersed state, snapping cleanly to grid upon convergence
-      const rotDecay = 1 - ease;
-      dummy.rotation.x = time * p.spinX * rotDecay;
-      dummy.rotation.y = time * p.spinY * rotDecay;
-      dummy.rotation.z = time * p.spinZ * rotDecay;
+        dummy.position.set(finalX, finalY, finalZ);
+        dummy.scale.setScalar(p.size);
 
-      dummy.updateMatrix();
-      meshRef.current.setMatrixAt(i, dummy.matrix);
-    });
+        // Rotational tumbling in dispersed state, snapping cleanly to grid upon convergence
+        const rotDecay = 1 - ease;
+        dummy.rotation.x = time * p.spinX * rotDecay;
+        dummy.rotation.y = time * p.spinY * rotDecay;
+        dummy.rotation.z = time * p.spinZ * rotDecay;
 
-    meshRef.current.instanceMatrix.needsUpdate = true;
+        dummy.updateMatrix();
+        meshRef.current.setMatrixAt(i, dummy.matrix);
+      });
+
+      meshRef.current.instanceMatrix.needsUpdate = true;
+    };
+
+    updateMesh(braceMeshRef, braceParticles);
+    updateMesh(vMeshRef, vParticles);
   });
 
   return (
-    <instancedMesh
-      ref={meshRef}
-      args={[cubeGeo, whiteMat, particles.length]}
-    />
+    <group>
+      {/* Outer Braces { } in Warm Amber Vulcan Gold */}
+      <instancedMesh
+        ref={braceMeshRef}
+        args={[cubeGeo, braceMat, braceParticles.length]}
+      />
+      {/* Central V in Vibrant Theme Orange */}
+      <instancedMesh
+        ref={vMeshRef}
+        args={[cubeGeo, vMat, vParticles.length]}
+      />
+    </group>
   );
 }
 
 export default function ClosingCanvas({ progress, prefersReducedMotion }) {
   if (prefersReducedMotion) {
     return (
-      <div className="w-full h-full flex items-center justify-center font-mono text-4xl text-zinc-400 select-none">
-        &#123; <span className="text-white font-bold mx-2">V</span> &#125;
+      <div className="w-full h-full flex items-center justify-center font-mono text-4xl text-[#F5A623] select-none drop-shadow-[0_0_24px_rgba(255,122,26,0.4)]">
+        &#123; <span className="text-[#FF7A1A] font-bold mx-2 drop-shadow-[0_0_18px_rgba(255,122,26,0.85)]">V</span> &#125;
       </div>
     );
   }
@@ -229,17 +265,20 @@ export default function ClosingCanvas({ progress, prefersReducedMotion }) {
         dpr={[1, Math.min(window.devicePixelRatio, 1.5)]}
         gl={{ antialias: true, alpha: true }}
       >
-        {/* Dark-mode ambient fill */}
-        <ambientLight intensity={0.7} />
+        {/* Dark-mode warm ambient fill */}
+        <ambientLight intensity={0.7} color="#1c120a" />
 
         {/* Crisp specular key light */}
-        <directionalLight position={[5, 6, 5]} intensity={2.2} color="#ffffff" />
+        <directionalLight position={[4, 5, 4]} intensity={2.2} color="#fff4e6" />
 
-        {/* Subtle rim light for edge separation against dark backgrounds */}
-        <directionalLight position={[-5, -4, -3]} intensity={1.2} color="#38bdf8" />
+        {/* Subtle electric rim light for edge separation against dark backgrounds */}
+        <directionalLight position={[-5, -4, -3]} intensity={1.1} color="#38bdf8" />
 
-        {/* Center crisp light illuminating the pure {V} emblem */}
-        <pointLight position={[0, 0, 2.2]} intensity={2.4} color="#ffffff" distance={8} />
+        {/* Central vibrant theme-orange point light radiating from the V */}
+        <pointLight position={[0, 0, 2.0]} intensity={4.5} color="#FF7A1A" distance={8} />
+
+        {/* Secondary warm gold point light at base */}
+        <pointLight position={[0, -0.9, 1.4]} intensity={2.6} color="#F5A623" distance={6} />
 
         <ConvergingPixels progress={progress} />
       </Canvas>
