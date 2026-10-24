@@ -22,8 +22,8 @@ function sampleSegment(p1, p2, count) {
  * Traced with geometric precision from assets/vulcan-logo.png and
  * the official centerline brace paths in src/components/sections/About.jsx.
  *
- * Provides clear separation between { Left Brace, Central V, and Right Brace },
- * with authentic signature gold ember sparks breaking off the upper-right of the V.
+ * Exclusively renders the pure, crisp {V} emblem with distinct separation
+ * between the left brace {, the central V, and the right brace }.
  */
 function generateVulcanEmblemPoints() {
   // Left Brace: 10 segments tracing official SVG path
@@ -57,113 +57,79 @@ function generateVulcanEmblemPoints() {
   // 2. Bold Left Arm (double-traced for geometric weight & crisp silhouette)
   const vLeftOuter = sampleSegment({ x: -0.42, y: 1.10 }, { x: 0.00, y: -1.10 }, 15);
   const vLeftInner = sampleSegment({ x: -0.74, y: 0.90 }, { x: -0.05, y: -0.95 }, 12);
-  // 3. Right Arm
-  const vRightOuter = sampleSegment({ x: 0.00, y: -1.10 }, { x: 0.76, y: 0.70 }, 14);
-  const vRightInner = sampleSegment({ x: 0.04, y: -0.90 }, { x: 0.58, y: 0.45 }, 9);
-  // 4. Apex reinforcement
+  // 3. Apex reinforcement
   const apex = [
     { x: -0.06, y: -1.05 },
     { x: 0.06, y: -1.05 },
   ];
+  // 4. Right Arm ascending to top level
+  const vRightOuter = sampleSegment({ x: 0.00, y: -1.10 }, { x: 0.68, y: 1.10 }, 16);
+  const vRightInner = sampleSegment({ x: 0.05, y: -0.95 }, { x: 0.48, y: 1.10 }, 12);
 
-  const whitePts = [
-    ...leftBrace.map((p) => ({ ...p, isGold: false })),
-    ...vTop.map((p) => ({ ...p, isGold: false })),
-    ...vLeftOuter.map((p) => ({ ...p, isGold: false })),
-    ...vLeftInner.map((p) => ({ ...p, isGold: false })),
-    ...apex.map((p) => ({ ...p, isGold: false })),
-    ...vRightOuter.map((p) => ({ ...p, isGold: false })),
-    ...vRightInner.map((p) => ({ ...p, isGold: false })),
-    ...rightBrace.map((p) => ({ ...p, isGold: false })),
+  return [
+    ...leftBrace,
+    ...vTop,
+    ...vLeftOuter,
+    ...vLeftInner,
+    ...apex,
+    ...vRightOuter,
+    ...vRightInner,
+    ...rightBrace,
   ];
-
-  // Signature Floating Gold Pixel Sparks (cluster breaking off from upper-right arm)
-  const goldSparks = [
-    { x: 0.38, y: 0.22, isGold: true },
-    { x: 0.48, y: 0.38, isGold: true },
-    { x: 0.35, y: 0.55, isGold: true },
-    { x: 0.55, y: 0.62, isGold: true },
-    { x: 0.44, y: 0.78, isGold: true },
-    { x: 0.64, y: 0.88, isGold: true },
-    { x: 0.54, y: 1.05, isGold: true },
-    { x: 0.76, y: 1.02, isGold: true },
-    { x: 0.88, y: 1.18, isGold: true },
-    { x: 0.66, y: 1.25, isGold: true },
-    { x: 0.82, y: 1.35, isGold: true },
-    { x: 0.96, y: 1.28, isGold: true },
-    { x: 0.48, y: 1.30, isGold: true },
-    { x: 0.72, y: 0.50, isGold: true },
-    { x: 0.84, y: 0.70, isGold: true },
-    { x: 0.94, y: 0.92, isGold: true },
-    { x: 1.06, y: 1.10, isGold: true },
-    { x: 0.30, y: 0.70, isGold: true },
-  ];
-
-  return {
-    white: whitePts,
-    gold: goldSparks,
-  };
 }
 
 function ConvergingPixels({ progress }) {
-  const whiteMeshRef = useRef();
-  const goldMeshRef = useRef();
+  const meshRef = useRef();
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   // Compute points with deterministic 3D dispersal & vortex dynamics
-  const { whiteParticles, goldParticles } = useMemo(() => {
-    const { white, gold } = generateVulcanEmblemPoints();
+  const particles = useMemo(() => {
+    const rawPoints = generateVulcanEmblemPoints();
 
-    const buildParticleData = (pts, isGoldGroup) =>
-      pts.map((pt, i) => {
-        // Dispersed 3D coordinates using golden-ratio distribution
-        const goldenAngle = (i * 137.5 * Math.PI) / 180;
-        const radius = 3.6 + ((i * 29) % 23) * 0.12;
-        const elevation = ((((i * 67) % 19) - 9) / 9) * 0.9;
+    return rawPoints.map((pt, i) => {
+      // Dispersed 3D coordinates using golden-ratio distribution
+      const goldenAngle = (i * 137.5 * Math.PI) / 180;
+      const radius = 3.6 + ((i * 29) % 23) * 0.12;
+      const elevation = ((((i * 67) % 19) - 9) / 9) * 0.9;
 
-        const startX = Math.cos(goldenAngle) * Math.cos(elevation) * radius;
-        const startY = Math.sin(goldenAngle) * Math.cos(elevation) * radius * 0.85;
-        const startZ = Math.sin(elevation) * radius * 0.9 + (((i % 5) - 2) * 0.4);
+      const startX = Math.cos(goldenAngle) * Math.cos(elevation) * radius;
+      const startY = Math.sin(goldenAngle) * Math.cos(elevation) * radius * 0.85;
+      const startZ = Math.sin(elevation) * radius * 0.9 + (((i % 5) - 2) * 0.4);
 
-        // Stagger threshold: Braces first, V body next, Gold sparks finalize
-        const staggerBase = isGoldGroup ? 0.08 : (pt.x < -1.1 || pt.x > 1.1 ? 0.00 : 0.04);
-        const stagger = staggerBase + ((i % 8) * 0.015);
+      // Stagger threshold: Braces first, V body settles in rhythm
+      const isBrace = pt.x < -1.1 || pt.x > 1.1;
+      const staggerBase = isBrace ? 0.00 : 0.04;
+      const stagger = staggerBase + ((i % 8) * 0.015);
 
-        // Vortex swirl direction and speed
-        const swirlDir = (i % 2 === 0 ? 1 : -1);
-        const swirlSpeed = swirlDir * (1.1 + (i % 5) * 0.2);
+      // Vortex swirl direction and speed
+      const swirlDir = i % 2 === 0 ? 1 : -1;
+      const swirlSpeed = swirlDir * (1.1 + (i % 5) * 0.2);
 
-        // Parabolic z-depth arc during flight
-        const zArcStrength = (((i % 7) - 3) * 0.28) + (isGoldGroup ? 0.6 : 0.35);
+      // Parabolic z-depth arc during flight
+      const zArcStrength = (((i % 7) - 3) * 0.28) + 0.35;
 
-        // Random spin angular velocities for dispersed tumbling
-        const spinX = 0.8 + ((i % 4) * 0.4);
-        const spinY = 1.0 + ((i % 5) * 0.3);
-        const spinZ = 0.6 + ((i % 3) * 0.5);
+      // Random spin angular velocities for dispersed tumbling
+      const spinX = 0.8 + ((i % 4) * 0.4);
+      const spinY = 1.0 + ((i % 5) * 0.3);
+      const spinZ = 0.6 + ((i % 3) * 0.5);
 
-        return {
-          id: i,
-          startX,
-          startY,
-          startZ,
-          targetX: pt.x,
-          targetY: pt.y,
-          targetZ: 0,
-          isGold: pt.isGold,
-          size: pt.isGold ? 0.076 : 0.072,
-          stagger,
-          swirlSpeed,
-          zArcStrength,
-          spinX,
-          spinY,
-          spinZ,
-        };
-      });
-
-    return {
-      whiteParticles: buildParticleData(white, false),
-      goldParticles: buildParticleData(gold, true),
-    };
+      return {
+        id: i,
+        startX,
+        startY,
+        startZ,
+        targetX: pt.x,
+        targetY: pt.y,
+        targetZ: 0,
+        size: 0.074,
+        stagger,
+        swirlSpeed,
+        zArcStrength,
+        spinX,
+        spinY,
+        spinZ,
+      };
+    });
   }, []);
 
   const cubeGeo = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
@@ -179,108 +145,68 @@ function ConvergingPixels({ progress }) {
     []
   );
 
-  // Vibrant emissive gold ember material
-  const goldMat = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: 0xF5A623,
-        emissive: 0xd97706,
-        emissiveIntensity: 1.9,
-        roughness: 0.16,
-        metalness: 0.82,
-      }),
-    []
-  );
-
   useFrame((state) => {
+    if (!meshRef.current) return;
     const time = state.clock.elapsedTime;
     const globalT = THREE.MathUtils.clamp(progress, 0, 1);
 
-    const updateMeshInstances = (meshRef, particles, isGold) => {
-      if (!meshRef.current) return;
+    particles.forEach((p, i) => {
+      // Individual staggered progress
+      const localT = THREE.MathUtils.clamp((globalT - p.stagger) / (1 - p.stagger), 0, 1);
 
-      particles.forEach((p, i) => {
-        // Individual staggered progress
-        const localT = THREE.MathUtils.clamp((globalT - p.stagger) / (1 - p.stagger), 0, 1);
+      // Cubic-bezier ease out with magnetic snap
+      const ease = 1 - Math.pow(1 - localT, 3.2);
 
-        // Cubic-bezier ease out with magnetic snap
-        const ease = 1 - Math.pow(1 - localT, 3.2);
+      // Dynamic vortex / spiral tangential swirl that smoothly decays to 0 at ease=1
+      const swirlAngle = (1 - ease) * p.swirlSpeed * Math.PI * 0.75;
+      const swirlFactor = Math.sin((1 - ease) * Math.PI * 0.5);
+      const cosSwirl = Math.cos(swirlAngle * swirlFactor);
+      const sinSwirl = Math.sin(swirlAngle * swirlFactor);
 
-        // Dynamic vortex / spiral tangential swirl that smoothly decays to 0 at ease=1
-        const swirlAngle = (1 - ease) * p.swirlSpeed * Math.PI * 0.75;
-        const swirlFactor = Math.sin((1 - ease) * Math.PI * 0.5);
-        const cosSwirl = Math.cos(swirlAngle * swirlFactor);
-        const sinSwirl = Math.sin(swirlAngle * swirlFactor);
+      // Lerp base trajectory
+      const lerpX = THREE.MathUtils.lerp(p.startX, p.targetX, ease);
+      const lerpY = THREE.MathUtils.lerp(p.startY, p.targetY, ease);
 
-        // Lerp base trajectory
-        const lerpX = THREE.MathUtils.lerp(p.startX, p.targetX, ease);
-        const lerpY = THREE.MathUtils.lerp(p.startY, p.targetY, ease);
+      // Apply swirling orbital curve
+      const curX = lerpX * cosSwirl - lerpY * sinSwirl;
+      const curY = lerpX * sinSwirl + lerpY * cosSwirl;
 
-        // Apply swirling orbital curve
-        const curX = lerpX * cosSwirl - lerpY * sinSwirl;
-        const curY = lerpX * sinSwirl + lerpY * cosSwirl;
+      // Depth swoop along Z arc
+      const zArc = Math.sin(localT * Math.PI) * p.zArcStrength;
+      const curZ = THREE.MathUtils.lerp(p.startZ, p.targetZ, ease) + zArc;
 
-        // Depth swoop along Z arc
-        const zArc = Math.sin(localT * Math.PI) * p.zArcStrength;
-        let curZ = THREE.MathUtils.lerp(p.startZ, p.targetZ, ease) + zArc;
+      // Micro-idle motion once converged (localT > 0.85)
+      const idleWeight = Math.max(0, (localT - 0.85) / 0.15);
+      let finalX = curX;
+      let finalY = curY;
+      let finalZ = curZ;
 
-        // Micro-idle motion once converged (localT > 0.85)
-        const idleWeight = Math.max(0, (localT - 0.85) / 0.15);
-        let finalX = curX;
-        let finalY = curY;
-        let finalZ = curZ;
+      // Subtly breathing collective levitation
+      finalY += Math.sin(time * 1.6 + p.targetX * 0.8) * 0.018 * idleWeight;
+      finalX += Math.cos(time * 1.3 + p.targetY * 0.8) * 0.010 * idleWeight;
+      finalZ += Math.sin(time * 2.0 + p.id * 0.4) * 0.015 * idleWeight;
 
-        // Subtly breathing collective levitation
-        finalY += Math.sin(time * 1.6 + p.targetX * 0.8) * 0.018 * idleWeight;
-        finalX += Math.cos(time * 1.3 + p.targetY * 0.8) * 0.010 * idleWeight;
-        finalZ += Math.sin(time * 2.0 + p.id * 0.4) * 0.015 * idleWeight;
+      dummy.position.set(finalX, finalY, finalZ);
+      dummy.scale.setScalar(p.size);
 
-        // Extra quantum drift for floating gold sparks
-        if (isGold) {
-          finalX += (Math.sin(time * 2.5 + p.id * 1.7) * 0.035 + Math.cos(time * 1.2 + p.id) * 0.02) * idleWeight;
-          finalY += (Math.cos(time * 2.8 + p.id * 1.9) * 0.045 + Math.sin(time * 1.4 + p.id) * 0.02) * idleWeight;
-          finalZ += Math.sin(time * 3.1 + p.id * 2.1) * 0.045 * idleWeight;
-        }
+      // Rotational tumbling in dispersed state, snapping cleanly to grid upon convergence
+      const rotDecay = 1 - ease;
+      dummy.rotation.x = time * p.spinX * rotDecay;
+      dummy.rotation.y = time * p.spinY * rotDecay;
+      dummy.rotation.z = time * p.spinZ * rotDecay;
 
-        dummy.position.set(finalX, finalY, finalZ);
-        dummy.scale.setScalar(p.size);
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    });
 
-        // Rotational tumbling in dispersed state, snapping cleanly to grid upon convergence
-        const rotDecay = 1 - ease;
-        dummy.rotation.x = time * p.spinX * rotDecay;
-        dummy.rotation.y = time * p.spinY * rotDecay;
-        dummy.rotation.z = time * p.spinZ * rotDecay;
-
-        // Micro-wobble on gold sparks when idle for dynamic sparkle
-        if (isGold && idleWeight > 0) {
-          dummy.rotation.x += Math.sin(time * 2.0 + p.id) * 0.12 * idleWeight;
-          dummy.rotation.y += Math.cos(time * 2.4 + p.id) * 0.15 * idleWeight;
-        }
-
-        dummy.updateMatrix();
-        meshRef.current.setMatrixAt(i, dummy.matrix);
-      });
-
-      meshRef.current.instanceMatrix.needsUpdate = true;
-    };
-
-    updateMeshInstances(whiteMeshRef, whiteParticles, false);
-    updateMeshInstances(goldMeshRef, goldParticles, true);
+    meshRef.current.instanceMatrix.needsUpdate = true;
   });
 
   return (
-    <group>
-      {/* Structural Emblem: White Titanium Cubes */}
-      <instancedMesh
-        ref={whiteMeshRef}
-        args={[cubeGeo, whiteMat, whiteParticles.length]}
-      />
-      {/* Emissive Signature Sparks: Gold Embers */}
-      <instancedMesh
-        ref={goldMeshRef}
-        args={[cubeGeo, goldMat, goldParticles.length]}
-      />
-    </group>
+    <instancedMesh
+      ref={meshRef}
+      args={[cubeGeo, whiteMat, particles.length]}
+    />
   );
 }
 
@@ -301,16 +227,16 @@ export default function ClosingCanvas({ progress, prefersReducedMotion }) {
         gl={{ antialias: true, alpha: true }}
       >
         {/* Dark-mode ambient fill */}
-        <ambientLight intensity={0.65} />
+        <ambientLight intensity={0.7} />
 
         {/* Crisp specular key light */}
         <directionalLight position={[5, 6, 5]} intensity={2.2} color="#ffffff" />
 
         {/* Subtle rim light for edge separation against dark backgrounds */}
-        <directionalLight position={[-5, -4, -3]} intensity={1.1} color="#38bdf8" />
+        <directionalLight position={[-5, -4, -3]} intensity={1.2} color="#38bdf8" />
 
-        {/* Warm gold point light illuminating the central V */}
-        <pointLight position={[0.4, 0.3, 2.0]} intensity={3.0} color="#F5A623" distance={7.5} />
+        {/* Center crisp light illuminating the pure {V} emblem */}
+        <pointLight position={[0, 0, 2.2]} intensity={2.4} color="#ffffff" distance={8} />
 
         <ConvergingPixels progress={progress} />
       </Canvas>
