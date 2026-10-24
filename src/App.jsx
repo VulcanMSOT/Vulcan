@@ -9,7 +9,6 @@ import Hero from './components/sections/Hero';
 import About from './components/sections/About';
 import HackOLanternTeaser from './components/sections/HackOLanternTeaser';
 import WhatWeDo from './components/sections/WhatWeDo';
-import Events from './components/sections/Events';
 import Projects from './components/sections/Projects';
 import Team from './components/sections/Team';
 import Closing from './components/sections/Closing';
@@ -78,9 +77,6 @@ export default function App() {
 
         {/* 5. What we do */}
         <WhatWeDo prefersReducedMotion={prefersReducedMotion} />
-
-        {/* 5. Events */}
-        <Events prefersReducedMotion={prefersReducedMotion} />
 
         {/* 6. Projects */}
         <Projects prefersReducedMotion={prefersReducedMotion} />
