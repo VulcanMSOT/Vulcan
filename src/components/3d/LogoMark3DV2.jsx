@@ -56,6 +56,8 @@ export default function LogoMark3DV2({
   const particlesGroupRef = useRef();
 
   // 1. Synchronously parse SVG into clean Three.js ExtrudeGeometry
+  const NORM_SCALE = 5.60 / 375.337; // Normalize to exact 5.60 world units from ad1137c
+
   const { geometries, materials } = useMemo(() => {
     const loader = new SVGLoader();
     const data = loader.parse(VULCAN_SVG_STRING);
@@ -97,35 +99,46 @@ export default function LogoMark3DV2({
     });
 
     const center = bounds.getCenter(new THREE.Vector3());
+    const rawWidth = bounds.max.x - bounds.min.x;
+    const scale = rawWidth > 0 ? (5.60 / rawWidth) : NORM_SCALE;
 
-    // Center each geometry and invert Y so upright (SVG Y points down, Three.js points up)
+    // Center each geometry on its own origin, scale to 5.60 world units, and invert Y
     geoms.forEach((g) => {
       g.translate(-center.x, -center.y, -center.z);
-      g.scale(1, -1, 1);
+      g.scale(scale, -scale, scale);
       g.computeVertexNormals();
     });
 
     return { geometries: geoms, materials: mats };
-  }, []);
+  }, [NORM_SCALE]);
 
   // 2. Measured static pixel meshes (for frozen preview or reduced motion)
   const staticGoldMeshes = useMemo(() => {
     return MEASURED_GOLD_PIXELS.map((p, idx) => {
-      const geo = new THREE.BoxGeometry(p.size, p.size, 1.8);
+      const sizeWorld = p.size * NORM_SCALE;
+      const geo = new THREE.BoxGeometry(sizeWorld, sizeWorld, 1.8 * NORM_SCALE);
       const palette = ORANGE_PARTICLE_PALETTE[idx % ORANGE_PARTICLE_PALETTE.length];
       const mat = new THREE.MeshStandardMaterial({
         color: palette.color,
         emissive: palette.emissive,
-        emissiveIntensity: 0.9,
-        roughness: 0.28,
-        metalness: 0.05,
+        emissiveIntensity: 0.35,
+        roughness: 0.85,
+        metalness: 0.0,
         blending: THREE.NormalBlending,
         transparent: false,
         opacity: 1.0,
       });
-      return { id: idx, geo, material: mat, x: p.x, y: p.y, z: 6.5 + idx * 0.25, size: p.size };
+      return {
+        id: idx,
+        geo,
+        material: mat,
+        x: p.x * NORM_SCALE,
+        y: p.y * NORM_SCALE,
+        z: (6.5 + idx * 0.25) * NORM_SCALE,
+        size: sizeWorld,
+      };
     });
-  }, []);
+  }, [NORM_SCALE]);
 
   // Dynamic stream particles (9 pixels breaking off stepped bite with anti-overlap offsets)
   const dynamicPixels = useMemo(() => {
@@ -135,16 +148,17 @@ export default function LogoMark3DV2({
       const palette = ORANGE_PARTICLE_PALETTE[i % ORANGE_PARTICLE_PALETTE.length];
 
       // Anti-overlap: minimum spatial separation and distinct depth planes
-      const spatialOffsetX = ((i % 3) - 1) * 2.8;
-      const spatialOffsetY = (((i + 1) % 3) - 1) * 2.0;
-      const baseZ = 6.2 + i * 0.35;
+      const spatialOffsetX = ((i % 3) - 1) * 2.8 * NORM_SCALE;
+      const spatialOffsetY = (((i + 1) % 3) - 1) * 2.0 * NORM_SCALE;
+      const baseZ = (6.2 + i * 0.35) * NORM_SCALE;
+      const sizeWorld = base.size * (0.85 + (i % 3) * 0.12) * NORM_SCALE;
 
       const mat = new THREE.MeshStandardMaterial({
         color: palette.color,
         emissive: palette.emissive,
-        emissiveIntensity: 0.9,
-        roughness: 0.28,
-        metalness: 0.05,
+        emissiveIntensity: 0.35,
+        roughness: 0.85,
+        metalness: 0.0,
         blending: THREE.NormalBlending,
         transparent: false,
         opacity: 1.0,
@@ -153,20 +167,20 @@ export default function LogoMark3DV2({
 
       stream.push({
         id: i,
-        baseX: base.x + spatialOffsetX,
-        baseY: base.y + spatialOffsetY,
+        baseX: (base.x * NORM_SCALE) + spatialOffsetX,
+        baseY: (base.y * NORM_SCALE) + spatialOffsetY,
         baseZ,
-        size: base.size * (0.85 + (i % 3) * 0.12),
+        size: sizeWorld,
         offsetTime: i * 0.42,
-        speedX: 6.5 + (i % 3) * 4.0,
-        speedY: 10.0 + (i % 4) * 3.5,
-        geo: new THREE.BoxGeometry(base.size, base.size, 1.8),
+        speedX: (6.5 + (i % 3) * 4.0) * NORM_SCALE,
+        speedY: (10.0 + (i % 4) * 3.5) * NORM_SCALE,
+        geo: new THREE.BoxGeometry(sizeWorld, sizeWorld, 1.8 * NORM_SCALE),
         material: mat,
         palette,
       });
     }
     return stream;
-  }, []);
+  }, [NORM_SCALE]);
 
   // 3. Clean disposal on unmount
   useEffect(() => {
@@ -214,35 +228,27 @@ export default function LogoMark3DV2({
         const progress = t / cycle;
 
         // Break off stepped bite and drift up-right with distinct depth
-        const curX = p.baseX + progress * p.speedX + (mousePosition.x * 3);
-        const curY = p.baseY + progress * p.speedY + (mousePosition.y * 3);
-        const curZ = p.baseZ + progress * 2.2;
+        const curX = p.baseX + progress * p.speedX + (mousePosition.x * 3 * NORM_SCALE);
+        const curY = p.baseY + progress * p.speedY + (mousePosition.y * 3 * NORM_SCALE);
+        const curZ = p.baseZ + progress * 2.2 * NORM_SCALE;
 
         mesh.position.set(curX, curY, curZ);
         mesh.rotation.z = Math.sin(time + idx) * 0.05;
 
-        // Fading: shrink scale to zero over last 28% of life, slight emissive reduction.
-        // Keep opacity = 1.0 and transparent = false to eliminate dark see-through look.
+        // Fading: shrink scale to zero over last 28% of life
+        // Keep opacity = 1.0 and transparent = false to eliminate dark see-through look
         const birthScale = progress < 0.10 ? Math.sin((progress / 0.10) * Math.PI * 0.5) : 1.0;
         const exitProgress = progress > 0.72 ? (progress - 0.72) / 0.28 : 0.0;
         const exitScale = progress > 0.72 ? Math.max(0, 1.0 - Math.pow(exitProgress, 1.8)) : 1.0;
         const currentScale = birthScale * exitScale;
 
         mesh.scale.set(currentScale, currentScale, currentScale);
-
-        // Modest emissive reduction during exit so it stays rich without snapping
-        if (p.material) {
-          p.material.emissiveIntensity = 0.9 * (1.0 - exitProgress * 0.35);
-          p.material.opacity = 1.0;
-          p.material.transparent = false;
-        }
-
         mesh.visible = currentScale > 0.005;
       });
     }
   });
 
-  const baseScale = scaleOverride !== null ? scaleOverride : (isMobile ? 0.011 : 0.0153);
+  const baseScale = scaleOverride !== null ? scaleOverride : 1.0;
 
   return (
     <group ref={groupRef} scale={baseScale}>
