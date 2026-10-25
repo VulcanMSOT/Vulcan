@@ -82,11 +82,9 @@ export default function Hero({
         }`}
         initial={{
           opacity: 0,
-          scale: 1.4,
         }}
         animate={{
           opacity: heroCanvasVisible ? 1 : 0,
-          scale: introSettled ? 1 : isTransitioning ? [1.4, 1] : 1.4,
         }}
         transition={{
           opacity: {
@@ -94,16 +92,16 @@ export default function Hero({
             delay: isTransitioning ? 0.12 : 0,
             ease: 'easeOut',
           },
-          scale: {
-            duration: 0.8,
-            ease: [0.16, 1, 0.3, 1], // Smooth physical deceleration curve
-          },
         }}
         style={{
           visibility: heroCanvasVisible ? 'visible' : 'hidden',
         }}
       >
-        <HeroCanvas prefersReducedMotion={prefersReducedMotion} />
+        <HeroCanvas
+          prefersReducedMotion={prefersReducedMotion}
+          introSettled={introSettled}
+          isTransitioning={isTransitioning}
+        />
       </motion.div>
 
       {/* Bottom Hero Narrative: Tagline & Explore Button */}
