@@ -19,9 +19,15 @@ export default function App() {
     ? new URLSearchParams(window.location.search).get('phase')
     : null;
 
-  const [loaderComplete, setLoaderComplete] = useState(() => urlPhase === 'done');
-  const [introSettled, setIntroSettled] = useState(() => urlPhase === 'done');
+  // Single authoritative state machine: 'loading' | 'transitioning' | 'done'
+  const [introPhase, setIntroPhase] = useState(() => (urlPhase === 'done' ? 'done' : 'loading'));
   const prefersReducedMotion = usePrefersReducedMotion();
+
+  // Derived state flags
+  const isTransitioning = introPhase === 'transitioning';
+  const introSettled = introPhase === 'done';
+  const heroCanvasVisible = introPhase === 'transitioning' || introPhase === 'done';
+  const loaderComplete = introPhase === 'done';
 
   // Prevent browser scroll restoration jump on refresh
   useEffect(() => {
@@ -33,13 +39,12 @@ export default function App() {
       window.scrollY > 50 &&
       !window.location.search.includes('intro=true')
     ) {
-      setLoaderComplete(true);
-      setIntroSettled(true);
+      setIntroPhase('done');
     }
   }, []);
 
-  // Initialize Lenis smooth scroll coordinated with GSAP ScrollTrigger
-  useLenis();
+  // Initialize Lenis smooth scroll coordinated with GSAP ScrollTrigger (enabled after intro settles)
+  useLenis(introSettled);
 
   return (
     <div className="relative min-h-screen bg-vulcan-bg text-white selection:bg-vulcan-gold/20 selection:text-vulcan-gold">
@@ -47,16 +52,19 @@ export default function App() {
       <ScrollProgress />
 
       {/* Side Section Indicator */}
-      <SectionIndicator prefersReducedMotion={prefersReducedMotion} />
+      <SectionIndicator
+        prefersReducedMotion={prefersReducedMotion}
+        introSettled={introSettled}
+      />
 
       {/* Spring-damped Custom Cursor (desktop only) */}
       <CustomCursor />
 
-      {/* 1. Intro Pixel Loader with continuous camera zoom-out */}
+      {/* 1. Intro Pixel Loader with continuous full-screen zoom-out & slow dissolve */}
       {!loaderComplete && (
         <IntroLoader
-          onComplete={() => setLoaderComplete(true)}
-          onSettled={() => setIntroSettled(true)}
+          onTransitionStart={() => setIntroPhase('transitioning')}
+          onComplete={() => setIntroPhase('done')}
           prefersReducedMotion={prefersReducedMotion}
         />
       )}
@@ -67,28 +75,35 @@ export default function App() {
         <Hero
           prefersReducedMotion={prefersReducedMotion}
           introSettled={introSettled}
+          isTransitioning={isTransitioning}
+          heroCanvasVisible={heroCanvasVisible}
         />
 
         {/* 3. About */}
         <About prefersReducedMotion={prefersReducedMotion} />
 
-        {/* 4. Hack-O-Lantern Teaser Section */}
-        <HackOLanternTeaser prefersReducedMotion={prefersReducedMotion} />
+        {/* Below-the-fold heavy sections mount once intro settles to preserve 60fps frame budget */}
+        {introSettled && (
+          <>
+            {/* 4. Hack-O-Lantern Teaser Section */}
+            <HackOLanternTeaser prefersReducedMotion={prefersReducedMotion} />
 
-        {/* 5. What we do */}
-        <WhatWeDo prefersReducedMotion={prefersReducedMotion} />
+            {/* 5. What we do */}
+            <WhatWeDo prefersReducedMotion={prefersReducedMotion} />
 
-        {/* 6. Projects */}
-        <Projects prefersReducedMotion={prefersReducedMotion} />
+            {/* 6. Projects */}
+            <Projects prefersReducedMotion={prefersReducedMotion} />
 
-        {/* 7. Team */}
-        <Team prefersReducedMotion={prefersReducedMotion} />
+            {/* 8. Team */}
+            <Team prefersReducedMotion={prefersReducedMotion} />
 
-        {/* 8. Closing section */}
-        <Closing prefersReducedMotion={prefersReducedMotion} />
+            {/* 9. Closing section */}
+            <Closing prefersReducedMotion={prefersReducedMotion} />
 
-        {/* 9. Footer */}
-        <Footer prefersReducedMotion={prefersReducedMotion} />
+            {/* 10. Footer */}
+            <Footer prefersReducedMotion={prefersReducedMotion} />
+          </>
+        )}
       </main>
     </div>
   );

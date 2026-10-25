@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
@@ -26,14 +26,35 @@ const V_MATRIX = [
   [1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
 ];
 
-export default function IntroLoader({ onComplete, onSettled, prefersReducedMotion }) {
+export default function IntroLoader({
+  onTransitionStart,
+  onComplete,
+  onSettled,
+  onCrossfadeStart,
+  prefersReducedMotion,
+}) {
   // URL phase override for deterministic visual inspection & testing
   const urlPhase = typeof window !== 'undefined'
     ? new URLSearchParams(window.location.search).get('phase')
     : null;
 
-  // 'assembling' -> 'assembled' (hold beat) -> 'zooming' (camera pull back 1.2s) -> 'done'
+  // Strict state machine: 'assembling' -> 'assembled' -> 'transitioning' -> 'done'
   const [phase, setPhase] = useState(() => urlPhase || 'assembling');
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
+
+  // Cache callbacks to prevent re-render timer invalidation
+  const callbacksRef = useRef({
+    onTransitionStart: onTransitionStart || onCrossfadeStart,
+    onComplete: onComplete || onSettled,
+  });
+  callbacksRef.current = {
+    onTransitionStart: onTransitionStart || onCrossfadeStart,
+    onComplete: onComplete || onSettled,
+  };
+
+  const startedRef = useRef(false);
+  const originalOverflowRef = useRef('');
 
   // Skip immediately if reduced motion or user already scrolled down (unless testing)
   const shouldSkip = useMemo(() => {
@@ -80,78 +101,95 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
     return points;
   }, []);
 
-  // Lock scrolling during the loader and release cleanly
+  // Initiate the full-screen zoom-out & slow dissolve (800ms)
+  const triggerTransition = useCallback(() => {
+    if (phaseRef.current === 'transitioning' || phaseRef.current === 'done') return;
+    phaseRef.current = 'transitioning';
+    setPhase('transitioning');
+
+    if (callbacksRef.current.onTransitionStart) {
+      callbacksRef.current.onTransitionStart();
+    }
+
+    // Complete after 800ms smooth dissolve
+    setTimeout(() => {
+      document.body.style.overflow = originalOverflowRef.current || '';
+      phaseRef.current = 'done';
+      setPhase('done');
+      if (callbacksRef.current.onComplete) {
+        callbacksRef.current.onComplete();
+      }
+    }, 800);
+  }, []);
+
+  // Sequence timers
   useEffect(() => {
     if (urlPhase === 'done' || shouldSkip) {
-      if (onComplete) onComplete();
-      if (onSettled) onSettled();
+      document.body.style.overflow = '';
+      if (callbacksRef.current.onComplete) {
+        callbacksRef.current.onComplete();
+      }
       return;
     }
-    if (urlPhase) return;
+    if (urlPhase === 'assembled' || urlPhase === 'transitioning') {
+      return;
+    }
 
-    const originalOverflow = document.body.style.overflow;
+    originalOverflowRef.current = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
-    // 1. Assembling (0.0s -> 1.1s)
+    // 1. Assembling (0.0s -> 1.15s)
     const holdTimer = setTimeout(() => {
-      setPhase('assembled'); // Hold for a beat
+      if (phaseRef.current === 'assembling') {
+        phaseRef.current = 'assembled';
+        setPhase('assembled');
+      }
     }, 1150);
 
-    // 2. Hold beat (1.15s -> 1.65s) -> Begin zoom-out camera transition (1.2s duration)
-    const zoomTimer = setTimeout(() => {
-      setPhase('zooming');
-      // Release body scroll cleanly as camera pullback begins
-      document.body.style.overflow = originalOverflow;
-    }, 1650);
+    // 2. Hold beat (1.15s -> 1.55s) -> Begin full-screen zoom-out & dissolve
+    const autoTransitionTimer = setTimeout(() => {
+      if (phaseRef.current === 'assembled') {
+        triggerTransition();
+      }
+    }, 1550);
 
-    // 3. Zoom-out transition settles (1.65s + 1.2s = 2.85s)
-    const settleTimer = setTimeout(() => {
-      if (onSettled) onSettled();
-    }, 2850);
-
-    // 4. Complete and unmount loader
-    const completeTimer = setTimeout(() => {
-      setPhase('done');
-      if (onComplete) onComplete();
-    }, 2950);
+    // Keyboard trigger ("press any key to enter")
+    const handleKeyDown = (e) => {
+      if (['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) return;
+      triggerTransition();
+    };
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.body.style.overflow = originalOverflow;
+      document.body.style.overflow = originalOverflowRef.current || '';
+      window.removeEventListener('keydown', handleKeyDown);
       clearTimeout(holdTimer);
-      clearTimeout(zoomTimer);
-      clearTimeout(settleTimer);
-      clearTimeout(completeTimer);
+      clearTimeout(autoTransitionTimer);
     };
-  }, [shouldSkip, onComplete, onSettled]);
+  }, [shouldSkip, urlPhase, triggerTransition]);
 
   if (shouldSkip || phase === 'done') return null;
 
-  const isMidZoom = phase === 'midzoom';
-  const isZooming = phase === 'zooming' || isMidZoom;
-  const isAssembledOrLater = phase === 'assembled' || isZooming;
+  const isTransitioning = phase === 'transitioning';
+  const isAssembledOrLater = phase === 'assembled' || isTransitioning;
 
   return (
     <AnimatePresence>
       <motion.div
         className={`fixed inset-0 z-[100] bg-vulcan-bg flex flex-col items-center justify-center overflow-hidden select-none ${
-          isZooming ? 'pointer-events-none' : 'cursor-pointer'
+          isTransitioning ? 'pointer-events-none' : 'cursor-pointer'
         }`}
         initial={{ opacity: 1 }}
         animate={{
-          opacity: isMidZoom ? 0.45 : isZooming ? 0 : 1,
+          opacity: isTransitioning ? 0 : 1,
         }}
         exit={{ opacity: 0 }}
         transition={{
-          duration: isMidZoom ? 0 : 1.2,
-          ease: [0.65, 0, 0.35, 1], // Smooth continuous camera ease-in-out
+          duration: 0.75,
+          ease: [0.16, 1, 0.3, 1], // Smooth physical deceleration curve
         }}
-        onClick={() => {
-          document.body.style.overflow = '';
-          setPhase('done');
-          if (onComplete) onComplete();
-          if (onSettled) onSettled();
-        }}
-        title="Click to skip"
+        onClick={triggerTransition}
+        title="Click to enter"
       >
         {/* Subtle radial background glow */}
         <div className="absolute w-[500px] h-[500px] bg-vulcan-gold/5 rounded-full blur-3xl pointer-events-none" />
@@ -160,16 +198,26 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
         <motion.div
           className="relative flex flex-col items-center justify-center"
           animate={{
-            scale: isMidZoom ? 0.94 : isZooming ? 0.88 : 1,
-            y: isMidZoom ? -6 : isZooming ? -12 : 0,
+            scale: isTransitioning ? 0.92 : 1,
+            y: isTransitioning ? -8 : 0,
           }}
           transition={{
-            duration: isMidZoom ? 0 : 1.2,
-            ease: [0.65, 0, 0.35, 1], // Smooth continuous camera pullback
+            duration: 0.75,
+            ease: [0.16, 1, 0.3, 1],
           }}
         >
-          {/* Assembled Pixel Grid */}
-          <div className="relative w-72 h-64 flex items-center justify-center">
+          {/* Assembled Pixel Grid (softly blurs and dissolves out cleanly in first 220ms) */}
+          <motion.div
+            className="relative w-72 h-36 flex items-center justify-center"
+            animate={{
+              opacity: isTransitioning ? 0 : 1,
+              filter: isTransitioning ? 'blur(3px)' : 'blur(0px)',
+            }}
+            transition={{
+              duration: isTransitioning ? 0.22 : 0.4,
+              ease: 'easeOut',
+            }}
+          >
             {pixelPoints.map((p) => (
               <motion.div
                 key={p.id}
@@ -191,7 +239,7 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
                 animate={{
                   x: p.targetX,
                   y: p.targetY,
-                  opacity: isMidZoom ? 0.7 : isZooming ? 0 : 1,
+                  opacity: 1,
                   scale: isAssembledOrLater && p.isGold ? [1, 1.25, 1] : 1,
                 }}
                 transition={{
@@ -206,25 +254,25 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
                     ease: [0.23, 1, 0.32, 1],
                   },
                   opacity: {
-                    duration: isZooming ? 0.8 : 0.4,
-                    delay: isZooming ? 0.2 : p.delay,
+                    duration: 0.4,
+                    delay: p.delay,
                   },
                   scale: { duration: 0.4, delay: isAssembledOrLater ? 0.05 : p.delay },
                 }}
               />
             ))}
-          </div>
+          </motion.div>
 
-          {/* Wordmark Reveal under Logo (fades out first during zoom) */}
+          {/* Wordmark Reveal under Logo (fades out immediately when transition begins) */}
           <motion.div
             className="mt-6 flex flex-col items-center gap-1.5"
             initial={{ opacity: 0, y: 10 }}
             animate={{
-              opacity: isZooming ? 0 : isAssembledOrLater ? 1 : 0,
-              y: isZooming ? -5 : isAssembledOrLater ? 0 : 10,
+              opacity: isTransitioning ? 0 : isAssembledOrLater ? 1 : 0,
+              y: isTransitioning ? -5 : isAssembledOrLater ? 0 : 10,
             }}
             transition={{
-              duration: isZooming ? 0.35 : 0.4,
+              duration: isTransitioning ? 0.12 : 0.4,
               ease: [0.23, 1, 0.32, 1],
             }}
           >
@@ -237,11 +285,11 @@ export default function IntroLoader({ onComplete, onSettled, prefersReducedMotio
           </motion.div>
         </motion.div>
 
-        {/* Skip hint */}
+        {/* Skip hint (fades out immediately when transition begins) */}
         <motion.div
           className="absolute bottom-6 font-mono text-[10px] text-vulcan-textFaint tracking-widest uppercase"
-          animate={{ opacity: isZooming ? 0 : 1 }}
-          transition={{ duration: 0.2 }}
+          animate={{ opacity: isTransitioning ? 0 : 1 }}
+          transition={{ duration: 0.12 }}
         >
           [click or press any key to enter]
         </motion.div>

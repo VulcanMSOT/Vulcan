@@ -3,7 +3,12 @@ import { ArrowDown, ArrowUpRight } from 'lucide-react';
 import HeroCanvas from '../3d/HeroCanvas';
 import { CLUB_INFO } from '../../content';
 
-export default function Hero({ prefersReducedMotion, introSettled = true }) {
+export default function Hero({
+  prefersReducedMotion,
+  introSettled = true,
+  isTransitioning = false,
+  heroCanvasVisible = true,
+}) {
   const scrollToWork = () => {
     const target = document.getElementById('about');
     if (target) {
@@ -35,6 +40,11 @@ export default function Hero({ prefersReducedMotion, introSettled = true }) {
           ease: [0.23, 1, 0.32, 1],
           delay: prefersReducedMotion ? 0 : 0.05,
         }}
+        style={{
+          visibility: introSettled ? 'visible' : 'hidden',
+          pointerEvents: introSettled ? 'auto' : 'none',
+        }}
+        inert={!introSettled ? '' : undefined}
       >
         <div className="flex items-center gap-3">
           <img
@@ -64,10 +74,35 @@ export default function Hero({ prefersReducedMotion, introSettled = true }) {
         </div>
       </motion.header>
 
-      {/* Center 3D Showcase */}
-      <div className="relative w-full max-w-4xl h-[52vh] sm:h-[58vh] md:h-[64vh] my-auto flex items-center justify-center z-10">
-        <HeroCanvas prefersReducedMotion={prefersReducedMotion} />
-      </div>
+      {/* Center 3D Showcase with smooth full-screen zoom-out */}
+      <motion.div
+        id="hero-canvas-container"
+        className={`relative w-full max-w-4xl h-[52vh] sm:h-[58vh] md:h-[64vh] my-auto flex items-center justify-center z-10 ${
+          heroCanvasVisible ? 'pointer-events-auto' : 'pointer-events-none'
+        }`}
+        initial={{
+          opacity: 0,
+        }}
+        animate={{
+          opacity: heroCanvasVisible ? 1 : 0,
+        }}
+        transition={{
+          opacity: {
+            duration: 0.5,
+            delay: isTransitioning ? 0.12 : 0,
+            ease: 'easeOut',
+          },
+        }}
+        style={{
+          visibility: heroCanvasVisible ? 'visible' : 'hidden',
+        }}
+      >
+        <HeroCanvas
+          prefersReducedMotion={prefersReducedMotion}
+          introSettled={introSettled}
+          isTransitioning={isTransitioning}
+        />
+      </motion.div>
 
       {/* Bottom Hero Narrative: Tagline & Explore Button */}
       <motion.div
@@ -82,6 +117,11 @@ export default function Hero({ prefersReducedMotion, introSettled = true }) {
           ease: [0.23, 1, 0.32, 1],
           delay: prefersReducedMotion ? 0 : 0.15,
         }}
+        style={{
+          visibility: introSettled ? 'visible' : 'hidden',
+          pointerEvents: introSettled ? 'auto' : 'none',
+        }}
+        inert={!introSettled ? '' : undefined}
       >
         {/* Title & Tagline */}
         <div className="space-y-2">

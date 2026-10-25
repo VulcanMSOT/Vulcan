@@ -9,6 +9,11 @@
   color-scheme: dark;
 }
 
+html {
+  scrollbar-gutter: stable;
+  background-color: #050506;
+}
+
 /* Lenis smooth scroll recommended styles */
 html.lenis,
 html.lenis body {

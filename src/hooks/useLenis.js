@@ -8,9 +8,10 @@ gsap.registerPlugin(ScrollTrigger);
 /**
  * Initializes Lenis smooth scrolling and binds its tick to GSAP ScrollTrigger
  */
-export function useLenis() {
+export function useLenis(enabled = true) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    if (!enabled) return;
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
@@ -39,9 +40,13 @@ export function useLenis() {
     gsap.ticker.add(updateTicker);
     gsap.ticker.lagSmoothing(0);
 
+    if (enabled) {
+      ScrollTrigger.refresh();
+    }
+
     return () => {
       lenis.destroy();
       gsap.ticker.remove(updateTicker);
     };
-  }, []);
+  }, [enabled]);
 }

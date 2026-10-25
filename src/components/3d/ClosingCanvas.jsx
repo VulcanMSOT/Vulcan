@@ -157,12 +157,12 @@ function ConvergingPixels({ progress }) {
     []
   );
 
-  // Vibrant Website Theme Orange Material for Central V (#FF7A1A)
+  // Vibrant Website Theme Orange Material for Central V (#E8590C)
   const vMat = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: 0xFF7A1A,
-        emissive: 0xD95A00,
+        color: 0xE8590C,
+        emissive: 0xD9480F,
         emissiveIntensity: 1.85,
         roughness: 0.15,
         metalness: 0.80,
@@ -275,11 +275,10 @@ export default function ClosingCanvas({ progress, prefersReducedMotion }) {
         <directionalLight position={[-5, -4, -3]} intensity={1.1} color="#38bdf8" />
 
         {/* Central vibrant theme-orange point light radiating from the V */}
-        <pointLight position={[0, 0, 2.0]} intensity={4.5} color="#FF7A1A" distance={8} />
+        <pointLight position={[0, 0, 2.0]} intensity={4.5} color="#E8590C" distance={8} />
 
         {/* Secondary warm gold point light at base */}
         <pointLight position={[0, -0.9, 1.4]} intensity={2.6} color="#F5A623" distance={6} />
-
         <ConvergingPixels progress={progress} />
       </Canvas>
     </div>

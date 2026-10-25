@@ -214,7 +214,7 @@ export default function LogoDebugPage() {
               <directionalLight position={[0, 4, 10]} intensity={1.7} color="#ffffff" />
               <directionalLight position={[0, 8, 2]} intensity={0.9} color="#ffffff" />
               <directionalLight position={[-4, -3, 4]} intensity={0.35} color="#f0f4f8" />
-              <pointLight position={[2, 1, 3]} intensity={1.2} color="#D9B857" distance={8} />
+              <pointLight position={[2, 1, 3]} intensity={1.2} color="#E8590C" distance={8} />
 
               <LogoMark3DV2 mousePosition={mousePosition} isMobile={false} />
             </Canvas>
