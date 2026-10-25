@@ -265,7 +265,7 @@ export const TEAM = [
     links: {
       github: "https://github.com/KeerthiKumarR",
       linkedin: "https://www.linkedin.com/in/keerthi-kumar-r/",
-      codeforces: "https://codeforces.com/profile/Kr1shna._."
+      codeforces: "https://codeforces.com/profile/rvkeerthi999"
     }
   }
 ];
