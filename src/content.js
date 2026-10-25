@@ -179,7 +179,7 @@ export const TEAM = [
   {
     id: "team-4",
     name: "Sapnil Biswas",
-    role: "Development",
+    role: "Development / GSoC'26",
     image: "/assets/team/sapnil.jpg",
     links: {
       github: "https://github.com/sapnilbiswas",
@@ -189,7 +189,7 @@ export const TEAM = [
   {
     id: "team-5",
     name: "Dhruvesh Mishra",
-    role: "Development",
+    role: "Development / LFX'26",
     image: "/assets/team/dhruvesh.jpg",
     links: {
       github: "https://github.com/dhruveshmishra",
