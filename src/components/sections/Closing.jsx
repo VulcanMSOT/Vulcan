@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Mail, ArrowUpRight } from 'lucide-react';
 import ClosingCanvas from '../3d/ClosingCanvas';
-import { CLUB_INFO } from '../../content';
 import { MaskHeading, FadeParagraph, DrawLine } from '../ui/Reveal';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -56,7 +54,7 @@ export default function Closing({ prefersReducedMotion }) {
       </div>
 
       {/* Mask Heading & Fade Paragraph */}
-      <div className="max-w-xl mx-auto space-y-4 mb-10 z-10 flex flex-col items-center">
+      <div className="max-w-xl mx-auto space-y-4 z-10 flex flex-col items-center">
         <MaskHeading
           as="h2"
           className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight text-white"
@@ -72,30 +70,6 @@ export default function Closing({ prefersReducedMotion }) {
         >
           An engineering collective of students focused on craftsmanship and execution.
         </FadeParagraph>
-      </div>
-
-      {/* Contact & Social Links with soft press effect */}
-      <div className="flex flex-wrap items-center justify-center gap-4 z-10">
-        <a
-          href={`mailto:${CLUB_INFO.contact.email}`}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-vulcan-border bg-vulcan-card hover:bg-vulcan-surface hover:border-vulcan-gold/40 text-sm font-medium text-white transition-all duration-160 active:scale-[0.97]"
-        >
-          <Mail className="w-4 h-4 text-vulcan-gold" />
-          <span>{CLUB_INFO.contact.email}</span>
-        </a>
-
-        {CLUB_INFO.contact.socials.map((social) => (
-          <a
-            key={social.name}
-            href={social.url}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-vulcan-border bg-vulcan-card/60 hover:bg-vulcan-surface hover:border-vulcan-gold/30 text-sm text-zinc-300 transition-all duration-160 active:scale-[0.97]"
-          >
-            <span>{social.name}</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-zinc-500" />
-          </a>
-        ))}
       </div>
     </section>
   );

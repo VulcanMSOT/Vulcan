@@ -1840,6 +1840,16 @@
   line-height: 1.4;
 }
 
+.event-footer__contact-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 160ms var(--event-ease);
+}
+
+.event-footer__contact-link:hover {
+  color: var(--event-gold);
+}
+
 .event-footer__backlink {
   display: inline-flex;
   gap: 6px;

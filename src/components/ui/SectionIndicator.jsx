@@ -6,7 +6,6 @@ const SECTIONS = [
   { id: 'about', label: 'About' },
   { id: 'hack-o-lantern', label: 'Hackathon' },
   { id: 'what-we-do', label: 'Pillars' },
-  { id: 'events', label: 'Events' },
   { id: 'projects', label: 'Projects' },
   { id: 'team', label: 'Team' },
   { id: 'closing', label: 'Connect' },
@@ -70,8 +69,6 @@ export default function SectionIndicator({ prefersReducedMotion, introSettled = 
               ? 'bg-orange-600/[0.09] scale-110'
               : activeSection === 'what-we-do'
               ? 'bg-vulcan-gold/[0.03] scale-95'
-              : activeSection === 'events'
-              ? 'bg-amber-600/[0.035] scale-100'
               : activeSection === 'projects'
               ? 'bg-vulcan-gold/[0.04] scale-105'
               : 'bg-vulcan-gold/[0.03] scale-100'

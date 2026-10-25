@@ -509,8 +509,16 @@ export function EventFooter() {
         </div>
         <div className="event-footer__col">
           <span className="event-mono-kicker">Contact</span>
-          <p>{EVENT_CONTENT.contactEmail}</p>
-          <p>{EVENT_CONTENT.contactPhone}</p>
+          <p>
+            <a href={`mailto:${EVENT_CONTENT.contactEmail}`} className="event-footer__contact-link">
+              {EVENT_CONTENT.contactEmail}
+            </a>
+          </p>
+          <p>
+            <a href={`tel:${EVENT_CONTENT.contactPhone.replace(/\s+/g, '')}`} className="event-footer__contact-link">
+              {EVENT_CONTENT.contactPhone}
+            </a>
+          </p>
         </div>
         <div className="event-footer__col event-footer__col--end">
           <a href="/" className="event-footer__backlink">Back to the main Vulcan site <span aria-hidden="true">↗</span></a>

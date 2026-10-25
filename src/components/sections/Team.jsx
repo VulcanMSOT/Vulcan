@@ -107,7 +107,7 @@ function TeamCard({ member, index, prefersReducedMotion }) {
                   prefersReducedMotion={prefersReducedMotion}
                   className="text-zinc-500 group-hover:text-vulcan-gold"
                 >
-                  0{index + 1}
+                  {String(index + 1).padStart(2, '0')}
                 </CardNumber>
               </div>
               <span className="font-mono text-[10px] text-zinc-500 tracking-widest uppercase">

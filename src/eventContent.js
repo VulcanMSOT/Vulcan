@@ -41,8 +41,8 @@ export const EVENT_CONTENT = {
   surpriseHint1: '[SURPRISE HINT 1]',
   surpriseHint2: '[SURPRISE HINT 2]',
 
-  contactEmail: 'contact@vulcan.org.in',
-  contactPhone: '+91 99033 46077',
+  contactEmail: 'vulcan.techclub@gmail.com',
+  contactPhone: '+91 79935 21335',
   registrationDeadline: '30 October 2026, 11:59 PM IST',
   privacyNote: 'Vulcan Club and Mirai School of Technology respect your privacy. Team details are used exclusively for hackathon credentials, ticketing, and event communications.',
   aboutLead: 'Vulcan Club and Mirai School of Technology present Hack-O-Lantern, an overnight Halloween hackathon.',
