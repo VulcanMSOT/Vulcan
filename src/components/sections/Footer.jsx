@@ -45,9 +45,9 @@ export default function Footer({ prefersReducedMotion }) {
         <DrawLine prefersReducedMotion={prefersReducedMotion} />
       </div>
 
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs font-mono text-vulcan-textMuted">
+      <div className="max-w-6xl mx-auto relative flex flex-col md:flex-row items-center justify-between gap-6 text-xs font-mono text-vulcan-textMuted">
         {/* Left: Branding & College Name */}
-        <div className="flex-1 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-4 text-center sm:text-left">
+        <div className="flex items-center gap-2.5 sm:gap-3 text-center sm:text-left">
           <div className="flex items-center gap-2.5">
             <img
               src="/assets/vulcan-logo.png"
@@ -59,7 +59,7 @@ export default function Footer({ prefersReducedMotion }) {
             </span>
           </div>
 
-          <span className="hidden sm:inline text-zinc-600">•</span>
+          <span className="text-zinc-600">•</span>
 
           <span className="text-zinc-400">
             {CLUB_INFO.college}
@@ -70,7 +70,7 @@ export default function Footer({ prefersReducedMotion }) {
         <div
           onMouseEnter={() => setBracketHover(true)}
           onMouseLeave={() => setBracketHover(false)}
-          className="flex shrink-0 items-center justify-center gap-1 cursor-pointer transition-transform duration-200 hover:scale-110 py-1 px-3"
+          className="order-first md:order-none md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 flex items-center justify-center gap-1 cursor-pointer transition-transform duration-200 hover:scale-110 py-1 px-3"
           title="build with precision"
           aria-label="Vulcan syntax bracket"
         >
@@ -92,7 +92,7 @@ export default function Footer({ prefersReducedMotion }) {
         </div>
 
         {/* Right: Polished Social & Contact Links */}
-        <div className="flex-1 flex flex-wrap items-center justify-center md:justify-end gap-2.5 sm:gap-3">
+        <div className="flex flex-wrap md:flex-nowrap items-center justify-center md:justify-end gap-2 sm:gap-2.5">
           {/* Socials Group */}
           <div className="flex items-center gap-2">
             {CLUB_INFO.contact.socials.map((social) => {
@@ -103,7 +103,7 @@ export default function Footer({ prefersReducedMotion }) {
                   href={social.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/90 hover:border-vulcan-gold/40 text-zinc-300 hover:text-white transition-all duration-200 active:scale-[0.96] shadow-sm hover:shadow-[0_0_12px_rgba(245,166,35,0.12)]"
+                  className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/90 hover:border-vulcan-gold/40 text-zinc-300 hover:text-white transition-all duration-200 active:scale-[0.96] shadow-sm hover:shadow-[0_0_12px_rgba(245,166,35,0.12)] whitespace-nowrap"
                   aria-label={social.name}
                 >
                   {Icon && <Icon className="w-3 h-3 text-zinc-400 group-hover:text-vulcan-gold transition-colors duration-200" />}
@@ -117,7 +117,7 @@ export default function Footer({ prefersReducedMotion }) {
           {/* Email Pill */}
           <a
             href={`mailto:${CLUB_INFO.contact.email}`}
-            className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-vulcan-gold/30 bg-vulcan-gold/[0.05] hover:bg-vulcan-gold/[0.14] hover:border-vulcan-gold/60 text-zinc-200 hover:text-white transition-all duration-200 active:scale-[0.96] shadow-sm hover:shadow-[0_0_16px_rgba(245,166,35,0.2)]"
+            className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-vulcan-gold/30 bg-vulcan-gold/[0.05] hover:bg-vulcan-gold/[0.14] hover:border-vulcan-gold/60 text-zinc-200 hover:text-white transition-all duration-200 active:scale-[0.96] shadow-sm hover:shadow-[0_0_16px_rgba(245,166,35,0.2)] whitespace-nowrap"
             title="Email Vulcan Club"
           >
             <Mail className="w-3.5 h-3.5 text-vulcan-gold group-hover:scale-110 transition-transform duration-200" />
