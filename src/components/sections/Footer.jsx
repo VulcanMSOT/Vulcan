@@ -45,9 +45,9 @@ export default function Footer({ prefersReducedMotion }) {
         <DrawLine prefersReducedMotion={prefersReducedMotion} />
       </div>
 
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 text-xs font-mono text-vulcan-textMuted">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs font-mono text-vulcan-textMuted">
         {/* Left: Branding & College Name */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+        <div className="flex-1 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3 sm:gap-4 text-center sm:text-left">
           <div className="flex items-center gap-2.5">
             <img
               src="/assets/vulcan-logo.png"
@@ -70,7 +70,7 @@ export default function Footer({ prefersReducedMotion }) {
         <div
           onMouseEnter={() => setBracketHover(true)}
           onMouseLeave={() => setBracketHover(false)}
-          className="flex items-center gap-1 cursor-pointer transition-transform duration-200 hover:scale-110 py-1 px-2"
+          className="flex shrink-0 items-center justify-center gap-1 cursor-pointer transition-transform duration-200 hover:scale-110 py-1 px-3"
           title="build with precision"
           aria-label="Vulcan syntax bracket"
         >
@@ -92,7 +92,7 @@ export default function Footer({ prefersReducedMotion }) {
         </div>
 
         {/* Right: Polished Social & Contact Links */}
-        <div className="flex flex-wrap items-center justify-center md:justify-end gap-2.5 sm:gap-3">
+        <div className="flex-1 flex flex-wrap items-center justify-center md:justify-end gap-2.5 sm:gap-3">
           {/* Socials Group */}
           <div className="flex items-center gap-2">
             {CLUB_INFO.contact.socials.map((social) => {
@@ -123,12 +123,6 @@ export default function Footer({ prefersReducedMotion }) {
             <Mail className="w-3.5 h-3.5 text-vulcan-gold group-hover:scale-110 transition-transform duration-200" />
             <span>{CLUB_INFO.contact.email}</span>
           </a>
-
-          {/* Status Tag */}
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-mono text-zinc-500 border border-zinc-800/50 rounded-full bg-zinc-900/40">
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-600 inline-block" />
-            <span>no open recruitment</span>
-          </div>
         </div>
       </div>
     </footer>
