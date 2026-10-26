@@ -169,14 +169,19 @@ export const PROJECTS = [
     title: "Vision Football",
     summary: "A Kinect-style real-time computer vision penalty shootout game using MediaPipe and OpenCV for optical motion tracking, leg-swing kick velocity detection, and dynamic goalkeeper glove physics.",
     stack: ["Python", "MediaPipe", "OpenCV", "Pygame", "JavaScript", "HTML5 Canvas"],
-    status: "Open Source · Available on GitHub",
+    status: "Live on Vercel · Active deployment",
     credit: "Built by Krishna Negi",
     isPlaceholder: false,
     links: [
       {
+        label: "Live deployment",
+        url: "https://football1-hp8y.vercel.app/",
+        primary: true,
+      },
+      {
         label: "GitHub repository",
         url: "https://github.com/WKr1shna/football1",
-        primary: true,
+        primary: false,
       },
     ],
     built: [
