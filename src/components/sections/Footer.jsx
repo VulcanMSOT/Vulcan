@@ -93,35 +93,34 @@ export default function Footer({ prefersReducedMotion }) {
 
         {/* Right: Polished Social & Contact Links */}
         <div className="flex flex-wrap md:flex-nowrap items-center justify-center md:justify-end gap-2 sm:gap-2.5">
-          {/* Socials Group */}
-          <div className="flex items-center gap-2">
-            {CLUB_INFO.contact.socials.map((social) => {
-              const Icon = SOCIAL_ICONS[social.name];
-              return (
-                <a
-                  key={social.name}
-                  href={social.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/90 hover:border-vulcan-gold/40 text-zinc-300 hover:text-white transition-all duration-200 active:scale-[0.96] shadow-sm hover:shadow-[0_0_12px_rgba(245,166,35,0.12)] whitespace-nowrap"
-                  aria-label={social.name}
-                >
-                  {Icon && <Icon className="w-3 h-3 text-zinc-400 group-hover:text-vulcan-gold transition-colors duration-200" />}
-                  <span>{social.name}</span>
-                  <ArrowUpRight className="w-3 h-3 text-zinc-500 group-hover:text-vulcan-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" />
-                </a>
-              );
-            })}
-          </div>
+          {CLUB_INFO.contact.socials.map((social) => {
+            const Icon = SOCIAL_ICONS[social.name];
+            return (
+              <a
+                key={social.name}
+                href={social.url}
+                target="_blank"
+                rel="noreferrer"
+                className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/90 hover:border-vulcan-gold/40 text-zinc-300 hover:text-white transition-all duration-200 active:scale-[0.96] shadow-sm hover:shadow-[0_0_12px_rgba(245,166,35,0.12)] whitespace-nowrap"
+                aria-label={social.name}
+              >
+                {Icon && <Icon className="w-3 h-3 text-zinc-400 group-hover:text-vulcan-gold transition-colors duration-200" />}
+                <span>{social.name}</span>
+                <ArrowUpRight className="w-3 h-3 text-zinc-500 group-hover:text-vulcan-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" />
+              </a>
+            );
+          })}
 
           {/* Email Pill */}
           <a
             href={`mailto:${CLUB_INFO.contact.email}`}
-            className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-vulcan-gold/30 bg-vulcan-gold/[0.05] hover:bg-vulcan-gold/[0.14] hover:border-vulcan-gold/60 text-zinc-200 hover:text-white transition-all duration-200 active:scale-[0.96] shadow-sm hover:shadow-[0_0_16px_rgba(245,166,35,0.2)] whitespace-nowrap"
-            title="Email Vulcan Club"
+            className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-vulcan-gold/30 bg-vulcan-gold/[0.05] hover:bg-vulcan-gold/[0.14] hover:border-vulcan-gold/60 text-zinc-200 hover:text-white transition-all duration-200 active:scale-[0.96] shadow-sm hover:shadow-[0_0_16px_rgba(245,166,35,0.2)] whitespace-nowrap"
+            title={CLUB_INFO.contact.email}
+            aria-label="Email Vulcan Tech Club"
           >
             <Mail className="w-3.5 h-3.5 text-vulcan-gold group-hover:scale-110 transition-transform duration-200" />
-            <span>{CLUB_INFO.contact.email}</span>
+            <span>Email</span>
+            <ArrowUpRight className="w-3 h-3 text-zinc-500 group-hover:text-vulcan-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" />
           </a>
         </div>
       </div>
