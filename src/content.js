@@ -170,7 +170,7 @@ export const PROJECTS = [
     summary: "An immersive, hardware-free AR sports web application showcasing real-time gesture tracking and motion physics for virtual Cricket, Table Tennis, Football, and Shadowboxing.",
     stack: ["React 19", "TypeScript", "Vite", "Tailwind CSS", "HTML5 Canvas"],
     status: "Live on Vercel · Active deployment",
-    credit: "Built by Saifuddin Malek",
+    credit: "Built by Krishna Negi · Collab with Team Shadow",
     isPlaceholder: false,
     links: [
       {
@@ -180,7 +180,7 @@ export const PROJECTS = [
       },
       {
         label: "GitHub repository",
-        url: "https://github.com/SaifuddinM23/Shadow",
+        url: "https://github.com/WKr1shna/Shadow",
         primary: false,
       },
     ],
