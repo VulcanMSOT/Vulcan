@@ -6,32 +6,33 @@ import { PROJECTS } from '../../content';
 const EMIL_EASE = [0.23, 1, 0.32, 1];
 
 /**
- * Animated SVG Flow Diagram for Card 1 (Auto Translation Field)
- * Real steps:
- * 1. Editor clicks Translate
- * 2. Request goes through Drupal AI Core to a provider
- * 3. Diff preview appears
- * 4. Editor applies the translation
+ * Animated SVG Flow Diagram for Real Project Cards
+ * Displays the architectural/operational pipeline steps for the project.
  */
-function RealFlowDiagram({ prefersReducedMotion, isInView }) {
-  const steps = [
+function RealFlowDiagram({ project, prefersReducedMotion, isInView }) {
+  const steps = project?.flowSteps || (project?.flow?.map((item, idx) => ({
+    id: idx + 1,
+    title: item,
+    sub: ''
+  }))) || [
     { id: 1, title: 'Editor clicks Translate', sub: 'Field-level UI trigger' },
     { id: 2, title: 'Drupal AI Core & provider', sub: 'Dispatches to LLM / service' },
     { id: 3, title: 'Diff preview appears', sub: 'Side-by-side comparison' },
     { id: 4, title: 'Editor applies translation', sub: 'Populates field or CKEditor 5' },
   ];
+  const flowTitle = project?.flowTitle || 'Pipeline Flow';
 
   return (
     <div
       className="w-full my-4 p-4 rounded-xl bg-vulcan-bg/90 border border-vulcan-border/80 overflow-hidden"
-      aria-label="Workflow diagram: Editor clicks Translate, request routes through Drupal AI Core to a provider, diff preview appears, editor applies translation."
+      aria-label={`Workflow diagram for ${project?.title || 'project'}: ${steps.map((s) => s.title).join(', ')}.`}
     >
       <div className="flex items-center justify-between mb-3 pb-2 border-b border-vulcan-border/60">
         <span className="font-mono text-[10px] uppercase tracking-wider text-vulcan-gold/90 flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-vulcan-gold animate-pulse" />
-          Translation Pipeline Flow
+          {flowTitle}
         </span>
-        <span className="font-mono text-[10px] text-zinc-500">4 steps</span>
+        <span className="font-mono text-[10px] text-zinc-500">{steps.length} steps</span>
       </div>
 
       <div className="relative pl-6 space-y-3.5">
@@ -337,12 +338,12 @@ function ProjectCard({ project, index, prefersReducedMotion }) {
 
         {/* Flow Diagram (Real or Empty Blueprint) */}
         {!isPlaceholder ? (
-          <RealFlowDiagram prefersReducedMotion={prefersReducedMotion} isInView={isInView} />
+          <RealFlowDiagram project={project} prefersReducedMotion={prefersReducedMotion} isInView={isInView} />
         ) : (
           <EmptyBlueprintDiagram />
         )}
 
-        {/* Expandable "What was built" Section (Card 1) */}
+        {/* Expandable "What was built" Section */}
         {!isPlaceholder && project.built && project.built.length > 0 && (
           <div className="my-4">
             <button
