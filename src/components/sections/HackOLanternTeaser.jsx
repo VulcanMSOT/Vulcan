@@ -291,8 +291,8 @@ export default function HackOLanternTeaser({ prefersReducedMotion }) {
             </div>
 
             {isPrizeConfirmed && (
-              <div className="hol-teaser__fact-chip" aria-label={`First prize ${EVENT_CONTENT.firstPrize}`}>
-                First prize: {EVENT_CONTENT.firstPrize}
+              <div className="hol-teaser__fact-chip" aria-label={`Prize pool ${EVENT_CONTENT.prizePool || EVENT_CONTENT.firstPrize}`}>
+                Prize pool: {EVENT_CONTENT.prizePool || EVENT_CONTENT.firstPrize}
               </div>
             )}
           </div>

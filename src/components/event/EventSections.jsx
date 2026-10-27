@@ -525,25 +525,83 @@ export function EventRules() {
 }
 
 /**
- * REWARDS CONFIGURATION (Single First Prize Only)
- * Reads first prize directly from EVENT_CONTENT.firstPrize / EVENT_CONTENT.prizes.
+ * REWARDS CONFIGURATION (1st, 2nd, 3rd Places)
+ * 1st: ₹4,000 | 2nd: ₹3,000 | 3rd: ₹2,000 | Total Pool: ₹9,000
  */
 export const REWARDS_CONFIG = {
-  eyebrow: 'Reward',
-  heading: 'What is at stake.',
+  eyebrow: 'Prize Pool',
+  heading: '₹9,000 at stake.',
+  summary: 'Compete across 16 hours of overnight hacking to claim your podium spot.',
+  tiers: [
+    {
+      id: 'first',
+      place: '1st',
+      rank: '1ST PLACE',
+      badge: 'CHAMPIONS',
+      icon: 'trophy',
+      amount: EVENT_CONTENT.firstPrize || '₹4,000',
+      label: 'Winner',
+      subtext: 'Cash prize',
+      description: 'Awarded to the overall winning team of Hack-O-Lantern with the highest combined judge evaluation.',
+      variant: 'gold',
+      perks: [
+        '₹4,000 Cash Prize',
+        'Winner Certificate of Excellence',
+        'Exclusive Vulcan Trophy & Swag',
+        'Direct Industry Mentor Connect',
+      ],
+    },
+    {
+      id: 'second',
+      place: '2nd',
+      rank: '2ND PLACE',
+      badge: 'RUNNER UP',
+      icon: 'medal',
+      amount: EVENT_CONTENT.secondPrize || '₹3,000',
+      label: '1st Runner Up',
+      subtext: 'Cash prize',
+      description: 'Awarded to the second-place team demonstrating outstanding technical craft and execution.',
+      variant: 'silver',
+      perks: [
+        '₹3,000 Cash Prize',
+        'Runner Up Certificate',
+        'Vulcan Swag Pack',
+        'Spotlight on Vulcan Channels',
+      ],
+    },
+    {
+      id: 'third',
+      place: '3rd',
+      rank: '3RD PLACE',
+      badge: '2ND RUNNER UP',
+      icon: 'award',
+      amount: EVENT_CONTENT.thirdPrize || '₹2,000',
+      label: '2nd Runner Up',
+      subtext: 'Cash prize',
+      description: 'Awarded to the third-place team showing creative ingenuity and impactful product design.',
+      variant: 'bronze',
+      perks: [
+        '₹2,000 Cash Prize',
+        'Podium Certificate',
+        'Vulcan Swag Pack',
+        'Project Showcase',
+      ],
+    },
+  ],
+  // Backwards compatibility
   hero: {
     badge: '1ST PLACE',
     label: 'FIRST PRIZE',
-    amount: EVENT_CONTENT.firstPrize || EVENT_CONTENT.prizes || '[FIRST PRIZE]',
+    amount: EVENT_CONTENT.firstPrize || '₹4,000',
     subtext: 'for 1st place',
-    description: 'The single prize awarded to the winning team of Hack-O-Lantern.',
+    description: 'The premier prize awarded to the winning team of Hack-O-Lantern.',
   },
 };
 
 function RewardIcon({ name, className = '' }) {
   if (name === 'trophy') {
     return (
-      <svg className={className} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
         <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
         <path d="M4 22h16" />
@@ -553,7 +611,69 @@ function RewardIcon({ name, className = '' }) {
       </svg>
     );
   }
+  if (name === 'medal') {
+    return (
+      <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15" />
+        <path d="M11 12 5.12 2.2" />
+        <path d="m13 12 5.88-9.8" />
+        <circle cx="12" cy="17" r="5" />
+      </svg>
+    );
+  }
+  if (name === 'award') {
+    return (
+      <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="8" r="6" />
+        <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+      </svg>
+    );
+  }
   return null;
+}
+
+export function PrizeCard({ tier, isPrimary = false }) {
+  return (
+    <div className={`event-prizes__card event-prizes__card--${tier.variant} ${isPrimary ? 'event-prizes__card--featured' : ''}`}>
+      <div className={`event-prizes__card-ambient event-prizes__card-ambient--${tier.variant}`} aria-hidden="true" />
+      {isPrimary && <div className="event-prizes__hero-glow" aria-hidden="true" />}
+
+      <div className="event-prizes__card-main">
+        <div className="event-prizes__card-top">
+          <div className={`event-prizes__card-badge event-prizes__card-badge--${tier.variant}`}>
+            <RewardIcon name={tier.icon} />
+            <span>{tier.rank}</span>
+          </div>
+          <span className={`event-prizes__card-tag event-prizes__card-tag--${tier.variant}`}>{tier.badge}</span>
+        </div>
+
+        <div className="event-prizes__card-header">
+          <span className={`event-prizes__card-label event-prizes__card-label--${tier.variant}`}>{tier.label}</span>
+          <div className="event-prizes__card-figure">
+            <span className={`event-prizes__card-amount event-prizes__card-amount--${tier.variant}`}>
+              {tier.amount}
+            </span>
+            <span className="event-prizes__card-subtext">{tier.subtext}</span>
+          </div>
+        </div>
+
+        <p className="event-prizes__card-desc">{tier.description}</p>
+      </div>
+
+      <ul className="event-prizes__card-perks" aria-label={`Perks for ${tier.rank}`}>
+        {tier.perks.map((perk) => (
+          <li key={perk}>
+            <span className={`event-prizes__perk-check event-prizes__perk-check--${tier.variant}`} aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </span>
+            <span>{perk}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 export function PrizeHero({ hero }) {
@@ -583,17 +703,22 @@ export function PrizeHero({ hero }) {
 }
 
 export function EventPrizes() {
-  const { eyebrow, heading, hero } = REWARDS_CONFIG;
+  const { eyebrow, heading, summary, tiers } = REWARDS_CONFIG;
   return (
     <section className="event-section event-prizes" id="prizes" aria-labelledby="prizes-title">
       <div className="event-section-inner">
         <Reveal className="event-section__heading">
           <p className="event-mono-kicker">{eyebrow}</p>
           <h2 id="prizes-title">{heading}</h2>
+          {summary && <p className="event-lead" style={{ marginTop: '10px' }}>{summary}</p>}
         </Reveal>
 
-        <Reveal className="event-prizes__layout event-prizes__layout--single" delay={120}>
-          <PrizeHero hero={hero} />
+        <Reveal className="event-prizes__grid-wrapper" delay={120}>
+          <div className="event-prizes__grid">
+            {tiers.map((tier, idx) => (
+              <PrizeCard key={tier.id} tier={tier} isPrimary={idx === 0} />
+            ))}
+          </div>
         </Reveal>
       </div>
     </section>

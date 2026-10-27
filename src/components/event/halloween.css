@@ -1441,6 +1441,316 @@
   margin: 0 auto;
 }
 
+/* 3-TIER PRIZE PODIUM GRID */
+.event-prizes__grid-wrapper {
+  width: 100%;
+}
+
+.event-prizes__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2.2vw, 24px);
+  align-items: stretch;
+  width: 100%;
+}
+
+.event-prizes__card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: clamp(24px, 3vw, 34px);
+  background: linear-gradient(180deg, rgba(20, 26, 33, 0.9) 0%, rgba(12, 16, 21, 0.96) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 16px 40px -15px rgba(0, 0, 0, 0.7),
+              inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: transform 240ms var(--event-ease),
+              border-color 240ms var(--event-ease),
+              box-shadow 240ms var(--event-ease);
+}
+
+.event-prizes__card:hover {
+  transform: translateY(-4px);
+}
+
+.event-prizes__card-main {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Gold (1st Place) */
+.event-prizes__card--gold {
+  border-color: rgba(255, 170, 68, 0.4);
+  background: radial-gradient(circle at 50% 0%, rgba(255, 122, 26, 0.16) 0%, transparent 70%),
+              linear-gradient(180deg, rgba(24, 30, 38, 0.94) 0%, rgba(13, 17, 22, 0.98) 100%);
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.8),
+              0 0 28px -6px rgba(255, 122, 26, 0.2),
+              inset 0 1px 0 rgba(255, 215, 150, 0.18);
+}
+
+.event-prizes__card--gold:hover {
+  border-color: rgba(255, 170, 68, 0.65);
+  box-shadow: 0 28px 56px -12px rgba(0, 0, 0, 0.85),
+              0 0 40px -4px rgba(255, 122, 26, 0.32),
+              inset 0 1px 0 rgba(255, 215, 150, 0.25);
+}
+
+/* Silver (2nd Place) */
+.event-prizes__card--silver {
+  border-color: rgba(180, 205, 230, 0.28);
+  background: radial-gradient(circle at 50% 0%, rgba(180, 205, 230, 0.12) 0%, transparent 70%),
+              linear-gradient(180deg, rgba(20, 26, 33, 0.9) 0%, rgba(12, 16, 21, 0.96) 100%);
+  box-shadow: 0 16px 40px -15px rgba(0, 0, 0, 0.7),
+              0 0 24px -8px rgba(180, 205, 230, 0.14),
+              inset 0 1px 0 rgba(220, 235, 255, 0.12);
+}
+
+.event-prizes__card--silver:hover {
+  border-color: rgba(180, 205, 230, 0.52);
+  box-shadow: 0 24px 50px -15px rgba(0, 0, 0, 0.8),
+              0 0 32px -6px rgba(180, 205, 230, 0.24),
+              inset 0 1px 0 rgba(220, 235, 255, 0.2);
+}
+
+/* Bronze (3rd Place) */
+.event-prizes__card--bronze {
+  border-color: rgba(217, 133, 76, 0.28);
+  background: radial-gradient(circle at 50% 0%, rgba(190, 105, 55, 0.12) 0%, transparent 70%),
+              linear-gradient(180deg, rgba(20, 26, 33, 0.9) 0%, rgba(12, 16, 21, 0.96) 100%);
+  box-shadow: 0 16px 40px -15px rgba(0, 0, 0, 0.7),
+              0 0 24px -8px rgba(217, 133, 76, 0.14),
+              inset 0 1px 0 rgba(255, 190, 150, 0.12);
+}
+
+.event-prizes__card--bronze:hover {
+  border-color: rgba(217, 133, 76, 0.52);
+  box-shadow: 0 24px 50px -15px rgba(0, 0, 0, 0.8),
+              0 0 32px -6px rgba(217, 133, 76, 0.24),
+              inset 0 1px 0 rgba(255, 190, 150, 0.2);
+}
+
+/* Ambient glow overlays */
+.event-prizes__card-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.event-prizes__card-ambient--gold {
+  background: radial-gradient(circle at 85% 85%, rgba(245, 166, 35, 0.08) 0%, transparent 60%);
+}
+.event-prizes__card-ambient--silver {
+  background: radial-gradient(circle at 85% 85%, rgba(180, 205, 230, 0.06) 0%, transparent 60%);
+}
+.event-prizes__card-ambient--bronze {
+  background: radial-gradient(circle at 85% 85%, rgba(217, 133, 76, 0.06) 0%, transparent 60%);
+}
+
+/* Card Top bar */
+.event-prizes__card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.event-prizes__card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.event-prizes__card-badge--gold {
+  background: rgba(255, 122, 26, 0.14);
+  border: 1px solid rgba(255, 170, 68, 0.45);
+  color: #ffaa44;
+}
+.event-prizes__card-badge--gold svg {
+  color: var(--event-gold);
+}
+
+.event-prizes__card-badge--silver {
+  background: rgba(180, 205, 230, 0.12);
+  border: 1px solid rgba(195, 215, 235, 0.35);
+  color: #e2e8f0;
+}
+.event-prizes__card-badge--silver svg {
+  color: #cbd5e1;
+}
+
+.event-prizes__card-badge--bronze {
+  background: rgba(217, 133, 76, 0.12);
+  border: 1px solid rgba(217, 133, 76, 0.35);
+  color: #f4a261;
+}
+.event-prizes__card-badge--bronze svg {
+  color: #f4a261;
+}
+
+.event-prizes__card-tag {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.event-prizes__card-tag--gold {
+  color: var(--event-gold);
+}
+.event-prizes__card-tag--silver {
+  color: #cbd5e1;
+}
+.event-prizes__card-tag--bronze {
+  color: #e76f51;
+}
+
+/* Card Header & Figure */
+.event-prizes__card-header {
+  margin-bottom: 12px;
+}
+
+.event-prizes__card-label {
+  display: block;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.event-prizes__card-label--gold {
+  color: var(--event-gold);
+}
+.event-prizes__card-label--silver {
+  color: #cbd5e1;
+}
+.event-prizes__card-label--bronze {
+  color: #f4a261;
+}
+
+.event-prizes__card-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.event-prizes__card-amount {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.5rem, 4.5vw, 3.75rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.event-prizes__card-amount--gold {
+  background: linear-gradient(135deg, #ffffff 0%, #ffe4be 35%, #ff9e3b 75%, #ff7a1a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 20px rgba(255, 122, 26, 0.35));
+}
+
+.event-prizes__card-amount--silver {
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 35%, #cbd5e1 70%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 16px rgba(180, 205, 230, 0.28));
+}
+
+.event-prizes__card-amount--bronze {
+  background: linear-gradient(135deg, #ffffff 0%, #ffe4cf 30%, #e07a38 75%, #a14510 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 16px rgba(217, 133, 76, 0.28));
+}
+
+.event-prizes__card-subtext {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--event-muted);
+}
+
+.event-prizes__card-desc {
+  margin: 0 0 20px;
+  color: var(--event-muted);
+  font-size: 0.8875rem;
+  line-height: 1.55;
+  min-height: 44px;
+}
+
+/* Card Perks list */
+.event-prizes__card-perks {
+  list-style: none;
+  padding: 16px 0 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.event-prizes__card-perks li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--event-ink);
+  font-size: 0.84rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.event-prizes__perk-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.event-prizes__perk-check--gold {
+  background: rgba(255, 122, 26, 0.15);
+  color: var(--event-orange);
+}
+
+.event-prizes__perk-check--silver {
+  background: rgba(180, 205, 230, 0.15);
+  color: #cbd5e1;
+}
+
+.event-prizes__perk-check--bronze {
+  background: rgba(217, 133, 76, 0.15);
+  color: #f4a261;
+}
+
+@media (max-width: 980px) {
+  .event-prizes__grid {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .event-prizes__card-desc {
+    min-height: auto;
+  }
+}
+
 /* HERO PRIZE CARD */
 .event-prizes__hero-card {
   position: relative;
