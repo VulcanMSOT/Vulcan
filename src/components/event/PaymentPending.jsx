@@ -455,62 +455,35 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
             </div>
           ) : (
             <div className="event-payment__coupon-section">
-              {!showCouponInput ? (
-                <button
-                  type="button"
-                  className="event-payment__coupon-toggle-btn"
-                  onClick={() => {
-                    setShowCouponInput(true);
-                    setCouponError('');
-                    setTimeout(() => couponInputRef.current?.focus(), 50);
-                  }}
-                >
-                  🏷️ Have a coupon code?
-                </button>
-              ) : (
-                <form onSubmit={handleApplyCoupon} className="event-payment__coupon-form">
-                  <label htmlFor="coupon-code-input" className="sr-only">
-                    Coupon code
-                  </label>
-                  <div className="event-payment__coupon-input-group">
-                    <input
-                      ref={couponInputRef}
-                      id="coupon-code-input"
-                      type="text"
-                      value={couponInput}
-                      onChange={(e) => {
-                        setCouponInput(e.target.value);
-                        if (couponError) setCouponError('');
-                      }}
-                      placeholder="e.g. promo code"
-                      autoCapitalize="none"
-                      autoComplete="off"
-                      spellCheck="false"
-                      disabled={couponBusy}
-                    />
-                    <button
-                      type="submit"
-                      className="event-payment__coupon-apply-btn"
-                      disabled={couponBusy || !couponInput.trim()}
-                    >
-                      {couponBusy ? 'Applying…' : 'Apply'}
-                    </button>
-                    <button
-                      type="button"
-                      className="event-payment__coupon-close-btn"
-                      onClick={() => {
-                        setShowCouponInput(false);
-                        setCouponInput('');
-                        setCouponError('');
-                      }}
-                      aria-label="Cancel coupon entry"
-                      disabled={couponBusy}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </form>
-              )}
+              <form onSubmit={handleApplyCoupon} className="event-payment__coupon-form">
+                <label htmlFor="coupon-code-input" className="event-payment__coupon-label">
+                  Have a coupon code?
+                </label>
+                <div className="event-payment__coupon-input-group">
+                  <input
+                    ref={couponInputRef}
+                    id="coupon-code-input"
+                    type="text"
+                    value={couponInput}
+                    onChange={(e) => {
+                      setCouponInput(e.target.value);
+                      if (couponError) setCouponError('');
+                    }}
+                    placeholder="Enter coupon (e.g. halloween_night)"
+                    autoCapitalize="none"
+                    autoComplete="off"
+                    spellCheck="false"
+                    disabled={couponBusy}
+                  />
+                  <button
+                    type="submit"
+                    className="event-payment__coupon-apply-btn"
+                    disabled={couponBusy || !couponInput.trim()}
+                  >
+                    {couponBusy ? 'Applying…' : 'Apply'}
+                  </button>
+                </div>
+              </form>
             </div>
           )}
 
