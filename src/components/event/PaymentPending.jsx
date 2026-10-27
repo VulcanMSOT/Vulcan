@@ -457,7 +457,7 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
             <div className="event-payment__coupon-section">
               <form onSubmit={handleApplyCoupon} className="event-payment__coupon-form">
                 <label htmlFor="coupon-code-input" className="event-payment__coupon-label">
-                  Have a coupon code?
+                  🏷️ Have a coupon code?
                 </label>
                 <div className="event-payment__coupon-input-group">
                   <input
@@ -469,7 +469,7 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
                       setCouponInput(e.target.value);
                       if (couponError) setCouponError('');
                     }}
-                    placeholder="Enter coupon (e.g. halloween_night)"
+                    placeholder="Enter code (e.g. halloween_night)"
                     autoCapitalize="none"
                     autoComplete="off"
                     spellCheck="false"
