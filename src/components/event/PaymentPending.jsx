@@ -69,9 +69,124 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
 
   const teamId = currentPayment?.teamId || currentPayment?.orderRef || 'VHK-PENDING';
   const paymentRef = currentPayment?.paymentRef || 'PAY-PENDING';
-  const amount = currentPayment?.amount || 300;
+  const amount = Number(currentPayment?.amount ?? 300);
+  const listPrice = Number(currentPayment?.listPrice ?? 300);
+  const couponCode = currentPayment?.couponCode || null;
+  const discountAmount = Number(currentPayment?.discountAmount ?? 0);
   const upiId = currentPayment?.vpa || import.meta.env.VITE_UPI_ID || import.meta.env.NEXT_PUBLIC_UPI_ID || 'himangshuyadav2@oksbi';
   const upiUri = `upi://pay?pa=${upiId}&pn=Vulcan&am=${amount}&cu=INR&tn=${encodeURIComponent(paymentRef)}`;
+
+  // Coupon state
+  const [showCouponInput, setShowCouponInput] = useState(false);
+  const [couponInput, setCouponInput] = useState('');
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [couponError, setCouponError] = useState('');
+  const [couponNotice, setCouponNotice] = useState('');
+  const couponInputRef = useRef(null);
+  const couponErrorRef = useRef(null);
+
+  // Animated amount transition respecting reduced motion
+  const [animatedAmount, setAnimatedAmount] = useState(amount);
+  const prevAmountRef = useRef(amount);
+
+  useEffect(() => {
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const start = prevAmountRef.current;
+    const end = amount;
+    prevAmountRef.current = amount;
+
+    if (prefersReducedMotion || start === end) {
+      setAnimatedAmount(end);
+      return;
+    }
+
+    const startTime = performance.now();
+    const duration = 240;
+
+    let frameId;
+    const step = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(start + (end - start) * ease);
+      setAnimatedAmount(current);
+      if (progress < 1) {
+        frameId = requestAnimationFrame(step);
+      } else {
+        setAnimatedAmount(end);
+      }
+    };
+    frameId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frameId);
+  }, [amount]);
+
+  const handleApplyCoupon = async (e) => {
+    e?.preventDefault();
+    const cleanCode = couponInput.trim();
+    if (!cleanCode) return;
+    setCouponBusy(true);
+    setCouponError('');
+    setCouponNotice('');
+    try {
+      const res = await apiFetch('/api/apply-coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: teamId,
+          paymentToken: currentPayment?.paymentToken,
+          code: cleanCode,
+        }),
+      });
+      setCurrentPayment((prev) => ({
+        ...prev,
+        amount: res.amount,
+        listPrice: res.listPrice,
+        couponCode: res.couponCode,
+        discountAmount: res.discountAmount,
+      }));
+      setCouponInput('');
+      setShowCouponInput(false);
+      setCouponNotice(`Coupon ${res.couponCode} applied: -₹${res.discountAmount}`);
+    } catch (err) {
+      setCouponError(err.data?.error || err.message || "That code isn't valid.");
+      setTimeout(() => {
+        couponErrorRef.current?.focus?.();
+      }, 50);
+    } finally {
+      setCouponBusy(false);
+    }
+  };
+
+  const handleRemoveCoupon = async () => {
+    setCouponBusy(true);
+    setCouponError('');
+    setCouponNotice('');
+    try {
+      const res = await apiFetch('/api/remove-coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: teamId,
+          paymentToken: currentPayment?.paymentToken,
+        }),
+      });
+      setCurrentPayment((prev) => ({
+        ...prev,
+        amount: res.amount,
+        listPrice: res.listPrice,
+        couponCode: null,
+        discountAmount: 0,
+      }));
+      setCouponNotice('Coupon removed.');
+    } catch (err) {
+      setCouponError(err.data?.error || err.message || 'Could not remove coupon.');
+    } finally {
+      setCouponBusy(false);
+    }
+  };
 
   // Generate QR code client-side
   useEffect(() => {
@@ -241,6 +356,9 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
         orderRef: result.teamId,
         teamName: result.teamName,
         amount: result.amount,
+        listPrice: result.listPrice || 300,
+        couponCode: result.couponCode || null,
+        discountAmount: result.discountAmount || 0,
         vpa: upiId,
         status: result.status,
         rejectReason: result.rejectReason,
@@ -311,8 +429,114 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
             <strong>{currentPayment?.teamName || 'Your team'}</strong>
           </div>
           <div className="event-payment__meta-row">
-            <span>Amount</span>
-            <strong>₹{amount} (Team of 3)</strong>
+            <span>Entry fee</span>
+            <strong>₹{listPrice} (Team of 3)</strong>
+          </div>
+
+          {/* Coupon Row or Toggle */}
+          {couponCode ? (
+            <div className="event-payment__coupon-summary" role="status">
+              <div className="event-payment__meta-row">
+                <span className="event-payment__coupon-tag-wrap">
+                  Coupon <code className="event-payment__coupon-tag">{couponCode}</code>
+                </span>
+                <strong className="event-payment__coupon-discount">-₹{discountAmount}</strong>
+              </div>
+              <div className="event-payment__coupon-action-row">
+                <button
+                  type="button"
+                  className="event-payment__coupon-remove-link"
+                  onClick={handleRemoveCoupon}
+                  disabled={couponBusy}
+                >
+                  {couponBusy ? 'Removing…' : 'Remove coupon'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="event-payment__coupon-section">
+              {!showCouponInput ? (
+                <button
+                  type="button"
+                  className="event-payment__coupon-toggle-btn"
+                  onClick={() => {
+                    setShowCouponInput(true);
+                    setCouponError('');
+                    setTimeout(() => couponInputRef.current?.focus(), 50);
+                  }}
+                >
+                  Have a coupon code?
+                </button>
+              ) : (
+                <form onSubmit={handleApplyCoupon} className="event-payment__coupon-form">
+                  <label htmlFor="coupon-code-input" className="sr-only">
+                    Coupon code
+                  </label>
+                  <div className="event-payment__coupon-input-group">
+                    <input
+                      ref={couponInputRef}
+                      id="coupon-code-input"
+                      type="text"
+                      value={couponInput}
+                      onChange={(e) => {
+                        setCouponInput(e.target.value);
+                        if (couponError) setCouponError('');
+                      }}
+                      placeholder="e.g. promo code"
+                      autoCapitalize="none"
+                      autoComplete="off"
+                      spellCheck="false"
+                      disabled={couponBusy}
+                    />
+                    <button
+                      type="submit"
+                      className="event-payment__coupon-apply-btn"
+                      disabled={couponBusy || !couponInput.trim()}
+                    >
+                      {couponBusy ? 'Applying…' : 'Apply'}
+                    </button>
+                    <button
+                      type="button"
+                      className="event-payment__coupon-close-btn"
+                      onClick={() => {
+                        setShowCouponInput(false);
+                        setCouponInput('');
+                        setCouponError('');
+                      }}
+                      aria-label="Cancel coupon entry"
+                      disabled={couponBusy}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
+
+          {couponError && (
+            <p
+              ref={couponErrorRef}
+              className="event-payment__coupon-error"
+              role="alert"
+              aria-live="polite"
+              tabIndex={-1}
+            >
+              {couponError}
+            </p>
+          )}
+
+          {couponNotice && !couponError && (
+            <p className="event-payment__coupon-notice" role="status" aria-live="polite">
+              {couponNotice}
+            </p>
+          )}
+
+          <div className="event-payment__meta-row event-payment__meta-row--total">
+            <span>Total to pay</span>
+            <strong className="event-payment__total-val" aria-live="polite">
+              ₹{animatedAmount}
+            </strong>
           </div>
         </div>
 
@@ -354,7 +578,12 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
                 </span>
               </a>
               <div className="event-payment__qr-details">
-                <p className="event-payment__amount">₹{amount} · UPI</p>
+                <p className="event-payment__amount" style={{ fontSize: '1.65rem', fontWeight: 800, color: '#ff7a1a', letterSpacing: '-0.02em' }}>
+                  ₹{animatedAmount} · UPI
+                </p>
+                <p className="event-payment__instruction" style={{ fontSize: '13px', color: '#f7f4eb', margin: '2px 0 6px', fontWeight: 500 }}>
+                  Pay exactly <strong>₹{amount}</strong> using your UPI app.
+                </p>
                 <p className="event-payment__vpa">
                   UPI ID: <code>{upiId}</code>
                 </p>
@@ -362,7 +591,7 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
                   Note: <code>{paymentRef}</code>
                 </p>
                 <a className="event-secondary-button" href={upiUri}>
-                  Pay with UPI app <span>↗</span>
+                  Pay ₹{amount} with UPI app <span>↗</span>
                 </a>
               </div>
             </div>
@@ -438,7 +667,13 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
             <div className="event-payment__submitted-icon" aria-hidden="true">⏳</div>
             <h3>Payment under review</h3>
             <p>
-              Your payment of <strong>₹{amount}</strong> with reference <code>{currentPayment?.utr || utr}</code> has been submitted for manual organiser review.
+              Your payment of <strong>₹{amount}</strong>
+              {couponCode && (
+                <span style={{ display: 'block', fontSize: '13px', color: '#ff9a4d', margin: '4px 0' }}>
+                  Coupon applied: <code>{couponCode}</code> (-₹{discountAmount})
+                </span>
+              )}
+              {' '}with reference <code>{currentPayment?.utr || utr}</code> has been submitted for manual organiser review.
             </p>
             <div
               style={{

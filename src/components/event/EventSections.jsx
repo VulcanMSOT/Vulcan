@@ -14,7 +14,7 @@ const knownFaqs = [
   ['Is it only a hackathon?', 'No. It is a Halloween experience, with quests and surprises along with the build.'],
   ['How long is it?', '12 hours, from 7:00 PM on 31 October to 7:00 AM on 1 November.'],
   ['How big is a team?', 'Teams of exactly 3 members.'],
-  ['What does it cost?', '₹300 per team.'],
+  ['What does it cost?', `${EVENT_CONTENT.entryLabel}.`],
   ['Where is it held?', 'Mirai Floor, Mirai School of Technology, Bengaluru.'],
   ['How do I get in?', 'Show your registration ticket QR code at the entrance.'],
 ];

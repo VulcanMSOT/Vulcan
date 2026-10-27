@@ -28,6 +28,19 @@ export default function HalloweenHackPage() {
           }
         };
       }
+      if (urlParams?.get('preview') === 'payment') {
+        return {
+          type: 'payment',
+          payment: {
+            teamId: 'VHK-7777',
+            paymentRef: 'PAY-7777',
+            orderRef: 'VHK-7777',
+            teamName: 'Team Shadow',
+            amount: 300,
+            listPrice: 300,
+          }
+        };
+      }
       return JSON.parse(window.localStorage.getItem('hack-o-lantern-payment') || 'null');
     } catch { return null; }
   });
