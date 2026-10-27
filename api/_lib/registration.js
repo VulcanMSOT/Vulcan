@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { prisma } from '../../src/server/prisma.js';
+import { validateCoupon } from './coupons.js';
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const memberKeys = ['leader', 'member2', 'member3'];
@@ -260,6 +261,9 @@ export async function createRegistration(input) {
         orderRef: teamId,
         paymentRef,
         amount,
+        listPrice: amount,
+        discountAmount: 0,
+        couponCode: null,
         paymentStatus: 'PENDING_PAYMENT',
         paymentTokenHash: hashSecret(paymentToken),
         emailStatus: 'not_sent',
@@ -302,11 +306,19 @@ export async function submitPaymentReference({ registrationId, paymentToken, utr
       paymentTokenHash: hashSecret(paymentToken),
       paymentStatus: { in: ['PENDING_PAYMENT', 'REJECTED'] },
     },
-    select: { id: true, teamId: true, paymentRef: true },
+    select: { id: true, teamId: true, paymentRef: true, couponCode: true },
   });
 
   if (!registration) {
     return { error: 'This payment request is not available for submission or has already been reviewed.' };
+  }
+
+  // Validate coupon is still active if one was applied
+  if (registration.couponCode) {
+    const couponValidation = await validateCoupon(registration.couponCode);
+    if (!couponValidation.valid) {
+      return { error: 'The coupon code applied to this registration is no longer active. Please remove or re-apply a valid coupon.' };
+    }
   }
 
   // Check duplicate UTR across other registrations
@@ -370,6 +382,9 @@ export async function paymentTicketStatus({ registrationId, paymentToken, teamId
     paymentRef: registration.paymentRef || 'PAY-PENDING',
     orderRef: registration.orderRef,
     amount: registration.amount,
+    listPrice: registration.listPrice,
+    couponCode: registration.couponCode,
+    discountAmount: registration.discountAmount,
     utr: registration.utr,
     rejectReason: registration.rejectReason,
   };
@@ -442,6 +457,9 @@ export async function lookupRegistrationStatus({ identifier, email }) {
     orderRef: registration.orderRef,
     teamName: registration.teamName,
     amount: registration.amount,
+    listPrice: registration.listPrice,
+    couponCode: registration.couponCode,
+    discountAmount: registration.discountAmount,
     utr: registration.utr,
     rejectReason: registration.rejectReason,
     ticketId: registration.ticketId,
