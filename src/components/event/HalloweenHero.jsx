@@ -68,7 +68,11 @@ export default function HalloweenHero({ reducedMotion }) {
             <img src="/assets/vulcan-logo.png" alt="" />
             <span>vulcan club</span>
           </a>
-          <a href="#registration" className="event-nav__link">Register</a>
+          <div className="event-nav__group" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            <a href="#judges" className="event-nav__link">Judges</a>
+            <a href="#timeline" className="event-nav__link">Schedule</a>
+            <a href="#registration" className="event-nav__link">Register</a>
+          </div>
         </nav>
 
         <div className="event-hero__content">

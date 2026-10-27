@@ -1141,6 +1141,279 @@
   line-height: var(--type-body-lh);
 }
 
+/* SECTION: INDUSTRY MENTORS & JUDGES */
+.event-judges {
+  position: relative;
+  background: linear-gradient(180deg, #07090b 0%, #0d1217 50%, #07090b 100%);
+  border-top: 1px solid var(--event-border);
+  overflow: hidden;
+}
+
+.event-judges::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(255, 122, 26, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.event-judges__heading {
+  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+}
+
+.event-judges__kicker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.event-judges__kicker-pill {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--event-orange, #ff7a1a);
+  background: rgba(255, 122, 26, 0.1);
+  border: 1px solid rgba(255, 122, 26, 0.3);
+  padding: 3px 10px;
+  border-radius: 9999px;
+}
+
+.event-judges__lead {
+  max-width: 68ch;
+  color: var(--event-muted);
+  font-size: var(--type-lead);
+  line-height: var(--type-lead-lh);
+  margin-top: 12px;
+}
+
+.event-judges__lead strong {
+  color: var(--event-ink);
+  font-weight: 700;
+}
+
+.event-judges__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(16px, 2.5vw, 28px);
+}
+
+.event-judges__col {
+  height: 100%;
+}
+
+.event-judges__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: clamp(22px, 3vw, 28px);
+  background: rgba(19, 24, 29, 0.85);
+  border: 1px solid rgba(255, 122, 26, 0.22);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  transition: transform 220ms var(--event-ease), border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.event-judges__card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 122, 26, 0.5);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 24px rgba(255, 122, 26, 0.16);
+}
+
+.event-judges__card-ambient {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(255, 122, 26, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.event-judges__card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.event-judges__badge {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: rgba(255, 122, 26, 0.15);
+  border: 1px solid rgba(255, 122, 26, 0.35);
+  color: #ff9a4d;
+}
+
+.event-judges__linkedin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #a39e93;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: color 150ms ease, background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.event-judges__linkedin-btn:hover {
+  color: #f7f4eb;
+  background: rgba(10, 102, 194, 0.25);
+  border-color: rgba(10, 102, 194, 0.6);
+  transform: translateY(-1px);
+}
+
+.event-judges__profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.event-judges__avatar-frame {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 122, 26, 0.35);
+  background: #000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.event-judges__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.event-judges__meta {
+  min-width: 0;
+}
+
+.event-judges__name {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--event-ink);
+  letter-spacing: -0.02em;
+}
+
+.event-judges__role {
+  margin: 3px 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--event-orange);
+}
+
+.event-judges__company {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--event-dim);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+.event-judges__headline-quote {
+  background: rgba(255, 122, 26, 0.05);
+  border-left: 2px solid var(--event-orange);
+  padding: 8px 12px;
+  margin-bottom: 14px;
+  border-radius: 0 6px 6px 0;
+}
+
+.event-judges__headline-quote p {
+  margin: 0;
+  font-size: 0.835rem;
+  font-style: italic;
+  color: #dfdbd2;
+  line-height: 1.45;
+}
+
+.event-judges__bio {
+  margin: 0 0 18px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--event-muted);
+  flex-grow: 1;
+}
+
+.event-judges__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.event-judges__tag {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  color: #a39e93;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+
+.event-judges__strip {
+  margin-top: clamp(32px, 5vw, 48px);
+}
+
+.event-judges__strip-inner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: rgba(255, 122, 26, 0.06);
+  border: 1px dashed rgba(255, 122, 26, 0.3);
+  border-radius: 8px;
+}
+
+.event-judges__strip-star {
+  color: var(--event-gold, #f5a623);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.event-judges__strip-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--event-muted);
+}
+
+.event-judges__strip-text strong {
+  color: var(--event-ink);
+}
+
+@media (max-width: 960px) {
+  .event-judges__grid {
+    grid-template-columns: 1fr;
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 /* SECTION 5: PRIZES / REWARDS */
 .event-prizes {
   position: relative;

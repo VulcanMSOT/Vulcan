@@ -342,6 +342,130 @@ export function EventTimeline() {
   );
 }
 
+export const JUDGES_DATA = [
+  {
+    name: 'Naman Batra',
+    role: 'Product Manager',
+    company: 'Dell EMC',
+    companyBadge: 'Dell Technologies',
+    photo: '/assets/judges/naman-batra.jpg',
+    linkedin: 'https://www.linkedin.com/in/naman-batra-493116123/',
+    headline: 'Driving Product Operations Efficiency',
+    bio: 'Product leader at Dell EMC leading product operations, cross-functional engineering delivery, and agile product strategy for enterprise systems.',
+    skills: ['Product Operations', 'Agile Delivery', 'Enterprise Scale', 'Cross-Functional Strategy'],
+  },
+  {
+    name: 'Satyam Kumar',
+    role: 'Senior Software Engineer',
+    company: 'AMD · Ex-Samsung',
+    companyBadge: 'AMD / Ex-Samsung',
+    photo: '/assets/judges/satyam-kumar.jpg',
+    linkedin: 'https://www.linkedin.com/in/satyam-kumar-cpp/',
+    headline: 'C++ · Distributed Systems · Low Latency',
+    bio: 'High-performance systems engineer with proven industry track record at AMD and Samsung. Expert in distributed computing, low-latency C++, multithreading, and backend systems.',
+    skills: ['Distributed Systems', 'Low Latency', 'C++ / STL', 'Multithreading', 'Backend Architecture'],
+  },
+  {
+    name: 'Pratyanch Gor',
+    role: '0 to 1 Product Leader',
+    company: 'Product Leadership',
+    companyBadge: 'Product Strategy',
+    photo: '/assets/judges/pratyanch-gor.jpg',
+    linkedin: 'https://www.linkedin.com/in/pratyanch-gor/',
+    headline: 'Scaling 10x Growth & Launching Market-Leading Products',
+    bio: 'Strategic product builder focused on taking ideas from 0 to 1, accelerating 10x scale through agile frameworks, customer satisfaction, and launching market-defining platforms.',
+    skills: ['0-to-1 Products', '10x Growth Scaling', 'Agile Frameworks', 'Market Launch', 'User Experience'],
+  },
+];
+
+export function EventJudges() {
+  return (
+    <section className="event-section event-judges" id="judges" aria-labelledby="judges-title">
+      <div className="event-section-inner">
+        <Reveal className="event-section__heading event-judges__heading">
+          <div className="event-judges__kicker-row">
+            <p className="event-mono-kicker">Industry Mentors & Judges</p>
+            <span className="event-judges__kicker-pill">Meet · Learn · Get Inspired</span>
+          </div>
+          <h2 id="judges-title">Judged by industry veterans.</h2>
+          <p className="event-judges__lead">
+            Pitch your ideas, demo live code, and receive direct evaluation from engineering and product specialists across <strong>Dell</strong>, <strong>AMD</strong>, <strong>Samsung</strong>, and top-tier product leadership.
+          </p>
+        </Reveal>
+
+        <div className="event-judges__grid">
+          {JUDGES_DATA.map((judge) => (
+            <Reveal key={judge.name} className="event-judges__col">
+              <article className="event-judges__card">
+                <div className="event-judges__card-ambient" aria-hidden="true" />
+                
+                <div className="event-judges__card-header">
+                  <span className="event-judges__badge">
+                    {judge.companyBadge}
+                  </span>
+                  <a
+                    href={judge.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="event-judges__linkedin-btn"
+                    title={`View ${judge.name}'s LinkedIn Profile`}
+                  >
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true">
+                      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
+                    </svg>
+                    <span>LinkedIn ↗</span>
+                  </a>
+                </div>
+
+                <div className="event-judges__profile">
+                  <div className="event-judges__avatar-frame">
+                    <img
+                      src={judge.photo}
+                      alt={judge.name}
+                      width="96"
+                      height="96"
+                      className="event-judges__avatar-img"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="event-judges__meta">
+                    <h3 className="event-judges__name">{judge.name}</h3>
+                    <p className="event-judges__role">{judge.role}</p>
+                    <p className="event-judges__company">{judge.company}</p>
+                  </div>
+                </div>
+
+                <div className="event-judges__headline-quote">
+                  <p>"{judge.headline}"</p>
+                </div>
+
+                <p className="event-judges__bio">{judge.bio}</p>
+
+                <div className="event-judges__tags">
+                  {judge.skills.map((skill) => (
+                    <span key={skill} className="event-judges__tag">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal className="event-judges__strip">
+          <div className="event-judges__strip-inner">
+            <span className="event-judges__strip-star">★</span>
+            <p className="event-judges__strip-text">
+              <strong>Great Minds. Real Impact.</strong> Mentors will guide team architectures during the overnight build and lead final scoring during the 9:00 AM demo showcase.
+            </p>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 export function EventTracks() {
   const tracks = EVENT_CONTENT.themes ? EVENT_CONTENT.themes.split('|').map((track) => track.trim()).filter(Boolean) : [];
 
