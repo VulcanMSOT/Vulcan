@@ -465,7 +465,7 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
                     setTimeout(() => couponInputRef.current?.focus(), 50);
                   }}
                 >
-                  Have a coupon code?
+                  🏷️ Have a coupon code?
                 </button>
               ) : (
                 <form onSubmit={handleApplyCoupon} className="event-payment__coupon-form">
