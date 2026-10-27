@@ -8,13 +8,13 @@ export const EVENT_CONTENT = {
   name: 'Hack-O-Lantern',
   label: 'A Halloween overnight hackathon',
   heroSubtitle: 'A Halloween hackathon with quests and surprises during the build.',
-  heroTags: ['12 hours', 'Quests', 'Surprises'],
+  heroTags: ['16 hours', 'Quests', 'Surprises'],
 
-  // Confirmed: 31 October 2026, 7:00 PM Asia/Kolkata (13:30 UTC) to 1 November 2026, 7:00 AM Asia/Kolkata (01:30 UTC)
+  // Confirmed: 31 October 2026, 7:00 PM Asia/Kolkata (13:30 UTC) to 1 November 2026, 11:00 AM Asia/Kolkata (05:30 UTC)
   startIso: '2026-10-31T13:30:00.000Z',
-  endIso: '2026-11-01T01:30:00.000Z',
+  endIso: '2026-11-01T05:30:00.000Z',
   dateLabel: '31 October, 7:00 PM',
-  durationLabel: '12 hours',
+  durationLabel: '16 hours',
   teamLabel: 'Teams of 3',
   entryLabel: `₹${typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_EVENT_AMOUNT ? process.env.NEXT_PUBLIC_EVENT_AMOUNT : (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_EVENT_AMOUNT || import.meta.env?.NEXT_PUBLIC_EVENT_AMOUNT)) || 300} per team`,
   registrationFee: Number((typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_EVENT_AMOUNT) || (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_EVENT_AMOUNT || import.meta.env?.NEXT_PUBLIC_EVENT_AMOUNT)) || 300),
@@ -29,7 +29,7 @@ export const EVENT_CONTENT = {
   eligibility: 'Teams of exactly 3 members.',
   themes: '',
   themesReveal: 'The themes will be revealed at the start of the event.',
-  rules: 'Bring your laptop, charger, student ID, and your sharpest ideas. Teams must consist of exactly 3 members. All code must be written during the 12-hour build window.',
+  rules: 'Bring your laptop, charger, student ID, and your sharpest ideas. Teams must consist of exactly 3 members. All code must be written during the build window.',
   schedule: '[SCHEDULE]',
 
   // Experience & Quests Content (sealed details)
@@ -47,5 +47,5 @@ export const EVENT_CONTENT = {
   privacyNote: 'Vulcan Club and Mirai School of Technology respect your privacy. Team details are used exclusively for hackathon credentials, ticketing, and event communications.',
   aboutLead: 'Vulcan Club and Mirai School of Technology present Hack-O-Lantern, an overnight Halloween hackathon.',
   about:
-    `Teams of exactly 3 will build for 12 hours from 7:00 PM on 31 October to 7:00 AM on 1 November. Quests and surprises along the way. Themes will be revealed at the start. Registration is ₹${(typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_EVENT_AMOUNT) || (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_EVENT_AMOUNT || import.meta.env?.NEXT_PUBLIC_EVENT_AMOUNT)) || 300} per team.`,
+    `Teams of exactly 3 will build overnight from 7:00 PM on 31 October to 11:00 AM on 1 November. Quests and surprises along the way. Themes will be revealed at the start. Registration is ₹${(typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_EVENT_AMOUNT) || (typeof import.meta !== 'undefined' && (import.meta.env?.VITE_EVENT_AMOUNT || import.meta.env?.NEXT_PUBLIC_EVENT_AMOUNT)) || 300} per team.`,
 };

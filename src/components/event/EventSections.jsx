@@ -2,17 +2,18 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { EVENT_CONTENT } from '../../eventContent';
 
 const fixedTimeline = [
-  { time: '7:00 PM', title: 'Opening ceremony', detail: 'The challenge is revealed and the 12-hour build begins.', isSealed: false },
-  { time: '???', title: '??? Quest', detail: 'Hidden until the build begins.', isSealed: true },
-  { time: '???', title: '??? Surprise', detail: 'We are not telling you. That is the point.', isSealed: true },
-  { time: '7:00 AM', title: 'Hackathon ends', detail: 'The overnight build window concludes. Demos and awards begin.', isSealed: false },
+  { time: '7:00 PM', title: 'Doors open & entry', detail: 'Check-in, ticket verification, and team workspace setup.', isSealed: false },
+  { time: '8:00 PM', title: 'Hackathon starts & Quests revealed', detail: 'Opening ceremony, problem statements revealed, and quest board unlocked.', isSealed: false },
+  { time: '11:00 PM', title: '??? Surprise', detail: 'We are not telling you just yet. That is the point.', isSealed: true },
+  { time: '9:00 AM', title: 'Judging starts', detail: 'Code freeze, project evaluations, demos, and presentations begin.', isSealed: false },
+  { time: '11:00 AM', title: 'Hackathon ends', detail: 'Final showcases, closing ceremony, and winners announced.', isSealed: false },
 ];
 
 const knownFaqs = [
   ['What are the quests?', `Quests run during the event and are revealed then. ${EVENT_CONTENT.questRules}`],
   ['Are there surprises?', 'Yes. We are keeping them secret.'],
   ['Is it only a hackathon?', 'No. It is a Halloween experience, with quests and surprises along with the build.'],
-  ['How long is it?', '12 hours, from 7:00 PM on 31 October to 7:00 AM on 1 November.'],
+  ['How long is it?', '16 hours, from 7:00 PM on 31 October to 11:00 AM on 1 November.'],
   ['How big is a team?', 'Teams of exactly 3 members.'],
   ['What does it cost?', `${EVENT_CONTENT.entryLabel}.`],
   ['Where is it held?', 'Mirai Floor, Mirai School of Technology, Bengaluru.'],
@@ -263,7 +264,7 @@ export function EventExperience() {
             />
             <SealedCard
               title="The build"
-              description="12 hours, teams of 3, and the Halloween theme."
+              description="16 hours, teams of 3, and the Halloween theme."
               isOpen={true}
             />
           </div>

@@ -11,7 +11,7 @@ export default async function handler(request, response) {
     const now = new Date();
 
     const startIso = '2026-10-31T13:30:00.000Z'; // 31 Oct 2026, 7:00 PM IST
-    const endIso = '2026-11-01T01:30:00.000Z';   // 1 Nov 2026, 7:00 AM IST
+    const endIso = '2026-11-01T05:30:00.000Z';   // 1 Nov 2026, 11:00 AM IST
 
     let registrationState = 'open';
     if (!data.isOpen) {
