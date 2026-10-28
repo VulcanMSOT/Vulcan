@@ -13,6 +13,7 @@ export const EVENT_CONTENT = {
   // Confirmed: 31 October 2026, 7:00 PM Asia/Kolkata (13:30 UTC) to 1 November 2026, 11:00 AM Asia/Kolkata (05:30 UTC)
   startIso: '2026-10-31T13:30:00.000Z',
   endIso: '2026-11-01T05:30:00.000Z',
+  registrationDeadlineIso: '2026-10-30T18:29:59.000Z',
   dateLabel: '31 October, 7:00 PM',
   durationLabel: '16 hours',
   teamLabel: 'Teams of 3',

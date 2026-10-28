@@ -2,14 +2,12 @@ import { useEffect, useState } from 'react';
 import { EVENT_CONTENT } from '../../eventContent';
 import HalloweenHeroScene3D from './HalloweenHeroScene3D';
 
-const START = new Date(EVENT_CONTENT.startIso).getTime();
-const END = new Date(EVENT_CONTENT.endIso).getTime();
+const REGISTRATION_DEADLINE = new Date(EVENT_CONTENT.registrationDeadlineIso || '2026-10-30T18:29:59.000Z').getTime();
 
 function getCountdown(now = Date.now()) {
-  if (now >= END) return { state: 'ended', values: null };
-  if (now >= START) return { state: 'live', values: null };
+  if (now >= REGISTRATION_DEADLINE) return { state: 'closed', values: null };
 
-  const remaining = START - now;
+  const remaining = Math.max(0, REGISTRATION_DEADLINE - now);
   return {
     state: 'countdown',
     values: {
@@ -29,11 +27,8 @@ function Countdown() {
     return () => window.clearInterval(timer);
   }, []);
 
-  if (countdown.state === 'live') {
-    return <p className="event-status event-status--live" role="status">Live now</p>;
-  }
-  if (countdown.state === 'ended') {
-    return <p className="event-status" role="status">Event ended</p>;
+  if (countdown.state === 'closed') {
+    return <p className="event-status" role="status">Registrations closed</p>;
   }
 
   const cells = [
@@ -44,7 +39,7 @@ function Countdown() {
   ];
 
   return (
-    <div className="event-countdown" aria-live="polite" aria-label="Countdown to the event start in India Standard Time">
+    <div className="event-countdown" aria-live="polite" aria-label="Countdown to registration close in India Standard Time">
       {cells.map(([label, value]) => (
         <div className="event-countdown__cell" key={label}>
           <strong>{String(value).padStart(2, '0')}</strong>

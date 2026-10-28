@@ -6,9 +6,8 @@ import './HackOLanternTeaser.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Target start time: 31 October 2026, 7:00 PM IST (13:30 UTC)
-const START_DATE_MS = new Date('2026-10-31T13:30:00.000Z').getTime();
-const END_DATE_MS = new Date('2026-11-01T01:30:00.000Z').getTime();
+// Target registration deadline: 30 October 2026, 11:59:59 PM IST (18:29:59 UTC)
+const REGISTRATION_DEADLINE_MS = new Date(EVENT_CONTENT.registrationDeadlineIso || '2026-10-30T18:29:59.000Z').getTime();
 
 export default function HackOLanternTeaser({ prefersReducedMotion }) {
   const sectionRef = useRef(null);
@@ -73,16 +72,12 @@ export default function HackOLanternTeaser({ prefersReducedMotion }) {
   useEffect(() => {
     function calculateCountdown() {
       const now = Date.now();
-      if (now >= END_DATE_MS) {
+      if (now >= REGISTRATION_DEADLINE_MS) {
         setTimeLeft({ status: 'ended', days: 0, hours: 0, minutes: 0, seconds: 0 });
         return;
       }
-      if (now >= START_DATE_MS) {
-        setTimeLeft({ status: 'live', days: 0, hours: 0, minutes: 0, seconds: 0 });
-        return;
-      }
 
-      const diff = Math.max(0, START_DATE_MS - now);
+      const diff = Math.max(0, REGISTRATION_DEADLINE_MS - now);
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const minutes = Math.floor((diff / (1000 * 60)) % 60);
@@ -335,7 +330,7 @@ export default function HackOLanternTeaser({ prefersReducedMotion }) {
           {/* Countdown Clock */}
           <div className="hol-teaser__countdown" aria-label="Event countdown">
             <span className="hol-teaser__countdown-label">
-              {timeLeft.status === 'upcoming' ? 'Starts in' : 'Event status'}
+              {timeLeft.status === 'upcoming' ? 'Registration closes in' : 'Registration status'}
             </span>
 
             {timeLeft.status === 'upcoming' && (
@@ -362,12 +357,8 @@ export default function HackOLanternTeaser({ prefersReducedMotion }) {
               </div>
             )}
 
-            {timeLeft.status === 'live' && (
-              <div className="hol-teaser__countdown-live">Live now — building through the night</div>
-            )}
-
             {timeLeft.status === 'ended' && (
-              <div className="hol-teaser__countdown-live" style={{ color: '#71717a' }}>Event ended</div>
+              <div className="hol-teaser__countdown-live" style={{ color: '#71717a' }}>Registrations closed</div>
             )}
           </div>
 
