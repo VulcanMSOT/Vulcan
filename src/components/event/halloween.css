@@ -2724,6 +2724,182 @@
   color: var(--event-green);
 }
 
+/* Referral Codes Section on Status / Ticket Page */
+.event-referral-section {
+  width: 100%;
+  max-width: 640px;
+  margin: 36px auto 0;
+  padding: 24px;
+  background: rgba(13, 16, 20, 0.7);
+  border: 1px solid var(--event-border);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  text-align: left;
+}
+
+.event-referral-section__header h3 {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--event-ink);
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.event-referral-section__header p {
+  font-size: 0.86rem;
+  color: var(--event-muted);
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+
+.event-referral-reward-box {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  background: rgba(255, 122, 26, 0.08);
+  border-left: 3px solid var(--event-orange);
+  border-radius: 4px;
+}
+
+.event-referral-reward-box p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--event-ink);
+  line-height: 1.45;
+}
+
+.event-referral-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.event-referral-card {
+  padding: 14px 16px;
+  background: #090b0d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  transition: border-color 160ms var(--event-ease);
+}
+
+.event-referral-card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.event-referral-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.event-referral-card__name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--event-ink);
+}
+
+.event-referral-card__tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  background: rgba(142, 237, 75, 0.12);
+  color: var(--event-green);
+  border-radius: 4px;
+}
+
+.event-referral-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.event-referral-card__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.84rem;
+}
+
+.event-referral-card__label {
+  color: var(--event-muted);
+  flex-shrink: 0;
+}
+
+.event-referral-card__action-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.event-referral-card__code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ff9a4d;
+  background: rgba(255, 154, 77, 0.1);
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.event-referral-card__url {
+  font-family: ui-monospace, monospace;
+  font-size: 0.78rem;
+  color: var(--event-ink);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 3px 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 240px;
+}
+
+.event-referral-card__btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--event-ink);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 160ms var(--event-ease);
+}
+
+.event-referral-card__btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.event-referral-card__btn--copied {
+  background: rgba(142, 237, 75, 0.15);
+  border-color: rgba(142, 237, 75, 0.4);
+  color: var(--event-green);
+}
+
+@media (max-width: 600px) {
+  .event-referral-card__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .event-referral-card__action-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .event-referral-card__url {
+    max-width: 180px;
+  }
+}
+
 /* Animations & Keyframes */
 @keyframes event-reveal {
   from {

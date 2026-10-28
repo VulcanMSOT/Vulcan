@@ -304,7 +304,7 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
       });
 
       if (result.ticket) {
-        onTicketIssued(result.ticket);
+        onTicketIssued(result.ticket, result);
         return;
       }
 
@@ -366,7 +366,7 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
       });
 
       if (result.status === 'PAID' && result.ticket) {
-        onTicketIssued(result.ticket);
+        onTicketIssued(result.ticket, result);
         return;
       }
 

@@ -447,6 +447,8 @@ export async function paymentTicketStatus({ registrationId, paymentToken, teamId
       teamName: registration.teamName,
       members: registration.members.map(({ position, fullName }) => ({ position, fullName })),
       verifyPayload: `${registration.teamId || registration.ticketId}:${registration.ticketToken || registration.ticketId}`,
+      referralCodes,
+      referralRewardText: settings?.referralRewardText ? settings.referralRewardText.trim() : '',
     },
     referralCodes,
     referralRewardText: settings?.referralRewardText ? settings.referralRewardText.trim() : '',
@@ -494,6 +496,27 @@ export async function lookupRegistrationStatus({ identifier, email }) {
     });
   }
 
+  let referralCodes = [];
+  let referralRewardText = '';
+  if (registration.paymentStatus === 'PAID') {
+    const settings = await prisma.eventSettings.findUnique({ where: { id: 'default' } });
+    referralRewardText = settings?.referralRewardText ? settings.referralRewardText.trim() : '';
+
+    const memberEmails = registration.members.map((m) => m.normalizedEmail);
+    const referrers = await prisma.referrer.findMany({
+      where: {
+        email: { in: memberEmails },
+        active: true,
+      },
+      select: { name: true, code: true },
+    });
+    referralCodes = referrers.map((ref) => ({
+      name: ref.name,
+      code: ref.code,
+      shareUrl: `/halloween-hack?ref=${ref.code}`,
+    }));
+  }
+
   return {
     found: true,
     status: registration.paymentStatus,
@@ -512,6 +535,8 @@ export async function lookupRegistrationStatus({ identifier, email }) {
     paymentToken: resubmitToken,
     registrationId: registration.id,
     leaderEmail: cleanEmail,
+    referralCodes,
+    referralRewardText,
     ticket: registration.paymentStatus === 'PAID' && registration.ticketId ? {
       ticketId: registration.ticketId,
       ticketToken: registration.ticketToken,
@@ -520,6 +545,8 @@ export async function lookupRegistrationStatus({ identifier, email }) {
       teamName: registration.teamName,
       members: registration.members.map(({ position, fullName }) => ({ position, fullName })),
       verifyPayload: `${registration.teamId || registration.ticketId}:${registration.ticketToken || registration.ticketId}`,
+      referralCodes,
+      referralRewardText,
     } : null,
   };
 }

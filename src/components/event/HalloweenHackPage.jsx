@@ -91,9 +91,34 @@ export default function HalloweenHackPage() {
     <main className="event-page">
       <EventAmbientLayer reducedMotion={reducedMotion} />
       {flow?.type === 'ticket' ? (
-        <TicketSuccess ticket={flow.ticket} onStartOver={() => { window.localStorage.removeItem('hack-o-lantern-payment'); setFlow(null); window.location.hash = 'registration'; }} />
+        <TicketSuccess
+          ticket={flow.ticket}
+          referralCodes={flow.referralCodes || flow.ticket?.referralCodes}
+          referralRewardText={flow.referralRewardText || flow.ticket?.referralRewardText}
+          onStartOver={() => {
+            window.localStorage.removeItem('hack-o-lantern-payment');
+            setFlow(null);
+            window.location.hash = 'registration';
+          }}
+        />
       ) : flow?.type === 'payment' ? (
-        <PaymentPending payment={flow.payment} onTicketIssued={(ticket) => { window.localStorage.removeItem('hack-o-lantern-payment'); setFlow({ type: 'ticket', ticket }); }} onStartOver={() => { window.localStorage.removeItem('hack-o-lantern-payment'); setFlow(null); window.location.hash = 'registration'; }} />
+        <PaymentPending
+          payment={flow.payment}
+          onTicketIssued={(ticket, fullResult) => {
+            window.localStorage.removeItem('hack-o-lantern-payment');
+            setFlow({
+              type: 'ticket',
+              ticket,
+              referralCodes: fullResult?.referralCodes || ticket?.referralCodes,
+              referralRewardText: fullResult?.referralRewardText || ticket?.referralRewardText,
+            });
+          }}
+          onStartOver={() => {
+            window.localStorage.removeItem('hack-o-lantern-payment');
+            setFlow(null);
+            window.location.hash = 'registration';
+          }}
+        />
       ) : (
         <>
           <HalloweenHero reducedMotion={reducedMotion} />

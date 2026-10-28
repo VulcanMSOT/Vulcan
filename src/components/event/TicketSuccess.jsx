@@ -12,7 +12,70 @@ function TicketBat({ className }) {
   );
 }
 
-export default function TicketSuccess({ ticket, onStartOver }) {
+function ReferralCodeItem({ memberName, code }) {
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://vulcan-hackathon.vercel.app';
+  const shareUrl = `${origin}/halloween-hack?ref=${code}`;
+
+  const copyCode = () => {
+    navigator.clipboard?.writeText(code).then(() => {
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    });
+  };
+
+  const copyLink = () => {
+    navigator.clipboard?.writeText(shareUrl).then(() => {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    });
+  };
+
+  return (
+    <div className="event-referral-card">
+      <div className="event-referral-card__header">
+        <span className="event-referral-card__name">{memberName}</span>
+        <span className="event-referral-card__tag">Mirai Referral</span>
+      </div>
+      <div className="event-referral-card__body">
+        <div className="event-referral-card__row">
+          <span className="event-referral-card__label">Referral code</span>
+          <div className="event-referral-card__action-group">
+            <code className="event-referral-card__code">{code}</code>
+            <button
+              type="button"
+              className={`event-referral-card__btn ${copiedCode ? 'event-referral-card__btn--copied' : ''}`}
+              onClick={copyCode}
+              aria-label={`Copy referral code for ${memberName}`}
+            >
+              {copiedCode ? 'Copied code' : 'Copy code'}
+            </button>
+          </div>
+        </div>
+        <div className="event-referral-card__row">
+          <span className="event-referral-card__label">Share link</span>
+          <div className="event-referral-card__action-group">
+            <span className="event-referral-card__url">{shareUrl}</span>
+            <button
+              type="button"
+              className={`event-referral-card__btn ${copiedLink ? 'event-referral-card__btn--copied' : ''}`}
+              onClick={copyLink}
+              aria-label={`Copy referral link for ${memberName}`}
+            >
+              {copiedLink ? 'Copied link' : 'Copy link'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function TicketSuccess({ ticket, onStartOver, referralCodes: propReferralCodes, referralRewardText: propRewardText }) {
+  const codes = propReferralCodes || ticket?.referralCodes || [];
+  const rewardText = propRewardText || ticket?.referralRewardText || '';
   const ticketRef = useRef(null);
   const stageRef = useRef(null);
   const [qrSrc, setQrSrc] = useState('');
@@ -175,6 +238,27 @@ export default function TicketSuccess({ ticket, onStartOver }) {
         </button>
       </div>
       {downloadError && <p className="event-form-notice" role="alert">{downloadError}</p>}
+
+      {codes.length > 0 && (
+        <section className="event-referral-section" aria-labelledby="referral-section-heading">
+          <div className="event-referral-section__header">
+            <h3 id="referral-section-heading">Your referral codes</h3>
+            <p>
+              Share your code or link with other teams registering for Hack-O-Lantern.
+            </p>
+          </div>
+          {rewardText ? (
+            <div className="event-referral-reward-box">
+              <p>{rewardText}</p>
+            </div>
+          ) : null}
+          <div className="event-referral-list">
+            {codes.map((item) => (
+              <ReferralCodeItem key={item.code} memberName={item.name} code={item.code} />
+            ))}
+          </div>
+        </section>
+      )}
     </section>
   );
 }
