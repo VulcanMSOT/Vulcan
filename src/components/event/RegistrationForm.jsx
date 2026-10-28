@@ -6,6 +6,7 @@ const memberKeys = ['leader', 'member2', 'member3'];
 const initialMember = { fullName: '', email: '', phone: '', college: '' };
 const initialValues = {
   teamName: '',
+  referralCode: '',
   leader: { ...initialMember },
   member2: { ...initialMember },
   member3: { ...initialMember },
@@ -22,20 +23,93 @@ function FieldError({ message, id }) {
   return message ? <p className="event-field-error" id={id} role="alert">{message}</p> : null;
 }
 
+function CollegeField({ memberKey, value, onChange, error, id }) {
+  const isMirai = value === 'Mirai School of Technology';
+  const isOther = Boolean(value && !isMirai);
+  const [selected, setSelected] = useState(() => {
+    if (isMirai) return 'Mirai School of Technology';
+    if (value) return '__OTHER__';
+    return '';
+  });
+  const [otherText, setOtherText] = useState(() => (isOther ? value : ''));
+
+  useEffect(() => {
+    if (value === 'Mirai School of Technology') {
+      setSelected('Mirai School of Technology');
+    } else if (value) {
+      setSelected('__OTHER__');
+      setOtherText(value);
+    } else {
+      setSelected('');
+      setOtherText('');
+    }
+  }, [value]);
+
+  const handleSelectChange = (e) => {
+    const choice = e.target.value;
+    setSelected(choice);
+    if (choice === 'Mirai School of Technology') {
+      onChange({ target: { name: `${memberKey}.college`, value: 'Mirai School of Technology' } });
+    } else if (choice === '__OTHER__') {
+      onChange({ target: { name: `${memberKey}.college`, value: otherText } });
+    } else {
+      onChange({ target: { name: `${memberKey}.college`, value: '' } });
+    }
+  };
+
+  const handleTextChange = (e) => {
+    const text = e.target.value;
+    setOtherText(text);
+    onChange({ target: { name: `${memberKey}.college`, value: text } });
+  };
+
+  return (
+    <div className="event-field" key="college" style={{ gridColumn: '1 / -1' }}>
+      <label htmlFor={`${id}-select`}>College / organisation</label>
+      <select
+        id={`${id}-select`}
+        value={selected}
+        onChange={handleSelectChange}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
+      >
+        <option value="">Select college / organisation…</option>
+        <option value="Mirai School of Technology">Mirai School of Technology</option>
+        <option value="__OTHER__">Other (specify below)</option>
+      </select>
+      {selected === '__OTHER__' && (
+        <input
+          id={id}
+          name={`${memberKey}.college`}
+          type="text"
+          value={otherText}
+          onChange={handleTextChange}
+          placeholder="Enter college or organisation name"
+          minLength="2"
+          maxLength="80"
+          autoFocus
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${id}-error` : undefined}
+        />
+      )}
+      <FieldError message={error} id={`${id}-error`} />
+    </div>
+  );
+}
+
 function MemberFields({ memberKey, title, leader, values, onChange, errors }) {
   const member = values[memberKey];
   const base = `member-${memberKey}`;
-  const fields = [
+  const textFields = [
     ['fullName', 'Full name', 'text', 'name'],
     ['email', 'Email address', 'email', 'email'],
     ['phone', 'Contact phone number', 'tel', 'tel'],
-    ['college', 'College / organisation', 'text', 'organization'],
   ];
   return (
     <fieldset className="event-member-fields">
       <legend>{title}{leader && <span>Team leader</span>}</legend>
       <div className="event-form-grid">
-        {fields.map(([field, label, type, autocomplete]) => {
+        {textFields.map(([field, label, type, autocomplete]) => {
           const error = errors[`${memberKey}.${field}`];
           const id = `${base}-${field}`;
           return (
@@ -56,6 +130,13 @@ function MemberFields({ memberKey, title, leader, values, onChange, errors }) {
             </label>
           );
         })}
+        <CollegeField
+          memberKey={memberKey}
+          value={member.college}
+          onChange={onChange}
+          error={errors[`${memberKey}.college`]}
+          id={`${base}-college`}
+        />
       </div>
     </fieldset>
   );
@@ -105,6 +186,58 @@ export default function RegistrationForm({ onRegistered }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [eventSettings, setEventSettings] = useState(null);
   const [loadingSettings, setLoadingSettings] = useState(true);
+  const [referralStatus, setReferralStatus] = useState(null);
+  const [checkingReferral, setCheckingReferral] = useState(false);
+
+  // Read ?ref= query param and sync with sessionStorage
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const refParam = params.get('ref');
+      if (refParam) {
+        const cleanRef = refParam.trim().toUpperCase();
+        sessionStorage.setItem('vulcan_ref_code', cleanRef);
+        setValues((v) => ({ ...v, referralCode: cleanRef }));
+      } else {
+        const stored = sessionStorage.getItem('vulcan_ref_code');
+        if (stored) {
+          setValues((v) => ({ ...v, referralCode: stored }));
+        }
+      }
+    } catch {}
+  }, []);
+
+  const handleReferralBlur = async () => {
+    const code = values.referralCode?.trim().toUpperCase();
+    if (!code) {
+      setReferralStatus(null);
+      return;
+    }
+    setCheckingReferral(true);
+    try {
+      const res = await apiFetch('/api/referral-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      if (res.ok) {
+        setReferralStatus({ ok: true, message: 'Referral code applied' });
+        setErrors((prev) => {
+          const next = { ...prev };
+          delete next.referralCode;
+          return next;
+        });
+      } else {
+        setReferralStatus({ ok: false, message: "That referral code isn't valid." });
+        setErrors((prev) => ({ ...prev, referralCode: "That referral code isn't valid." }));
+      }
+    } catch {
+      setReferralStatus({ ok: false, message: "That referral code isn't valid." });
+      setErrors((prev) => ({ ...prev, referralCode: "That referral code isn't valid." }));
+    } finally {
+      setCheckingReferral(false);
+    }
+  };
 
   // Fetch live server event settings
   useEffect(() => {
@@ -197,6 +330,9 @@ export default function RegistrationForm({ onRegistered }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...values, turnstileToken }),
       });
+      try {
+        sessionStorage.removeItem('vulcan_ref_code');
+      } catch {}
       onRegistered(result.payment);
     } catch (error) {
       if (error.data?.errors) {
@@ -297,6 +433,32 @@ export default function RegistrationForm({ onRegistered }) {
                 />
                 <FieldError message={errors.teamName} id="teamName-error" />
               </label>
+
+              <label className="event-field event-field--wide" htmlFor="referralCode" style={{ marginTop: '1.25rem' }}>
+                Referral code (optional)
+                <input
+                  id="referralCode"
+                  name="referralCode"
+                  type="text"
+                  value={values.referralCode}
+                  onChange={(e) => {
+                    onChange(e);
+                    if (referralStatus) setReferralStatus(null);
+                  }}
+                  onBlur={handleReferralBlur}
+                  autoComplete="off"
+                  placeholder="e.g. SAP-7K3Q"
+                  aria-invalid={Boolean(errors.referralCode)}
+                  aria-describedby={errors.referralCode ? 'referralCode-error' : referralStatus?.message ? 'referralCode-status' : undefined}
+                />
+                {checkingReferral && <span className="event-field-hint">Checking code…</span>}
+                {!checkingReferral && referralStatus?.ok && (
+                  <span className="event-field-hint" id="referralCode-status" style={{ color: '#4ade80' }} role="status">
+                    {referralStatus.message}
+                  </span>
+                )}
+                <FieldError message={errors.referralCode} id="referralCode-error" />
+              </label>
             </div>
           )}
 
@@ -317,6 +479,11 @@ export default function RegistrationForm({ onRegistered }) {
             <div className="event-step event-review">
               <h3>Review your team</h3>
               <p><strong>{values.teamName || 'Team name'}</strong></p>
+              {values.referralCode && (
+                <p style={{ color: '#c6f24e', fontSize: '0.9rem' }}>
+                  Referral code: <strong>{values.referralCode}</strong>
+                </p>
+              )}
               {memberKeys.map((memberKey, index) => (
                 <p key={memberKey}>
                   {index === 0 ? 'Team leader' : `Member ${index + 1}`}: {values[memberKey].fullName || '—'} · {values[memberKey].college || '—'}

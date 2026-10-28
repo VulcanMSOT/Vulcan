@@ -2218,7 +2218,8 @@
   max-width: 560px;
 }
 
-.event-field input {
+.event-field input,
+.event-field select {
   min-height: 46px;
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -2231,17 +2232,20 @@
   transition: border-color 160ms var(--event-ease), box-shadow 160ms var(--event-ease);
 }
 
-.event-field input:hover {
+.event-field input:hover,
+.event-field select:hover {
   border-color: rgba(255, 255, 255, 0.32);
 }
 
-.event-field input:focus {
+.event-field input:focus,
+.event-field select:focus {
   border-color: var(--event-orange);
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 122, 26, 0.25);
 }
 
-.event-field input[aria-invalid='true'] {
+.event-field input[aria-invalid='true'],
+.event-field select[aria-invalid='true'] {
   border-color: var(--event-orange);
 }
 

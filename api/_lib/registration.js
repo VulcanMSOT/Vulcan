@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { prisma } from '../../src/server/prisma.js';
 import { validateCoupon } from './coupons.js';
+import { normalizeReferralCode, validateReferralCode } from './referral.js';
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const memberKeys = ['leader', 'member2', 'member3'];
@@ -191,6 +192,16 @@ export async function createRegistration(input) {
   const { errors, teamName, normalizedTeamName, members } = validateRegistration(input);
   if (Object.keys(errors).length) return { errors };
 
+  let validatedReferrer = null;
+  const rawRefCode = input.referralCode ? normalizeReferralCode(input.referralCode) : null;
+  if (rawRefCode) {
+    const refCheck = await validateReferralCode(rawRefCode, { teamMembers: members });
+    if (!refCheck.valid) {
+      return { errors: { referralCode: "That referral code isn't valid." } };
+    }
+    validatedReferrer = refCheck;
+  }
+
   return prisma.$transaction(async (tx) => {
     // 1. Enforce Event Settings & Race-Safe Capacity Check
     const settings = await tx.eventSettings.findUnique({ where: { id: 'default' } });
@@ -264,6 +275,7 @@ export async function createRegistration(input) {
         listPrice: amount,
         discountAmount: 0,
         couponCode: null,
+        referralCode: validatedReferrer ? validatedReferrer.code : null,
         paymentStatus: 'PENDING_PAYMENT',
         paymentTokenHash: hashSecret(paymentToken),
         emailStatus: 'not_sent',
@@ -283,12 +295,22 @@ export async function createRegistration(input) {
       include: { members: { orderBy: { position: 'asc' } } },
     });
 
+    if (validatedReferrer) {
+      await tx.referral.create({
+        data: {
+          referrerId: validatedReferrer.referrerId,
+          referredTeamId: registration.id,
+          status: 'pending',
+        },
+      });
+    }
+
     return {
       registration,
       paymentToken,
       settings,
     };
-  });
+  }, { maxWait: 10000, timeout: 20000 });
 }
 
 export async function submitPaymentReference({ registrationId, paymentToken, utr, screenshotPath }) {
@@ -393,6 +415,27 @@ export async function paymentTicketStatus({ registrationId, paymentToken, teamId
     return baseResponse;
   }
 
+  const settings = await prisma.eventSettings.findFirst({ where: { id: 'default' } });
+  const eligibleCollege = settings?.eligibleCollegeName || 'Mirai School of Technology';
+
+  const miraiMembers = registration.members.filter((m) => m.college === eligibleCollege);
+  let referralCodes = [];
+  if (miraiMembers.length > 0) {
+    const memberEmails = miraiMembers.map((m) => m.normalizedEmail.toLowerCase());
+    const referrers = await prisma.referrer.findMany({
+      where: {
+        email: { in: memberEmails },
+        active: true,
+      },
+      select: { name: true, code: true },
+    });
+    referralCodes = referrers.map((ref) => ({
+      name: ref.name,
+      code: ref.code,
+      shareUrl: `/halloween-hack?ref=${ref.code}`,
+    }));
+  }
+
   return {
     ...baseResponse,
     status: 'PAID',
@@ -405,6 +448,8 @@ export async function paymentTicketStatus({ registrationId, paymentToken, teamId
       members: registration.members.map(({ position, fullName }) => ({ position, fullName })),
       verifyPayload: `${registration.teamId || registration.ticketId}:${registration.ticketToken || registration.ticketId}`,
     },
+    referralCodes,
+    referralRewardText: settings?.referralRewardText ? settings.referralRewardText.trim() : '',
   };
 }
 
