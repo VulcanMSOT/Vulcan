@@ -31,7 +31,7 @@ async function runTests() {
     where: { email: { contains: 'test_ref_' } },
   }).catch(() => {});
   await prisma.registration.deleteMany({
-    where: { teamName: { startsWith: 'Test Ref' } },
+    where: { OR: [{ teamName: { startsWith: 'Test Ref' } }, { teamName: { startsWith: 'Test Mirai' } }] },
   }).catch(() => {});
   await prisma.registrationRateLimit.deleteMany({
     where: { key: { startsWith: `ref_check:${testIp}` } },
@@ -203,29 +203,33 @@ async function runTests() {
 
   // Test 10: Mirai student referral code generated ONLY when team is confirmed
   const miraiLeadEmail = `test_ref_mirai_lead_${rand}@test.com`;
+  const p1 = `98${Math.floor(10000000 + Math.random() * 90000000)}`;
+  const p2 = `98${Math.floor(10000000 + Math.random() * 90000000)}`;
+  const p3 = `98${Math.floor(10000000 + Math.random() * 90000000)}`;
   const miraiReg = await createRegistration({
     teamName: `Test Mirai Team ${rand}`,
     agreed: true,
     leader: {
       fullName: 'Mirai Student Lead',
       email: miraiLeadEmail,
-      phone: '9876543991',
+      phone: p1,
       college: 'Mirai School of Technology',
     },
     member2: {
       fullName: 'Non Mirai Member',
       email: `test_other_${rand}@test.com`,
-      phone: '9876543992',
+      phone: p2,
       college: 'Other Engineering College',
     },
     member3: {
       fullName: 'Mirai Member Three',
       email: `test_ref_mirai_m3_${rand}@test.com`,
-      phone: '9876543993',
+      phone: p3,
       college: 'Mirai School of Technology',
     },
   });
 
+  assert.ok(miraiReg.registration, `Failed to create mirai registration: ${JSON.stringify(miraiReg.errors || miraiReg)}`);
   // Verify before confirmation: Mirai students do NOT have a referrer record
   const checkBefore = await prisma.referrer.findUnique({
     where: { email: miraiLeadEmail.toLowerCase() },
