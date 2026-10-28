@@ -469,7 +469,7 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
                       setCouponInput(e.target.value);
                       if (couponError) setCouponError('');
                     }}
-                    placeholder="Enter code (e.g. halloween_night)"
+                    placeholder="Enter coupon code"
                     autoCapitalize="none"
                     autoComplete="off"
                     spellCheck="false"

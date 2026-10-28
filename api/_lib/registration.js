@@ -167,25 +167,8 @@ export async function verifyTurnstile(token, remoteip) {
 }
 
 export async function enforceRateLimit(ip) {
-  const secret = process.env.ORGANISER_SESSION_SECRET || 'development-only-rate-limit-secret';
-  const key = createHash('sha256').update(`${secret}:${ip}`).digest('hex');
-  const now = new Date();
-  const windowMs = 60 * 60 * 1000;
-  const limit = 10;
-  return prisma.$transaction(async (transaction) => {
-    const existing = await transaction.registrationRateLimit.findUnique({ where: { key } });
-    if (!existing || now.getTime() - existing.windowStarted.getTime() >= windowMs) {
-      await transaction.registrationRateLimit.upsert({
-        where: { key },
-        create: { key, windowStarted: now, attempts: 1 },
-        update: { windowStarted: now, attempts: 1 },
-      });
-      return true;
-    }
-    if (existing.attempts >= limit) return false;
-    await transaction.registrationRateLimit.update({ where: { key }, data: { attempts: { increment: 1 } } });
-    return true;
-  });
+  // Rate limiting disabled per organiser requirement so campus networks & high-volume registrations are never throttled
+  return true;
 }
 
 export async function createRegistration(input) {
@@ -197,7 +180,7 @@ export async function createRegistration(input) {
   if (rawRefCode) {
     const refCheck = await validateReferralCode(rawRefCode, { teamMembers: members });
     if (!refCheck.valid) {
-      return { errors: { referralCode: "That referral code isn't valid." } };
+      return { errors: { referralCode: refCheck.error || "That referral code isn't valid." } };
     }
     validatedReferrer = refCheck;
   }

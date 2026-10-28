@@ -259,6 +259,44 @@ async function runTests() {
   assert.strictEqual(nonMiraiReferrer, null, 'Non-Mirai member does not get a referral code');
   console.log('✓ Test 10 Passed: Mirai student gets code only after confirmation; non-Mirai members do not');
 
+  // Test 11: Mirai student members cannot use/apply a referral code
+  const miraiBlockCheck = await validateReferralCode(clubMember.code, {
+    teamMembers: [
+      { fullName: 'Mirai User', email: `test_mirai_apply_${rand}@test.com`, phone: '9888877771', college: 'Mirai School of Technology' },
+      { fullName: 'User Two', email: `test_m2_apply_${rand}@test.com`, phone: '9888877772', college: 'Other College' },
+      { fullName: 'User Three', email: `test_m3_apply_${rand}@test.com`, phone: '9888877773', college: 'Other College' },
+    ],
+  });
+  assert.strictEqual(miraiBlockCheck.valid, false);
+  assert.strictEqual(miraiBlockCheck.error, 'Referral codes cannot be applied by Mirai School of Technology students.');
+
+  const miraiRegAttempt = await createRegistration({
+    teamName: `Test Block Mirai ${rand}`,
+    agreed: true,
+    referralCode: clubMember.code,
+    leader: {
+      fullName: 'Mirai Candidate',
+      email: `test_mirai_lead_${rand}@test.com`,
+      phone: `97${Math.floor(10000000 + Math.random() * 90000000)}`,
+      college: 'Mirai School of Technology',
+    },
+    member2: {
+      fullName: 'Other Member 2',
+      email: `test_other2_${rand}@test.com`,
+      phone: `97${Math.floor(10000000 + Math.random() * 90000000)}`,
+      college: 'Other Engineering College',
+    },
+    member3: {
+      fullName: 'Other Member 3',
+      email: `test_other3_${rand}@test.com`,
+      phone: `97${Math.floor(10000000 + Math.random() * 90000000)}`,
+      college: 'Other Engineering College',
+    },
+  });
+  assert.ok(miraiRegAttempt.errors);
+  assert.strictEqual(miraiRegAttempt.errors.referralCode, 'Referral codes cannot be applied by Mirai School of Technology students.');
+  console.log('✓ Test 11 Passed: Teams with Mirai School of Technology members are blocked from using referral codes');
+
   console.log('\n--- ALL REFERRAL CORE TESTS PASSED SUCCESSFULLY ---');
 }
 

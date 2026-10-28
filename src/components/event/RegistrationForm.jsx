@@ -213,12 +213,21 @@ export default function RegistrationForm({ onRegistered }) {
       setReferralStatus(null);
       return;
     }
+    const currentMembers = memberKeys.map((k) => values[k]);
+    const hasMirai = currentMembers.some((m) => m.college === 'Mirai School of Technology');
+    if (hasMirai) {
+      const msg = 'Referral codes cannot be applied by Mirai School of Technology students.';
+      setReferralStatus({ ok: false, message: msg });
+      setErrors((prev) => ({ ...prev, referralCode: msg }));
+      return;
+    }
+
     setCheckingReferral(true);
     try {
       const res = await apiFetch('/api/referral-check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, teamMembers: currentMembers }),
       });
       if (res.ok) {
         setReferralStatus({ ok: true, message: 'Referral code applied' });
@@ -228,12 +237,14 @@ export default function RegistrationForm({ onRegistered }) {
           return next;
         });
       } else {
-        setReferralStatus({ ok: false, message: "That referral code isn't valid." });
-        setErrors((prev) => ({ ...prev, referralCode: "That referral code isn't valid." }));
+        const msg = res.error || "That referral code isn't valid.";
+        setReferralStatus({ ok: false, message: msg });
+        setErrors((prev) => ({ ...prev, referralCode: msg }));
       }
-    } catch {
-      setReferralStatus({ ok: false, message: "That referral code isn't valid." });
-      setErrors((prev) => ({ ...prev, referralCode: "That referral code isn't valid." }));
+    } catch (err) {
+      const msg = err.data?.error || err.message || "That referral code isn't valid.";
+      setReferralStatus({ ok: false, message: msg });
+      setErrors((prev) => ({ ...prev, referralCode: msg }));
     } finally {
       setCheckingReferral(false);
     }
@@ -283,6 +294,14 @@ export default function RegistrationForm({ onRegistered }) {
       });
       if (!values.agreed) nextErrors.agreed = 'You need to agree before registering your team.';
     }
+
+    if (values.referralCode) {
+      const hasMirai = teamMembers.some((member) => member.college === 'Mirai School of Technology');
+      if (hasMirai) {
+        nextErrors.referralCode = 'Referral codes cannot be applied by Mirai School of Technology students.';
+      }
+    }
+
     setErrors(nextErrors);
     return nextErrors;
   };
@@ -290,7 +309,7 @@ export default function RegistrationForm({ onRegistered }) {
   const focusFirstError = (nextErrors) => {
     const firstKey = Object.keys(nextErrors)[0];
     if (!firstKey) return;
-    const errorStep = firstKey === 'teamName' ? 0 : firstKey.startsWith('leader.') ? 1 : firstKey.includes('.') ? 2 : step;
+    const errorStep = (firstKey === 'teamName' || firstKey === 'referralCode') ? 0 : firstKey.startsWith('leader.') ? 1 : firstKey.includes('.') ? 2 : step;
     setStep(errorStep);
     requestAnimationFrame(() => document.querySelector(`[name="${firstKey}"]`)?.focus());
   };
@@ -447,13 +466,16 @@ export default function RegistrationForm({ onRegistered }) {
                   }}
                   onBlur={handleReferralBlur}
                   autoComplete="off"
-                  placeholder="e.g. SAP-7K3Q"
+                  placeholder="e.g. SAP-7K3Q (Not a coupon code)"
                   aria-invalid={Boolean(errors.referralCode)}
-                  aria-describedby={errors.referralCode ? 'referralCode-error' : referralStatus?.message ? 'referralCode-status' : undefined}
+                  aria-describedby={errors.referralCode ? 'referralCode-error' : referralStatus?.message ? 'referralCode-status' : 'referralCode-disclaimer'}
                 />
-                {checkingReferral && <span className="event-field-hint">Checking code…</span>}
+                <span className="event-field-hint" id="referralCode-disclaimer" style={{ display: 'block', marginTop: '6px' }}>
+                  Referral codes are not coupon codes. Discount coupons can be applied on the checkout payment page.
+                </span>
+                {checkingReferral && <span className="event-field-hint" style={{ display: 'block', marginTop: '4px' }}>Checking code…</span>}
                 {!checkingReferral && referralStatus?.ok && (
-                  <span className="event-field-hint" id="referralCode-status" style={{ color: '#4ade80' }} role="status">
+                  <span className="event-field-hint" id="referralCode-status" style={{ color: '#4ade80', display: 'block', marginTop: '4px' }} role="status">
                     {referralStatus.message}
                   </span>
                 )}
@@ -480,9 +502,16 @@ export default function RegistrationForm({ onRegistered }) {
               <h3>Review your team</h3>
               <p><strong>{values.teamName || 'Team name'}</strong></p>
               {values.referralCode && (
-                <p style={{ color: '#c6f24e', fontSize: '0.9rem' }}>
-                  Referral code: <strong>{values.referralCode}</strong>
-                </p>
+                <div>
+                  <p style={{ color: teamMembers.some((m) => m.college === 'Mirai School of Technology') ? '#ff8888' : '#c6f24e', fontSize: '0.9rem', marginBottom: '4px' }}>
+                    Referral code: <strong>{values.referralCode}</strong>
+                  </p>
+                  {teamMembers.some((m) => m.college === 'Mirai School of Technology') && (
+                    <p className="event-field-error" style={{ fontSize: '0.85rem', marginTop: 0, marginBottom: '8px' }}>
+                      Referral codes cannot be applied by Mirai School of Technology students.
+                    </p>
+                  )}
+                </div>
               )}
               {memberKeys.map((memberKey, index) => (
                 <p key={memberKey}>

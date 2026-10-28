@@ -11,7 +11,7 @@ export default async function handler(request, response) {
   const ip = clientIp(request);
   try {
     if (!(await enforceRateLimit(ip))) {
-      return json(response, 429, { error: 'Too many registration attempts. Please try again in an hour.' });
+      return json(response, 429, { error: 'Too many registration attempts. Please try again in a few minutes.' });
     }
 
     const turnstile = await verifyTurnstile(body.turnstileToken, ip);
