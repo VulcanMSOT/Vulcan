@@ -23,6 +23,12 @@ export default async function handler(request, response) {
     const { registration, paymentToken, settings } = result;
     const currentPayment = manualPaymentDetails(registration.paymentRef, registration.amount, settings?.upiId);
 
+    const eligibleCollege = (settings?.eligibleCollegeName || 'Mirai School of Technology').trim().toLowerCase();
+    const hasMirai = registration.members?.some((m) => {
+      const col = String(m.college || '').trim().toLowerCase();
+      return col.includes('mirai') || col === eligibleCollege;
+    });
+
     return json(response, 201, {
       payment: {
         registrationId: registration.id,
@@ -35,6 +41,7 @@ export default async function handler(request, response) {
         listPrice: registration.listPrice || registration.amount,
         couponCode: registration.couponCode || null,
         discountAmount: registration.discountAmount || 0,
+        hasMirai: Boolean(hasMirai),
         vpa: currentPayment.vpa,
         upiUri: currentPayment.uri,
       },

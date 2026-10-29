@@ -381,6 +381,13 @@ export async function paymentTicketStatus({ registrationId, paymentToken, teamId
   });
   if (!registration) return { error: 'No matching registration was found.' };
 
+  const settings = await prisma.eventSettings.findFirst({ where: { id: 'default' } });
+  const eligibleCollege = (settings?.eligibleCollegeName || 'Mirai School of Technology').trim().toLowerCase();
+  const hasMirai = registration.members?.some((m) => {
+    const col = String(m.college || '').trim().toLowerCase();
+    return col.includes('mirai') || col === eligibleCollege;
+  });
+
   const baseResponse = {
     status: registration.paymentStatus,
     teamId: registration.teamId || registration.orderRef,
@@ -390,6 +397,7 @@ export async function paymentTicketStatus({ registrationId, paymentToken, teamId
     listPrice: registration.listPrice,
     couponCode: registration.couponCode,
     discountAmount: registration.discountAmount,
+    hasMirai: Boolean(hasMirai),
     utr: registration.utr,
     rejectReason: registration.rejectReason,
   };
@@ -398,10 +406,10 @@ export async function paymentTicketStatus({ registrationId, paymentToken, teamId
     return baseResponse;
   }
 
-  const settings = await prisma.eventSettings.findFirst({ where: { id: 'default' } });
-  const eligibleCollege = settings?.eligibleCollegeName || 'Mirai School of Technology';
-
-  const miraiMembers = registration.members.filter((m) => m.college === eligibleCollege);
+  const miraiMembers = registration.members.filter((m) => {
+    const col = String(m.college || '').trim().toLowerCase();
+    return col.includes('mirai') || col === eligibleCollege;
+  });
   let referralCodes = [];
   if (miraiMembers.length > 0) {
     const memberEmails = miraiMembers.map((m) => m.normalizedEmail.toLowerCase());

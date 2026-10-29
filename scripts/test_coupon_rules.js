@@ -159,9 +159,92 @@ async function runTests() {
   assert.strictEqual(rateLimitedRes.error, "That code isn't valid.", 'Rate limit triggered');
   console.log('✓ 5 wrong codes rate limits subsequent attempts with generic message');
 
+  // Test 8: Mirai coupon rules
+  const rand3 = Math.random().toString(36).slice(2, 8).toUpperCase();
+  const paymentToken3 = `test-token-3-${rand3}`;
+  const tokenHash3 = createHash('sha256').update(paymentToken3).digest('hex');
+  const miraiReg = await prisma.registration.create({
+    data: {
+      teamName: 'Test Mirai Coupon Team',
+      normalizedTeamName: `test mirai coupon team ${Date.now()}`,
+      teamId: `TEST-MIRAI-${rand3}`,
+      paymentRef: `PAY-MIRAI-${rand3}`,
+      amount: 300,
+      listPrice: 300,
+      paymentStatus: 'PENDING_PAYMENT',
+      paymentTokenHash: tokenHash3,
+      members: {
+        create: [
+          { position: 1, fullName: 'Mirai Member 1', email: `mirai1_${Date.now()}@test.com`, normalizedEmail: `mirai1_${Date.now()}@test.com`, phone: '9876543231', normalizedPhone: '9876543231', college: 'Mirai School of Technology' },
+          { position: 2, fullName: 'Mirai Member 2', email: `mirai2_${Date.now()}@test.com`, normalizedEmail: `mirai2_${Date.now()}@test.com`, phone: '9876543232', normalizedPhone: '9876543232', college: 'Other College' },
+          { position: 3, fullName: 'Mirai Member 3', email: `mirai3_${Date.now()}@test.com`, normalizedEmail: `mirai3_${Date.now()}@test.com`, phone: '9876543233', normalizedPhone: '9876543233', college: 'Other College' },
+        ],
+      },
+    },
+  });
+
+  // 8a: Mirai team cannot use non-Mirai coupon (halloween_night)
+  const miraiInvalidCoupon = await applyCoupon({
+    identifier: miraiReg.teamId,
+    paymentToken: paymentToken3,
+    code: 'halloween_night',
+    ip: '192.168.1.105',
+  });
+  assert.strictEqual(
+    miraiInvalidCoupon.error,
+    'Only the "last_minute" coupon code is applicable for Mirai School of Technology students.'
+  );
+  console.log('✓ Mirai team rejected for other coupons');
+
+  // 8b: Mirai team CAN use "last_minute" and gets ₹120 off (final amount ₹180)
+  const miraiValidCoupon = await applyCoupon({
+    identifier: miraiReg.teamId,
+    paymentToken: paymentToken3,
+    code: 'last_minute',
+    ip: '192.168.1.105',
+  });
+  assert.strictEqual(miraiValidCoupon.ok, true);
+  assert.strictEqual(miraiValidCoupon.couponCode, 'last_minute');
+  assert.strictEqual(miraiValidCoupon.discountAmount, 120);
+  assert.strictEqual(miraiValidCoupon.amount, 180);
+  console.log('✓ Mirai team successfully applies "last_minute" for ₹120 off (total: ₹180)');
+
+  // 8c: Non-Mirai team cannot use "last_minute"
+  const rand4 = Math.random().toString(36).slice(2, 8).toUpperCase();
+  const paymentToken4 = `test-token-4-${rand4}`;
+  const tokenHash4 = createHash('sha256').update(paymentToken4).digest('hex');
+  const nonMiraiReg = await prisma.registration.create({
+    data: {
+      teamName: 'Test Non-Mirai Team',
+      normalizedTeamName: `test non-mirai team ${Date.now()}`,
+      teamId: `TEST-NONMIRAI-${rand4}`,
+      paymentRef: `PAY-NONMIRAI-${rand4}`,
+      amount: 300,
+      listPrice: 300,
+      paymentStatus: 'PENDING_PAYMENT',
+      paymentTokenHash: tokenHash4,
+      members: {
+        create: [
+          { position: 1, fullName: 'Other Member', email: `other_${Date.now()}@test.com`, normalizedEmail: `other_${Date.now()}@test.com`, phone: '9876543241', normalizedPhone: '9876543241', college: 'XYZ Institute' },
+        ],
+      },
+    },
+  });
+  const nonMiraiLastMinute = await applyCoupon({
+    identifier: nonMiraiReg.teamId,
+    paymentToken: paymentToken4,
+    code: 'last_minute',
+    ip: '192.168.1.100',
+  });
+  assert.strictEqual(
+    nonMiraiLastMinute.error,
+    'The "last_minute" coupon code is applicable for Mirai School of Technology students only.'
+  );
+  console.log('✓ Non-Mirai team rejected for "last_minute" coupon');
+
   // Cleanup test registration and rate limits
-  await prisma.teamMember.deleteMany({ where: { registrationId: { in: [testReg.id, testReg2.id] } } });
-  await prisma.registration.deleteMany({ where: { id: { in: [testReg.id, testReg2.id] } } });
+  await prisma.teamMember.deleteMany({ where: { registrationId: { in: [testReg.id, testReg2.id, miraiReg.id, nonMiraiReg.id] } } });
+  await prisma.registration.deleteMany({ where: { id: { in: [testReg.id, testReg2.id, miraiReg.id, nonMiraiReg.id] } } });
   console.log('✓ Test cleanup complete');
   console.log('--- ALL SERVER RULES TESTS PASSED! ---');
 

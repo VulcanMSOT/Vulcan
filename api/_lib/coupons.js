@@ -108,6 +108,9 @@ export async function applyCoupon({ identifier, paymentToken, code, ip }) {
         { orderRef: cleanId },
       ],
     },
+    include: {
+      members: true,
+    },
   });
 
   if (!registration) {
@@ -125,6 +128,25 @@ export async function applyCoupon({ identifier, paymentToken, code, ip }) {
   // State check: coupon can only be applied BEFORE UTR submission
   if (registration.paymentStatus !== 'PENDING_PAYMENT') {
     return { error: 'Payment reference has already been submitted and the amount is locked.' };
+  }
+
+  // College-specific coupon rules: Mirai School of Technology students can ONLY use "last_minute"
+  const normalised = normaliseCode(code);
+  const settings = await prisma.eventSettings.findFirst({ where: { id: 'default' } });
+  const eligibleCollege = (settings?.eligibleCollegeName || 'Mirai School of Technology').trim().toLowerCase();
+  const hasMirai = registration.members?.some((m) => {
+    const col = String(m.college || '').trim().toLowerCase();
+    return col.includes('mirai') || col === eligibleCollege;
+  });
+
+  if (hasMirai) {
+    if (normalised !== 'last_minute') {
+      return { error: 'Only the "last_minute" coupon code is applicable for Mirai School of Technology students.' };
+    }
+  } else {
+    if (normalised === 'last_minute') {
+      return { error: 'The "last_minute" coupon code is applicable for Mirai School of Technology students only.' };
+    }
   }
 
   // Validate coupon
