@@ -87,7 +87,10 @@ export function validateRegistration(input) {
   const errors = {};
   const teamName = clean(input.teamName);
   if (teamName.length < 2 || teamName.length > 40) errors.teamName = 'Use a team name between 2 and 40 characters.';
-  const members = memberKeys.map((key) => {
+
+  // Leader and Member 2 are mandatory
+  const requiredKeys = ['leader', 'member2'];
+  const members = requiredKeys.map((key) => {
     const member = input[key] || {};
     const fullName = clean(member.fullName);
     const email = clean(member.email).toLowerCase();
@@ -100,9 +103,31 @@ export function validateRegistration(input) {
     if (college.length < 2 || college.length > 80) errors[`${key}.college`] = 'Enter a college or organisation between 2 and 80 characters.';
     return { fullName, email, phone: normalizedPhone, college };
   });
+
+  // Member 3 is optional for teams of 2
+  const m3 = input.member3 || {};
+  const m3FullName = clean(m3.fullName);
+  const m3Email = clean(m3.email).toLowerCase();
+  const m3Phone = clean(m3.phone);
+  const m3NormalizedPhone = normalizePhone(m3Phone);
+  const m3College = clean(m3.college);
+  const hasMember3 = Boolean(m3FullName || m3Email || m3Phone || m3College);
+
+  if (hasMember3) {
+    if (!m3FullName || m3FullName.length > 100) errors['member3.fullName'] = 'Enter a full name of up to 100 characters.';
+    if (!emailPattern.test(m3Email)) errors['member3.email'] = 'Enter a valid email address.';
+    if (!/^[6-9]\d{9}$/.test(m3NormalizedPhone)) errors['member3.phone'] = 'Use a 10-digit Indian mobile number. +91 is accepted.';
+    if (m3College.length < 2 || m3College.length > 80) errors['member3.college'] = 'Enter a college or organisation between 2 and 80 characters.';
+    members.push({ fullName: m3FullName, email: m3Email, phone: m3NormalizedPhone, college: m3College });
+  }
+
   if (!input.agreed) errors.agreed = 'You need to agree before registering your team.';
-  if (new Set(members.map((member) => member.email)).size !== 3) errors['leader.email'] = 'Each team member needs a different email address.';
-  if (new Set(members.map((member) => member.phone)).size !== 3) errors['leader.phone'] = 'Each team member needs a different phone number.';
+  if (new Set(members.map((member) => member.email)).size !== members.length) {
+    errors['leader.email'] = 'Each team member needs a different email address.';
+  }
+  if (new Set(members.map((member) => member.phone)).size !== members.length) {
+    errors['leader.phone'] = 'Each team member needs a different phone number.';
+  }
   return { errors, teamName, normalizedTeamName: normalise(teamName), members };
 }
 

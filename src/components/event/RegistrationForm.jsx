@@ -23,7 +23,7 @@ function FieldError({ message, id }) {
   return message ? <p className="event-field-error" id={id} role="alert">{message}</p> : null;
 }
 
-function CollegeField({ memberKey, value, onChange, error, id }) {
+function CollegeField({ memberKey, value, onChange, error, id, isOptional = false }) {
   const isMirai = value === 'Mirai School of Technology';
   const isOther = Boolean(value && !isMirai);
   const [selected, setSelected] = useState(() => {
@@ -65,7 +65,7 @@ function CollegeField({ memberKey, value, onChange, error, id }) {
 
   return (
     <div className="event-field" key="college" style={{ gridColumn: '1 / -1' }}>
-      <label htmlFor={`${id}-select`}>College / organisation</label>
+      <label htmlFor={`${id}-select`}>{isOptional ? 'College / organisation (optional)' : 'College / organisation'}</label>
       <select
         id={`${id}-select`}
         value={selected}
@@ -73,7 +73,7 @@ function CollegeField({ memberKey, value, onChange, error, id }) {
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : undefined}
       >
-        <option value="">Select college / organisation…</option>
+        <option value="">{isOptional ? 'Select college / organisation (optional)…' : 'Select college / organisation…'}</option>
         <option value="Mirai School of Technology">Mirai School of Technology</option>
         <option value="__OTHER__">Other (specify below)</option>
       </select>
@@ -97,17 +97,21 @@ function CollegeField({ memberKey, value, onChange, error, id }) {
   );
 }
 
-function MemberFields({ memberKey, title, leader, values, onChange, errors }) {
+function MemberFields({ memberKey, title, leader, isOptional = false, values, onChange, errors }) {
   const member = values[memberKey];
   const base = `member-${memberKey}`;
   const textFields = [
-    ['fullName', 'Full name', 'text', 'name'],
-    ['email', 'Email address', 'email', 'email'],
-    ['phone', 'Contact phone number', 'tel', 'tel'],
+    ['fullName', isOptional ? 'Full name (optional)' : 'Full name', 'text', 'name'],
+    ['email', isOptional ? 'Email address (optional)' : 'Email address', 'email', 'email'],
+    ['phone', isOptional ? 'Contact phone number (optional)' : 'Contact phone number', 'tel', 'tel'],
   ];
   return (
     <fieldset className="event-member-fields">
-      <legend>{title}{leader && <span>Team leader</span>}</legend>
+      <legend>
+        {title}
+        {leader && <span>Team leader</span>}
+        {isOptional && <span style={{ marginLeft: '8px', fontSize: '0.78rem', color: '#ff9a4d', fontWeight: 'normal' }}>(Leave blank for team of 2)</span>}
+      </legend>
       <div className="event-form-grid">
         {textFields.map(([field, label, type, autocomplete]) => {
           const error = errors[`${memberKey}.${field}`];
@@ -123,6 +127,7 @@ function MemberFields({ memberKey, title, leader, values, onChange, errors }) {
                 onChange={onChange}
                 autoComplete={autocomplete}
                 inputMode={type === 'tel' ? 'tel' : undefined}
+                placeholder={isOptional ? 'Leave blank if team of 2' : undefined}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? `${id}-error` : undefined}
               />
@@ -136,6 +141,7 @@ function MemberFields({ memberKey, title, leader, values, onChange, errors }) {
           onChange={onChange}
           error={errors[`${memberKey}.college`]}
           id={`${base}-college`}
+          isOptional={isOptional}
         />
       </div>
     </fieldset>
@@ -213,7 +219,10 @@ export default function RegistrationForm({ onRegistered }) {
       setReferralStatus(null);
       return;
     }
-    const currentMembers = memberKeys.map((k) => values[k]);
+    const currentMembers = [values.leader, values.member2];
+    if (values.member3.fullName.trim() || values.member3.email.trim() || values.member3.phone.trim() || values.member3.college.trim()) {
+      currentMembers.push(values.member3);
+    }
     const hasMirai = currentMembers.some((m) => m.college === 'Mirai School of Technology');
     if (hasMirai) {
       const msg = 'Referral codes cannot be applied by Mirai School of Technology students.';
@@ -266,7 +275,13 @@ export default function RegistrationForm({ onRegistered }) {
     return () => { active = false; };
   }, []);
 
-  const teamMembers = useMemo(() => memberKeys.map((key) => values[key]), [values]);
+  const teamMembers = useMemo(() => {
+    const list = [values.leader, values.member2];
+    if (values.member3.fullName.trim() || values.member3.email.trim() || values.member3.phone.trim() || values.member3.college.trim()) {
+      list.push(values.member3);
+    }
+    return list;
+  }, [values]);
 
   const validate = (targetStep = step) => {
     const nextErrors = {};
@@ -274,23 +289,50 @@ export default function RegistrationForm({ onRegistered }) {
       const teamName = values.teamName.trim();
       if (teamName.length < 2 || teamName.length > 40) nextErrors.teamName = 'Use a team name between 2 and 40 characters.';
     }
-    const relevantKeys = targetStep === 1 ? ['leader'] : targetStep === 2 ? ['member2', 'member3'] : targetStep === 3 ? memberKeys : [];
-    relevantKeys.forEach((memberKey) => {
-      const member = values[memberKey];
-      if (!member.fullName.trim()) nextErrors[`${memberKey}.fullName`] = 'Enter this member’s full name.';
-      if (!emailPattern.test(member.email.trim())) nextErrors[`${memberKey}.email`] = 'Enter a valid email address.';
-      if (!isIndianMobile(member.phone)) nextErrors[`${memberKey}.phone`] = 'Use a 10-digit Indian mobile number. +91 is accepted.';
-      const collegeLength = member.college.trim().length;
-      if (collegeLength < 2 || collegeLength > 80) nextErrors[`${memberKey}.college`] = 'Enter a college or organisation between 2 and 80 characters.';
-    });
+
+    if (targetStep === 1 || targetStep === 3) {
+      const leader = values.leader;
+      if (!leader.fullName.trim()) nextErrors['leader.fullName'] = 'Enter this member’s full name.';
+      if (!emailPattern.test(leader.email.trim())) nextErrors['leader.email'] = 'Enter a valid email address.';
+      if (!isIndianMobile(leader.phone)) nextErrors['leader.phone'] = 'Use a 10-digit Indian mobile number. +91 is accepted.';
+      const collegeLength = leader.college.trim().length;
+      if (collegeLength < 2 || collegeLength > 80) nextErrors['leader.college'] = 'Enter a college or organisation between 2 and 80 characters.';
+    }
+
+    if (targetStep === 2 || targetStep === 3) {
+      const member2 = values.member2;
+      if (!member2.fullName.trim()) nextErrors['member2.fullName'] = 'Enter this member’s full name.';
+      if (!emailPattern.test(member2.email.trim())) nextErrors['member2.email'] = 'Enter a valid email address.';
+      if (!isIndianMobile(member2.phone)) nextErrors['member2.phone'] = 'Use a 10-digit Indian mobile number. +91 is accepted.';
+      const collegeLength = member2.college.trim().length;
+      if (collegeLength < 2 || collegeLength > 80) nextErrors['member2.college'] = 'Enter a college or organisation between 2 and 80 characters.';
+
+      const m3 = values.member3;
+      const m3Provided = Boolean(m3.fullName.trim() || m3.email.trim() || m3.phone.trim() || m3.college.trim());
+      if (m3Provided) {
+        if (!m3.fullName.trim()) nextErrors['member3.fullName'] = 'Enter this member’s full name.';
+        if (!emailPattern.test(m3.email.trim())) nextErrors['member3.email'] = 'Enter a valid email address.';
+        if (!isIndianMobile(m3.phone)) nextErrors['member3.phone'] = 'Use a 10-digit Indian mobile number. +91 is accepted.';
+        const m3CollegeLength = m3.college.trim().length;
+        if (m3CollegeLength < 2 || m3CollegeLength > 80) nextErrors['member3.college'] = 'Enter a college or organisation between 2 and 80 characters.';
+      }
+    }
+
     if (targetStep === 3) {
-      const emails = teamMembers.map((member) => member.email.trim().toLowerCase());
-      const phones = teamMembers.map((member) => normalizePhone(member.phone));
+      const activeKeys = ['leader', 'member2'];
+      const m3 = values.member3;
+      if (m3.fullName.trim() || m3.email.trim() || m3.phone.trim() || m3.college.trim()) {
+        activeKeys.push('member3');
+      }
+
+      const emails = activeKeys.map((key) => values[key].email.trim().toLowerCase());
+      const phones = activeKeys.map((key) => normalizePhone(values[key].phone));
+
       emails.forEach((email, index) => {
-        if (emails.indexOf(email) !== index) nextErrors[`${memberKeys[index]}.email`] = 'Each team member needs a different email address.';
+        if (emails.indexOf(email) !== index) nextErrors[`${activeKeys[index]}.email`] = 'Each team member needs a different email address.';
       });
       phones.forEach((phone, index) => {
-        if (phones.indexOf(phone) !== index) nextErrors[`${memberKeys[index]}.phone`] = 'Each team member needs a different phone number.';
+        if (phones.indexOf(phone) !== index) nextErrors[`${activeKeys[index]}.phone`] = 'Each team member needs a different phone number.';
       });
       if (!values.agreed) nextErrors.agreed = 'You need to agree before registering your team.';
     }
@@ -401,7 +443,7 @@ export default function RegistrationForm({ onRegistered }) {
       <div className="event-section-inner event-registration__inner">
         <RevealHeading />
         <p className="event-registration__note">
-          Teams of exactly 3. Entry: ₹{entryFee} per team.{' '}
+          Teams of 2 to 3 members. Entry: ₹{entryFee} per team.{' '}
           {eventSettings && eventSettings.spotsRemaining < 50 && (
             <span style={{ color: '#ff9a4d', fontWeight: 600 }}>
               ({eventSettings.spotsRemaining} spots remaining){' '}
@@ -493,7 +535,14 @@ export default function RegistrationForm({ onRegistered }) {
           {step === 2 && (
             <div className="event-step">
               <MemberFields memberKey="member2" title="Member 2" values={values} onChange={onChange} errors={errors} />
-              <MemberFields memberKey="member3" title="Member 3" values={values} onChange={onChange} errors={errors} />
+              <MemberFields
+                memberKey="member3"
+                title="Member 3 (Optional)"
+                isOptional
+                values={values}
+                onChange={onChange}
+                errors={errors}
+              />
             </div>
           )}
 
@@ -513,11 +562,11 @@ export default function RegistrationForm({ onRegistered }) {
                   )}
                 </div>
               )}
-              {memberKeys.map((memberKey, index) => (
-                <p key={memberKey}>
-                  {index === 0 ? 'Team leader' : `Member ${index + 1}`}: {values[memberKey].fullName || '—'} · {values[memberKey].college || '—'}
-                </p>
-              ))}
+              <p>Team leader: {values.leader.fullName || '—'} · {values.leader.college || '—'}</p>
+              <p>Member 2: {values.member2.fullName || '—'} · {values.member2.college || '—'}</p>
+              {Boolean(values.member3.fullName.trim() || values.member3.college.trim()) && (
+                <p>Member 3: {values.member3.fullName || '—'} · {values.member3.college || '—'}</p>
+              )}
               <label className="event-agreement">
                 <input
                   type="checkbox"
@@ -566,7 +615,7 @@ function RevealHeading() {
   return (
     <div className="event-section__heading">
       <h2 id="registration-title">Bring your whole coven.</h2>
-      <p>Register your three-person team here.</p>
+      <p>Register your team of 2 or 3 here.</p>
     </div>
   );
 }

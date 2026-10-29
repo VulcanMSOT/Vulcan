@@ -14,7 +14,7 @@ const knownFaqs = [
   ['Are there surprises?', 'Yes. We are keeping them secret.'],
   ['Is it only a hackathon?', 'No. It is a Halloween experience, with quests and surprises along with the build.'],
   ['How long is it?', '16 hours, from 7:00 PM on 31 October to 11:00 AM on 1 November.'],
-  ['How big is a team?', 'Teams of exactly 3 members.'],
+  ['How big is a team?', 'Teams of 2 to 3 members.'],
   ['What does it cost?', `${EVENT_CONTENT.entryLabel}.`],
   ['Where is it held?', 'Mirai Floor, Mirai School of Technology, Bengaluru.'],
   ['How do I get in?', 'Show your registration ticket QR code at the entrance.'],
@@ -71,7 +71,7 @@ export function EventAbout() {
         <div className="event-about__body">
           <Reveal>
             <p className="event-about__lead">
-              Vulcan Club and {EVENT_CONTENT.collegeName} present {EVENT_CONTENT.name}, an overnight Halloween hackathon for teams of exactly three. {EVENT_CONTENT.tagline}
+              Vulcan Club and {EVENT_CONTENT.collegeName} present {EVENT_CONTENT.name}, an overnight Halloween hackathon for teams of 2 to 3. {EVENT_CONTENT.tagline}
             </p>
           </Reveal>
           <Reveal>

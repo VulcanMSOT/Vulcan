@@ -430,7 +430,7 @@ export default function PaymentPending({ payment, onTicketIssued, onStartOver })
           </div>
           <div className="event-payment__meta-row">
             <span>Entry fee</span>
-            <strong>₹{listPrice} (Team of 3)</strong>
+            <strong>₹{listPrice} (per team)</strong>
           </div>
 
           {/* Coupon Row or Toggle */}

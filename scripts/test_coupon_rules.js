@@ -14,6 +14,12 @@ async function runTests() {
     where: { teamId: { startsWith: 'TEST-' } },
   });
 
+  // Ensure test coupons are active
+  await prisma.coupon.updateMany({
+    where: { code: { in: ['halloween_night', 'last_minute'] } },
+    data: { active: true },
+  });
+
   // 1. Setup a test registration
   const rand = Math.random().toString(36).slice(2, 8).toUpperCase();
   const testTeamId = `TEST-CPN-${rand}`;
