@@ -52,6 +52,7 @@ function RoutedApp() {
   // Support /halloween-hack as primary route, plus common aliases
   if (
     normalized === '/halloween-hack' ||
+    normalized === '/halloween_hack' ||
     normalized === '/halloween' ||
     normalized === '/hackathon' ||
     normalized === '/hack-o-lantern'

@@ -27,3 +27,4 @@ dist-ssr
 /src/generated/prisma
 Vulcan-admin/
 .taste-skill/
+tasks/
