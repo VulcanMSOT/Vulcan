@@ -6,6 +6,7 @@ import EventAmbientLayer from './EventAmbientLayer';
 import RegistrationForm from './RegistrationForm';
 import PaymentPending from './PaymentPending';
 import TicketSuccess from './TicketSuccess';
+import EventMidnightReveal from './EventMidnightReveal';
 import { EventAbout, EventExperience, EventFaq, EventFooter, EventJudges, EventPrizes, EventRules, EventTimeline, EventTracks } from './EventSections';
 import './halloween.css';
 
@@ -125,6 +126,7 @@ export default function HalloweenHackPage() {
           <EventAbout />
           <EventExperience />
           <EventTimeline />
+          <EventMidnightReveal />
           <EventJudges />
           <EventTracks />
           <EventRules />
