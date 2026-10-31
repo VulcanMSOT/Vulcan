@@ -31,8 +31,8 @@ export const EVENT_CONTENT = {
   tagline: 'Build through the night. Ship before sunrise.',
   subtagline: 'Code / Create / Celebrate',
   eligibility: 'Teams of 2 to 3 members.',
-  themes: '',
-  themesReveal: 'The themes will be revealed at the start of the event.',
+  themes: "The Witch's Potion Pantry (AI + Full Stack + Web + Android) | The Midnight Phantom Hotline (AI + Systems) | The Possessed Butler (AI Security) | The Midnight Crossroads (Computer Vision + Reinforcement Learning) | The Coven of Five Hospitals (Privacy + Machine Learning)",
+  themesReveal: 'Five cursed problems. One endless night. Only ten survive till dawn. All tracks and problem statements are live below.',
   rules: 'Bring your laptop, charger, student ID, and your sharpest ideas. Teams must consist of 2 to 3 members. All code must be written during the build window.',
   schedule: '[SCHEDULE]',
 

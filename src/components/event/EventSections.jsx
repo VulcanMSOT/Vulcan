@@ -466,31 +466,305 @@ export function EventJudges() {
   );
 }
 
-export function EventTracks() {
-  const tracks = EVENT_CONTENT.themes ? EVENT_CONTENT.themes.split('|').map((track) => track.trim()).filter(Boolean) : [];
+const DETAILED_TRACKS = [
+  {
+    number: '01',
+    icon: '🎃',
+    name: "The Witch's Potion Pantry",
+    domain: 'AI + Full Stack + Web + Android',
+    badge: '1st Year Only',
+    accent: '#ff7a1a',
+    story: 'Madam Hexley runs the busiest potion shop in the village. Every Halloween she runs out of bat wings and mandrake root. Build her a smart pantry with stock CRUD, prophecy predictions, restock spells, and crystal ball charts.',
+    quest: 'Web dashboard + Android app connected to same backend; stock tracking, demand forecast, anomaly detection, restock recommendations.',
+    scoredOn: 'Prediction accuracy on hidden future sales, anomalies caught, working web + Android app, and UX.',
+    curse: 'A full moon festival is announced for next week. Demand for 3 ingredients triples.',
+  },
+  {
+    number: '02',
+    icon: '👻',
+    name: 'The Midnight Phantom Hotline',
+    domain: 'AI + Systems',
+    badge: 'Voice AI',
+    accent: '#ff5470',
+    story: 'Ghosts keep calling the clinic and haunted railway station in code-mixed Hinglish with chains rattling. Build an operator who never misses a call.',
+    quest: 'Voice assistant booking doctor appointments or answering railway queries; handles interruptions, background noise, 3G connection, and replies under 800 ms.',
+    scoredOn: 'Task completion rate on hidden test calls, and end-to-end latency.',
+    curse: 'The latency limit drops to 600 ms, and callers switch language mid-sentence.',
+  },
+  {
+    number: '03',
+    icon: '🧛',
+    name: 'The Possessed Butler',
+    domain: 'AI Security',
+    badge: 'Adversarial',
+    accent: '#a58bff',
+    story: "Count Byteula's mansion is run by an AI butler that reads letters, browses the web, and takes actions. Dark spirits hide prompt injections in emails and PDFs to possess him.",
+    quest: 'Build an autonomous LLM agent that executes tasks safely while neutralizing organizer prompt injections attempting secret leakage or unauthorized actions.',
+    scoredOn: 'Tasks completed minus successful prompt-injection possessions.',
+    curse: "The Possession Round: write curses to attack other teams' butlers. Points for attack and defence.",
+  },
+  {
+    number: '04',
+    icon: '🧟',
+    name: 'The Midnight Crossroads',
+    domain: 'Computer Vision + Reinforcement Learning',
+    badge: 'Vision & RL',
+    accent: '#4cc9f0',
+    story: 'At the cursed crossroads, autos, bikes, buses, and wanderers crawl with no lane discipline. Every red light lasts an eternity. Free the souls stuck in traffic.',
+    quest: 'The All-Seeing Eye: estimate queued vehicles from CCTV video of mixed Indian traffic. The Signal Spell: control traffic lights in SUMO simulator to cut average wait time.',
+    scoredOn: 'Reduction in average wait time on unseen junction scenarios.',
+    curse: 'A funeral procession (emergency-vehicle priority) and a fog curse on night footage.',
+  },
+  {
+    number: '05',
+    icon: '💀',
+    name: 'The Coven of Five Hospitals',
+    domain: 'Privacy + Machine Learning',
+    badge: 'Federated ML',
+    accent: '#8be04e',
+    story: 'Five haunted hospitals must diagnose a plague without sharing raw patient records. The Soul Thief lurks, trying to discover whose records trained the model.',
+    quest: 'Train a diagnostic model across 5 skewed hospital nodes using federated learning, differential privacy, and defense against Soul Thief membership inference.',
+    scoredOn: 'Model accuracy, privacy leakage budget, and communication cost.',
+    curse: 'One hospital is corrupted and sends poisoned updates. Detect it and stay accurate.',
+  },
+];
 
+export function EventTracks() {
   return (
-    <section className="event-section event-tracks" id="tracks" aria-labelledby="tracks-title">
+    <section className="event-section event-tracks" id="tracks" aria-labelledby="tracks-title" style={{ padding: 'clamp(3rem, 6vw, 5rem) 0' }}>
       <div className="event-section-inner">
         <Reveal className="event-section__heading">
-          <p className="event-mono-kicker">Tracks & categories</p>
-          <h2 id="tracks-title">What will you build?</h2>
-          <p>{EVENT_CONTENT.themesReveal}</p>
+          <p className="event-mono-kicker" style={{ color: '#ffa95c', letterSpacing: '0.1em' }}>Tracks & Problem Statements</p>
+          <h2 id="tracks-title" style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', margin: '0 0 1rem 0' }}>Five Cursed Problems. One Endless Night.</h2>
+          <p style={{ maxWidth: '65ch', color: 'var(--event-muted)', fontSize: '1.05rem', lineHeight: 1.6 }}>
+            The official problem statements are live. Choose your track, build through the night, and prepare for the midnight curse.
+          </p>
         </Reveal>
-        {tracks.length > 0 ? (
-          <div className="event-track-list">
-            {tracks.map((track) => (
-              <Reveal key={track} className="event-track-wrap">
-                <article className="event-track"><h3>{track}</h3></article>
-              </Reveal>
-            ))}
+
+        {/* Action Bar / Download PDFs */}
+        <Reveal>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '12px',
+              alignItems: 'center',
+              margin: '0 0 2.5rem 0',
+              padding: '16px 20px',
+              borderRadius: '12px',
+              background: 'rgba(26, 20, 37, 0.75)',
+              border: '1px solid rgba(255, 122, 26, 0.25)',
+            }}
+          >
+            <span style={{ fontSize: '0.85rem', color: '#f5ead6', fontWeight: 600 }}>Official Hackathon Handbooks:</span>
+            <a
+              href="/MSOT_Halloween_Night_Hackathon.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              download="MSOT_Halloween_Night_Hackathon.pdf"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                borderRadius: '8px',
+                background: '#ff7a1a',
+                color: '#0c0912',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                textDecoration: 'none',
+              }}
+            >
+              <span>📄 Problem Statements (6-Page PDF)</span>
+              <span>↗</span>
+            </a>
+            <a
+              href="/Hack-O-Lantern_Complete_Guide_And_Curse.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              download="Hack-O-Lantern_Complete_Guide_And_Curse.pdf"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                borderRadius: '8px',
+                background: 'rgba(165, 139, 255, 0.18)',
+                border: '1px solid rgba(165, 139, 255, 0.4)',
+                color: '#d4c5ff',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                textDecoration: 'none',
+              }}
+            >
+              <span>✨ Complete Guide & Curses (7-Page PDF)</span>
+              <span>↗</span>
+            </a>
+            <a
+              href="/Hack-O-Lantern_2026_Rules.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              download="Hack-O-Lantern_2026_Rules.pdf"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                borderRadius: '8px',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                color: '#f5ead6',
+                fontWeight: 600,
+                fontSize: '0.8rem',
+                textDecoration: 'none',
+              }}
+            >
+              <span>📜 Official Rules & Regulations PDF</span>
+              <span>↗</span>
+            </a>
+            <a
+              href="#midnight-reveal"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 14px',
+                borderRadius: '8px',
+                background: 'rgba(255, 84, 112, 0.15)',
+                border: '1px solid rgba(255, 84, 112, 0.35)',
+                color: '#ff8da1',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                textDecoration: 'none',
+                marginLeft: 'auto',
+              }}
+            >
+              <span>🌑 Jump to Midnight Curse Slide Deck ↓</span>
+            </a>
           </div>
-        ) : (
-          <Reveal className="event-tracks__reveal">
-            <p>The brief arrives with the opening. Bring your sharpest ideas.</p>
-            <span aria-hidden="true">?</span>
-          </Reveal>
-        )}
+        </Reveal>
+
+        {/* 5 Detailed Tracks Grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))',
+            gap: '24px',
+          }}
+        >
+          {DETAILED_TRACKS.map((t) => (
+            <Reveal key={t.number}>
+              <article
+                style={{
+                  background: 'linear-gradient(160deg, #1b1427 0%, #110d1a 100%)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderTop: `3px solid ${t.accent}`,
+                  borderRadius: '16px',
+                  padding: 'clamp(20px, 3vw, 28px)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  height: '100%',
+                  boxShadow: '0 10px 30px -5px rgba(0,0,0,0.5)',
+                  transition: 'transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = `0 16px 36px -4px ${t.accent}20`;
+                  e.currentTarget.style.borderColor = `${t.accent}60`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 10px 30px -5px rgba(0,0,0,0.5)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                }}
+              >
+                <div>
+                  {/* Top Meta */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '1.6rem' }}>{t.icon}</span>
+                      <span
+                        style={{
+                          fontFamily: 'ui-monospace, monospace',
+                          fontSize: '0.8rem',
+                          fontWeight: 800,
+                          color: t.accent,
+                          letterSpacing: '0.08em',
+                        }}
+                      >
+                        TRACK {t.number}
+                      </span>
+                    </div>
+                    {t.badge && (
+                      <span
+                        style={{
+                          padding: '4px 10px',
+                          borderRadius: '9999px',
+                          background: `${t.accent}22`,
+                          border: `1px solid ${t.accent}55`,
+                          color: t.accent,
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.06em',
+                        }}
+                      >
+                        {t.badge}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Title & Domain */}
+                  <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#ffffff', margin: '0 0 6px 0', lineHeight: 1.25 }}>
+                    {t.name}
+                  </h3>
+                  <div style={{ fontSize: '0.78rem', fontFamily: 'ui-monospace, monospace', color: 'rgba(247, 244, 235, 0.6)', marginBottom: '16px', letterSpacing: '0.04em' }}>
+                    {t.domain}
+                  </div>
+
+                  {/* Story */}
+                  <p style={{ fontSize: '0.9rem', lineHeight: 1.55, color: 'var(--event-muted)', margin: '0 0 16px 0' }}>
+                    {t.story}
+                  </p>
+
+                  {/* Quest */}
+                  <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '10px', padding: '12px 14px', marginBottom: '14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ fontSize: '0.72rem', fontFamily: 'ui-monospace, monospace', color: '#ffa95c', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px' }}>
+                      Your Quest
+                    </div>
+                    <p style={{ fontSize: '0.84rem', lineHeight: 1.45, color: '#f5ead6', margin: 0 }}>
+                      {t.quest}
+                    </p>
+                  </div>
+
+                  {/* Scored on */}
+                  <div style={{ fontSize: '0.8rem', color: 'rgba(247,244,235,0.7)', marginBottom: '14px', lineHeight: 1.45 }}>
+                    <strong style={{ color: '#ffffff' }}>Scored on: </strong>{t.scoredOn}
+                  </div>
+                </div>
+
+                {/* Midnight Curse Banner */}
+                <div
+                  style={{
+                    background: 'rgba(255, 84, 112, 0.1)',
+                    border: '1px solid rgba(255, 84, 112, 0.3)',
+                    borderRadius: '8px',
+                    padding: '10px 12px',
+                    marginTop: '8px',
+                  }}
+                >
+                  <div style={{ fontSize: '0.7rem', fontFamily: 'ui-monospace, monospace', color: '#ff8da1', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>
+                    🌑 Midnight Curse
+                  </div>
+                  <div style={{ fontSize: '0.82rem', color: '#fff1f3', fontWeight: 600, lineHeight: 1.4 }}>
+                    {t.curse}
+                  </div>
+                </div>
+              </article>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   );
