@@ -623,6 +623,27 @@ export function EventTracks() {
               <span>↗</span>
             </a>
             <a
+              href="https://hack-o-lantern-eval.vercel.app/select"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                background: '#8be04e',
+                color: '#07090b',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                textDecoration: 'none',
+                boxShadow: '0 2px 12px rgba(139, 224, 78, 0.3)',
+              }}
+            >
+              <span>⚡ Lock In Your Problem Statement (Teams)</span>
+              <span>↗</span>
+            </a>
+            <a
               href="#midnight-reveal"
               style={{
                 display: 'inline-flex',
