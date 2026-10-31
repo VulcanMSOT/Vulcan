@@ -1,254 +1,192 @@
 import React, { useRef, useState, useEffect } from 'react';
 
-const SLIDES = [
+const PPT_SLIDES = [
   {
-    id: 1,
-    slideNumber: '01',
-    label: 'Overview',
-    badge: 'Kickoff',
-    title: 'Hack-O-Lantern: Halloween Night Hackathon',
-    subtitle: 'Five cursed problems. One endless night. Only ten survive till dawn.',
-    type: 'overview',
-    content: {
-      date: 'NIGHT OF 31 OCT 2026',
-      doors: '8:00 PM',
-      finale: '9:30 AM',
-      evals: '3 rounds + final',
-      tracks: [
-        { num: '01', icon: '🎃', name: "The Witch's Potion Pantry", desc: 'Smart inventory & demand prediction', tag: '1st Year Only' },
-        { num: '02', icon: '👻', name: 'The Midnight Phantom Hotline', desc: 'Hinglish voice agent under 800 ms', tag: 'AI + Systems' },
-        { num: '03', icon: '🧛', name: 'The Possessed Butler', desc: 'Prompt-injection-proof AI agent', tag: 'AI Security' },
-        { num: '04', icon: '🧟', name: 'The Midnight Crossroads', desc: 'Indian traffic signal optimizer', tag: 'CV + RL' },
-        { num: '05', icon: '💀', name: 'The Coven of Five Hospitals', desc: 'Federated learning across hospitals', tag: 'Privacy + ML' },
-      ],
-      warning: 'Beware: at the stroke of midnight, every track will be cursed.',
-    },
+    num: 1,
+    tag: '01 Intro',
+    title: 'HACK-O-LANTERN',
+    subtitle: 'A Halloween Overnight Hackathon',
+    type: 'cover',
   },
   {
-    id: 2,
-    slideNumber: '02',
-    label: 'Track 01',
-    badge: '1st Year Only',
-    title: "Track 01: The Witch's Potion Pantry",
-    subtitle: 'AI + Full Stack + Web + Android',
-    type: 'track',
-    content: {
-      story: 'Madam Hexley runs the busiest potion shop in the village. Every Halloween she runs out of bat wings, mandrake root and ghost pepper at the worst moment, and angry customers turn into frogs. Build her a smart pantry.',
-      questItems: [
-        'Track stock across her shelves: add, update and record what was sold.',
-        'Prophecy: predict which ingredients will run out, and when.',
-        'Restock spell: recommend how much of each ingredient to reorder.',
-        'Strange happenings: flag unusual consumption, such as sudden spikes or missing stock.',
-        'Crystal ball: charts of demand for each product over time.',
-        'Build both a web dashboard and an Android app connected to the same backend.',
-      ],
-      scoredOn: 'Prediction accuracy on hidden future sales data, anomalies caught, working web + Android app, and user experience.',
-      curse: 'A full moon festival is announced for next week, and demand for 3 ingredients will triple. Your system must handle the sudden seasonal spike.',
-    },
+    num: 2,
+    tag: '02 Glance',
+    title: 'THE NIGHT AT A GLANCE',
+    subtitle: 'Twelve hours. Five cursed problems.',
+    type: 'glance',
   },
   {
-    id: 3,
-    slideNumber: '03',
-    label: 'Track 02',
-    badge: 'Voice AI',
-    title: 'Track 02: The Midnight Phantom Hotline',
-    subtitle: 'AI + Systems',
-    type: 'track',
-    content: {
-      story: 'Ghosts keep calling the clinic and the haunted railway station, speaking a mix of Hindi and English, with chains rattling in the background and a signal weaker than a dying candle. Build an operator who never misses a call.',
-      questItems: [
-        'A voice assistant that books doctor appointments or answers railway queries in code-mixed Hinglish.',
-        'Handles interruptions, background noise and a 3G-level connection.',
-        'Replies within 800 ms end to end, before the candle flickers.',
-      ],
-      scoredOn: 'Task completion rate on hidden test calls, and latency.',
-      hardWhy: "Streaming speech-to-text, turn-taking and the latency budget pull against each other.",
-      curse: 'The latency limit drops to 600 ms, or callers start switching languages mid-sentence.',
-    },
+    num: 3,
+    tag: '03 Sponsor',
+    title: 'OUR SPONSOR',
+    subtitle: 'Powered by Boom Pizza',
+    type: 'sponsor',
   },
   {
-    id: 4,
-    slideNumber: '04',
-    label: 'Track 03',
-    badge: 'AI Security',
-    title: 'Track 03: The Possessed Butler',
-    subtitle: 'AI Security',
-    type: 'track',
-    content: {
-      story: "Count Byteula's mansion is run by an AI butler who reads letters, browses the cursed web and sends messages for his master. Dark spirits have hidden curses in letters, web pages and scrolls, waiting to possess him.",
-      questItems: [
-        'Build an LLM agent that reads emails, browses web pages and takes actions like sending mail or editing files.',
-        'Protect it from possession: the organizers hide prompt injections in emails, web pages and PDFs that try to make it leak secrets or act against its master.',
-      ],
-      scoredOn: 'Tasks completed minus successful possessions.',
-      hardWhy: "There's no single known fix, so teams must design an architecture, not apply a patch.",
-      curse: "The Possession Round: teams write curses to attack each other's butlers, scoring points for both defence and attack.",
-    },
+    num: 4,
+    tag: '04 Tracks',
+    title: 'THE CHALLENGE, REVEALED',
+    subtitle: 'Five tracks. Pick one curse',
+    type: 'tracks_overview',
   },
   {
-    id: 5,
-    slideNumber: '05',
-    label: 'Track 04',
-    badge: 'CV + RL',
-    title: 'Track 04: The Midnight Crossroads',
-    subtitle: 'Computer Vision + Reinforcement Learning',
-    type: 'track',
-    content: {
-      story: 'At the cursed crossroads, autos, bikes, buses, wandering cattle and the occasional zombie crawl with no lane discipline. Every red light lasts an eternity, and souls are stuck in traffic forever. Free them.',
-      questItems: [
-        'The All-Seeing Eye: from CCTV-style video of mixed Indian traffic, estimate how many vehicles are queued at each approach.',
-        'The Signal Spell: control the traffic lights in the SUMO simulator to cut average wait time.',
-      ],
-      scoredOn: 'Reduction in average wait time on unseen junction scenarios.',
-      hardWhy: 'Real-world vision feeds a control loop, and test scenarios differ from training.',
-      curse: 'A funeral procession (emergency-vehicle priority route) and a fog curse (low-visibility night footage) both hit the crossroads.',
-    },
+    num: 5,
+    tag: '05 Pantry',
+    trackNum: 'TRACK 01',
+    category: 'AI + FULL STACK + WEB + ANDROID',
+    title: "The Witch's Potion Pantry",
+    type: 'track_detail',
+    story: "Madam Hexley's potion shop runs out of bat wings and mandrake root every Halloween, and angry customers turn into frogs. Build her a smart pantry.",
+    quest: [
+      'Track stock: add, update and record what was sold',
+      'Prophecy: predict which ingredients run out, and when',
+      'Restock spell: recommend how much to reorder',
+      'Strange happenings: flag unusual consumption',
+      'Crystal ball: demand charts for every product',
+      'Web dashboard + Android app on one shared backend',
+    ],
+    scoredOn: 'Forecast accuracy on hidden future sales, planted anomalies caught, a working web + Android app, and UX.',
+    data: 'Retail Store Inventory & Demand Forecasting (Kaggle), re-skinned as potion ingredients. Sealed until 12:00 AM.',
+    twistNotice: 'A twist to this track drops at midnight. Build to adapt.',
+    accent: '#ff7a1a',
   },
   {
-    id: 6,
-    slideNumber: '06',
-    label: 'Track 05',
-    badge: 'Privacy + ML',
-    title: 'Track 05: The Coven of Five Hospitals',
-    subtitle: 'Privacy + Machine Learning',
-    type: 'track',
-    content: {
-      story: "Five haunted hospitals each guard their patients' secrets. They must work together to diagnose a mysterious plague, but their oath forbids sharing records. Meanwhile the Soul Thief lurks, trying to discover whose records trained the model.",
-      questItems: [
-        'Train a diagnostic model across 5 simulated hospitals whose data is skewed differently.',
-        'No raw data leaves any hospital (federated learning).',
-        'Stay within a differential-privacy budget.',
-        'Survive the Soul Thief’s membership-inference attacks.',
-      ],
-      scoredOn: 'Model accuracy, how much the attacks reveal, and communication cost.',
-      curse: 'One hospital is corrupted and starts sending poisoned model updates. Detect it and stay accurate.',
-    },
+    num: 6,
+    tag: '06 Hotline',
+    trackNum: 'TRACK 02',
+    category: 'AI + SYSTEMS',
+    title: 'The Midnight Phantom Hotline',
+    type: 'track_detail',
+    story: 'Ghosts keep calling the clinic and the haunted railway station in Hinglish, with chains rattling and a signal weaker than a dying candle.',
+    quest: [
+      'Book doctor appointments or answer railway queries in code-mixed Hinglish',
+      'Handle interruptions and background noise',
+      'Survive a 3G-level connection',
+      'Reply within 800 ms end to end',
+    ],
+    scoredOn: 'Task completion rate on hidden test calls, and latency.',
+    whyHard: 'Streaming speech-to-text, turn-taking and the latency budget pull against each other.',
+    twistNotice: 'A twist to this track drops at midnight. Build to adapt.',
+    accent: '#ff5470',
   },
   {
-    id: 7,
-    slideNumber: '07',
-    label: 'Rules',
-    badge: "Coven's Laws",
-    title: "The Coven's Laws",
-    subtitle: 'Rules of the Night',
-    type: 'rules',
-    content: {
-      rules: [
-        'All code must be written during the hackathon. Open-source libraries, pretrained models and public APIs are allowed; declare them in your README.',
-        'Sample data is released at kickoff. Final scoring uses hidden test sets that no team sees in advance.',
-        'The Midnight Curse is revealed at 12:00 AM and is part of Round 2 and Round 3 scoring.',
-        'Teams must be present with a working build at every evaluation round. Missing a round scores zero for that round.',
-        'Code freeze at 6:45 AM. Only the commit pushed before the freeze is evaluated.',
-        'Attacking other teams’ systems is allowed only in the official Track 3 Possession Round.',
-        'The judges’ decision is final.',
-      ],
-    },
+    num: 7,
+    tag: '07 Butler',
+    trackNum: 'TRACK 03',
+    category: 'AI SECURITY',
+    title: 'The Possessed Butler',
+    type: 'track_detail',
+    story: "Count Byteula's AI butler reads letters, browses the cursed web and acts for his master. Dark spirits hide curses everywhere, waiting to possess him.",
+    quest: [
+      'Build an LLM agent that reads email, browses web pages and takes actions',
+      'Defend it against prompt injections hidden in emails, web pages and PDFs',
+      'Keep it useful: refusing everything loses points',
+    ],
+    scoredOn: 'Tasks completed minus successful possessions.',
+    whyHard: 'There is no single known fix, so you must design an architecture, not apply a patch.',
+    twistNotice: 'A twist to this track drops at midnight. Build to adapt.',
+    accent: '#a58bff',
   },
   {
-    id: 8,
-    slideNumber: '08',
-    label: 'Schedule',
-    badge: 'Timeline',
-    title: 'The Night',
-    subtitle: 'Schedule of the Damned',
+    num: 8,
+    tag: '08 Crossroads',
+    trackNum: 'TRACK 04',
+    category: 'COMPUTER VISION + REINFORCEMENT LEARNING',
+    title: 'The Midnight Crossroads',
+    type: 'track_detail',
+    story: 'Autos, bikes, buses, cattle and the odd zombie crawl through the cursed crossroads with no lane discipline. Free the souls stuck at red lights.',
+    quest: [
+      'The All-Seeing Eye: count queued vehicles per approach from CCTV-style video',
+      'The Signal Spell: control the lights in the SUMO simulator to cut average wait time',
+    ],
+    scoredOn: 'Reduction in average wait time on unseen junction scenarios.',
+    whyHard: 'Real-world vision feeds a control loop, and test junctions differ from training.',
+    twistNotice: 'A twist to this track drops at midnight. Build to adapt.',
+    accent: '#4cc9f0',
+  },
+  {
+    num: 9,
+    tag: '09 Hospitals',
+    trackNum: 'TRACK 05',
+    category: 'PRIVACY + MACHINE LEARNING',
+    title: 'The Coven of Five Hospitals',
+    type: 'track_detail',
+    story: 'Five haunted hospitals must diagnose a plague together, but their oath forbids sharing records. The Soul Thief lurks, hunting whose records trained the model.',
+    quest: [
+      'Train across 5 hospitals with differently skewed data',
+      'Federated learning: no raw data leaves a hospital',
+      'Stay within a differential-privacy budget',
+      'Survive membership-inference attacks',
+    ],
+    scoredOn: 'Model accuracy, how much the attacks reveal, and communication cost.',
+    whyHard: 'Privacy noise, skewed hospitals and attack resistance all cost accuracy.',
+    twistNotice: 'A twist to this track drops at midnight. Build to adapt.',
+    accent: '#8be04e',
+  },
+  {
+    num: 10,
+    tag: '10 Schedule',
+    title: 'SCHEDULE OF THE DAMNED',
+    subtitle: 'From dusk till the Grand Séance',
     type: 'schedule',
-    content: {
-      milestones: [
-        { time: '8:00 PM', icon: '🎃', title: 'Opening ceremony', desc: 'Track reveal, team check-in, costume parade' },
-        { time: '12:00 AM', icon: '🌑', title: 'The Midnight Curse', desc: 'Each track’s twist is revealed' },
-        { time: '1:00 AM', icon: '👻', title: 'Round 1 · The First Haunting', desc: 'Architecture and baseline check (No elimination)' },
-        { time: '3:00 AM', icon: '🦇', title: 'Witching-hour snack drop', desc: 'Refuel. Dawn is still far away.' },
-        { time: '4:00 AM', icon: '🧛', title: 'Round 2 · The Witching Hour Trial', desc: 'Public test set metrics & curse progress' },
-        { time: '6:45 AM', icon: '⚰️', title: 'Code freeze', desc: 'The graves are sealed' },
-        { time: '7:00 AM', icon: '💀', title: 'Round 3 · The Graveyard Cut', desc: 'Elimination · Top 10 advance to finals' },
-        { time: '8:30 AM', icon: '📜', title: 'Top 10 announced', desc: 'The survivors are named' },
-        { time: '9:30 AM', icon: '🔮', title: 'Final · The Grand Séance', desc: '8 min presentation + 4 min judge Q&A' },
-        { time: '11:30 AM', icon: '👑', title: 'Awards ceremony', desc: 'The night ends' },
-      ],
-    },
   },
   {
-    id: 9,
-    slideNumber: '09',
-    label: 'Judgement',
-    badge: 'Weights',
-    title: 'Judgement & Awards',
-    subtitle: 'How the living are judged',
+    num: 11,
+    tag: '11 Judgement',
+    title: 'JUDGEMENT',
+    subtitle: 'Three rounds, one cut, one séance',
     type: 'judgement',
-    content: {
-      weights: [
-        { round: 'Round 1 · 1:00 AM', weight: '15%', name: 'The First Haunting', focus: 'Architecture, CRUD, and basic flow working end to end.' },
-        { round: 'Round 2 · 4:00 AM', weight: '25%', name: 'The Witching Hour Trial', focus: 'Public test set metrics, pipeline responsiveness, and curse progress.' },
-        { round: 'Round 3 · 7:00 AM', weight: '60%', name: 'The Graveyard Cut', focus: 'Hidden test sets, live attacks (Tracks 3 & 5), and Midnight Curse mastery.' },
-      ],
-      awards: [
-        { icon: '🧙', title: 'Grand Sorcerer', desc: 'Overall winner' },
-        { icon: '🌱', title: 'Rising Witch', desc: 'Best first-year team (Track 1)' },
-        { icon: '🛡️', title: 'Exorcist', desc: 'Best defence in the Possession Round' },
-        { icon: '⚡', title: 'Speed Demon', desc: 'Lowest latency on the Phantom Hotline' },
-        { icon: '💀', title: 'Necromancer', desc: 'Best comeback after the Midnight Curse' },
-        { icon: '🎭', title: 'Best Costume', desc: 'Voted at the opening parade' },
-      ],
-    },
   },
   {
-    id: 16,
-    slideNumber: '16',
-    label: 'Slide 16: Midnight Curse',
-    badge: 'OFFICIAL SLIDE',
+    num: 12,
+    tag: '12 R1 Checklist',
+    title: 'ROUND 1 · 1:00 AM',
+    subtitle: 'What the judges want to see first',
+    type: 'checklist',
+  },
+  {
+    num: 13,
+    tag: '13 Laws',
+    title: "THE COVEN'S LAWS",
+    subtitle: 'Rules of the night',
+    type: 'laws',
+  },
+  {
+    num: 14,
+    tag: '14 Awards',
+    title: 'GLORY',
+    subtitle: 'Awards of the night',
+    type: 'awards',
+  },
+  {
+    num: 15,
+    tag: '15 Contact',
+    title: 'MIRAI SCHOOL OF TECHNOLOGY',
+    subtitle: 'Venue & Emergency Contacts',
+    type: 'contact',
+  },
+  {
+    num: 16,
+    tag: '16 🌑 Curse',
     title: 'The Midnight Curse has fallen',
     subtitle: 'SHOW AT 12:00 AM ONLY',
-    type: 'midnight_curse_exact',
-    content: {
-      kicker: 'SHOW AT 12:00 AM ONLY',
-      heading: 'The Midnight Curse has fallen',
-      tracks: [
-        {
-          name: 'Potion Pantry',
-          iconType: 'cauldron',
-          curse: 'A full moon festival is announced for next week. Demand for 3 ingredients triples.',
-        },
-        {
-          name: 'Phantom Hotline',
-          iconType: 'ghost',
-          curse: 'The latency limit drops to 600 ms, and callers switch language mid-sentence.',
-        },
-        {
-          name: 'Possessed Butler',
-          iconType: 'vampire',
-          curse: "The Possession Round: write curses to attack other teams' butlers. Points for attack and defence.",
-        },
-        {
-          name: 'Midnight Crossroads',
-          iconType: 'crossroads',
-          curse: 'A funeral procession (emergency-vehicle priority) and a fog curse on night footage.',
-        },
-        {
-          name: 'Coven of Hospitals',
-          iconType: 'skull',
-          curse: 'One hospital is corrupted and sends poisoned updates. Detect it and stay accurate.',
-        },
-      ],
-      hiddenNote: 'Keep this slide hidden until midnight.',
-      footerText: '🎃 HACK-O-LANTERN · VULCAN CLUB × MIRAI SCHOOL OF TECHNOLOGY · POWERED BY BOOM PIZZA',
-      pageNumber: '16',
-    },
+    type: 'midnight_curse',
   },
 ];
 
 export default function EventMidnightReveal() {
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(9); // Default to Slide 16 (index 9)
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0); // Slide 1
   const [isFullscreen, setIsFullscreen] = useState(false);
   const slideContainerRef = useRef(null);
 
-  const currentSlide = SLIDES[currentSlideIndex];
+  const currentSlide = PPT_SLIDES[currentSlideIndex];
 
   const goToPrev = () => {
-    setCurrentSlideIndex((prev) => (prev > 0 ? prev - 1 : SLIDES.length - 1));
+    setCurrentSlideIndex((prev) => (prev > 0 ? prev - 1 : PPT_SLIDES.length - 1));
   };
 
   const goToNext = () => {
-    setCurrentSlideIndex((prev) => (prev < SLIDES.length - 1 ? prev + 1 : 0));
+    setCurrentSlideIndex((prev) => (prev < PPT_SLIDES.length - 1 ? prev + 1 : 0));
   };
 
   useEffect(() => {
@@ -285,8 +223,8 @@ export default function EventMidnightReveal() {
       aria-labelledby="midnight-reveal-title"
       style={{
         position: 'relative',
-        background: 'radial-gradient(ellipse 90% 60% at 50% -10%, rgba(134, 59, 255, 0.2), transparent 70%), linear-gradient(180deg, #07090b 0%, #0d0914 30%, #110c1c 70%, #07090b 100%)',
-        borderTop: '1px solid rgba(255, 84, 112, 0.3)',
+        background: 'radial-gradient(ellipse 90% 60% at 50% -10%, rgba(134, 59, 255, 0.22), transparent 70%), linear-gradient(180deg, #07090b 0%, #0d0914 30%, #110c1c 70%, #07090b 100%)',
+        borderTop: '1px solid rgba(255, 84, 112, 0.35)',
         borderBottom: '1px solid rgba(247, 244, 235, 0.1)',
         padding: 'clamp(3rem, 6vw, 5rem) 0',
         overflow: 'hidden',
@@ -294,7 +232,7 @@ export default function EventMidnightReveal() {
     >
       <div className="event-section-inner">
         {/* Section Header */}
-        <div style={{ maxWidth: '820px', marginBottom: '2rem' }}>
+        <div style={{ maxWidth: '850px', marginBottom: '2rem' }}>
           <div
             style={{
               display: 'inline-flex',
@@ -326,7 +264,7 @@ export default function EventMidnightReveal() {
                 textTransform: 'uppercase',
               }}
             >
-              OFFICIAL PRESENTATION DECK & MIDNIGHT CURSES
+              OFFICIAL HACK-O-LANTERN PRESENTATION (16 SLIDES)
             </span>
           </div>
 
@@ -341,7 +279,7 @@ export default function EventMidnightReveal() {
               margin: '0 0 1rem 0',
             }}
           >
-            Hack-O-Lantern <span style={{ color: '#ff5470', textShadow: '0 0 24px rgba(255, 84, 112, 0.5)' }}>Slide Deck</span>
+            Hack-O-Lantern <span style={{ color: '#ff7a1a' }}>Presentation Deck</span>
           </h2>
 
           <p
@@ -349,84 +287,133 @@ export default function EventMidnightReveal() {
               fontSize: 'clamp(1rem, 0.4vw + 0.95rem, 1.15rem)',
               lineHeight: 1.6,
               color: 'var(--event-muted)',
-              margin: 0,
+              margin: '0 0 1.5rem 0',
             }}
           >
-            View the complete official event presentation slides below, including the full problem statements, schedule, judging rules, and the unredacted <strong>Slide 16 Midnight Curse</strong>.
+            The official 16-slide pitch deck for the Hack-O-Lantern Overnight Hackathon at Mirai School of Technology. Use the controls or arrow keys to flip through slides, or project in full-screen.
           </p>
+
+          {/* Top Quick Download Links */}
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <a
+              href="/Hack-O-Lantern_Halloween_Hackathon.pptx"
+              download="Hack-O-Lantern_Halloween_Hackathon.pptx"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 18px',
+                borderRadius: '8px',
+                background: '#ff7a1a',
+                color: '#0c0912',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                textDecoration: 'none',
+                boxShadow: '0 4px 16px rgba(255, 122, 26, 0.3)',
+              }}
+            >
+              <span>📊 Download Official PPTX</span>
+              <span>↗</span>
+            </a>
+            <a
+              href="/Hack-O-Lantern_Halloween_Hackathon.pdf"
+              download="Hack-O-Lantern_Halloween_Hackathon.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 18px',
+                borderRadius: '8px',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                color: '#ffffff',
+                fontWeight: 700,
+                fontSize: '0.82rem',
+                textDecoration: 'none',
+              }}
+            >
+              <span>📄 Download Official PDF</span>
+              <span>↗</span>
+            </a>
+            <button
+              onClick={() => setCurrentSlideIndex(15)} // Slide 16
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 18px',
+                borderRadius: '8px',
+                background: 'rgba(255, 84, 112, 0.15)',
+                border: '1px solid rgba(255, 84, 112, 0.4)',
+                color: '#ff8da1',
+                fontWeight: 700,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+              }}
+            >
+              <span>🌑 Jump to Slide 16 (Midnight Curse)</span>
+            </button>
+          </div>
         </div>
 
-        {/* Slide Selector Tabs */}
+        {/* Slide Carousel Tabs (All 16 Slides) */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             overflowX: 'auto',
             paddingBottom: '12px',
             marginBottom: '16px',
             scrollbarWidth: 'thin',
           }}
         >
-          {SLIDES.map((slide, idx) => {
+          {PPT_SLIDES.map((s, idx) => {
             const isActive = idx === currentSlideIndex;
-            const isSlide16 = slide.id === 16;
+            const isSlide16 = s.num === 16;
             return (
               <button
-                key={slide.id}
+                key={s.num}
                 onClick={() => setCurrentSlideIndex(idx)}
                 style={{
                   flexShrink: 0,
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '8px 14px',
-                  borderRadius: '8px',
+                  padding: '7px 12px',
+                  borderRadius: '6px',
                   border: isActive
                     ? isSlide16
                       ? '1px solid #ff5470'
                       : '1px solid #ff7a1a'
-                    : '1px solid rgba(255, 255, 255, 0.1)',
+                    : '1px solid rgba(255, 255, 255, 0.08)',
                   background: isActive
                     ? isSlide16
                       ? 'linear-gradient(135deg, rgba(255, 84, 112, 0.25), rgba(255, 122, 26, 0.2))'
-                      : 'rgba(255, 122, 26, 0.18)'
-                    : 'rgba(23, 17, 34, 0.6)',
-                  color: isActive ? '#ffffff' : 'rgba(247, 244, 235, 0.7)',
-                  fontSize: '0.82rem',
+                      : 'rgba(255, 122, 26, 0.2)'
+                    : 'rgba(23, 17, 34, 0.65)',
+                  color: isActive ? '#ffffff' : 'rgba(247, 244, 235, 0.65)',
+                  fontSize: '0.78rem',
                   fontWeight: isActive ? 700 : 500,
                   cursor: 'pointer',
                   transition: 'all 150ms ease',
                 }}
               >
-                <span>{slide.label}</span>
-                {isSlide16 && (
-                  <span
-                    style={{
-                      background: '#ff5470',
-                      color: '#ffffff',
-                      fontSize: '0.65rem',
-                      fontWeight: 800,
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      letterSpacing: '0.04em',
-                    }}
-                  >
-                    CURSE
-                  </span>
-                )}
+                <span>{s.tag}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Presentation Slide Stage */}
+        {/* Stage Container */}
         <div
           ref={slideContainerRef}
           style={{
             position: 'relative',
             width: '100%',
-            maxWidth: isFullscreen ? '100vw' : '1100px',
+            maxWidth: isFullscreen ? '100vw' : '1080px',
             height: isFullscreen ? '100vh' : 'auto',
             margin: '0 auto',
             background: isFullscreen ? '#07090b' : 'transparent',
@@ -436,11 +423,11 @@ export default function EventMidnightReveal() {
             alignItems: 'center',
             borderRadius: isFullscreen ? '0' : '16px',
             overflow: 'hidden',
-            boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.8)',
+            boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.85)',
             border: isFullscreen ? 'none' : '1px solid rgba(255, 255, 255, 0.12)',
           }}
         >
-          {/* Top Bar inside Stage */}
+          {/* Header Bar inside Stage */}
           <div
             style={{
               width: '100%',
@@ -455,13 +442,11 @@ export default function EventMidnightReveal() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontFamily: 'ui-monospace, monospace', fontWeight: 700, color: '#ffa95c' }}>
-                SLIDE {currentSlide.slideNumber} OF 16
+              <span style={{ fontFamily: 'ui-monospace, monospace', fontWeight: 800, color: '#ffa95c' }}>
+                SLIDE {String(currentSlide.num).padStart(2, '0')} / 16
               </span>
-              <span style={{ color: 'rgba(247, 244, 235, 0.4)' }}>|</span>
-              <span style={{ color: 'rgba(247, 244, 235, 0.8)', fontWeight: 600 }}>
-                {currentSlide.title}
-              </span>
+              <span style={{ color: 'rgba(247, 244, 235, 0.3)' }}>|</span>
+              <span style={{ color: '#ffffff', fontWeight: 600 }}>{currentSlide.title}</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -497,7 +482,7 @@ export default function EventMidnightReveal() {
               </button>
               <button
                 onClick={toggleFullscreen}
-                title="Toggle Fullscreen Projector Mode"
+                title="Toggle Fullscreen Projector"
                 style={{
                   background: 'rgba(255, 122, 26, 0.2)',
                   border: '1px solid rgba(255, 122, 26, 0.4)',
@@ -514,26 +499,479 @@ export default function EventMidnightReveal() {
             </div>
           </div>
 
-          {/* Slide Frame Body (Aspect Ratio 16:9) */}
+          {/* Slide Body Canvas (Aspect Ratio 16:9) */}
           <div
             style={{
               position: 'relative',
               width: '100%',
               minHeight: isFullscreen ? 'calc(100vh - 50px)' : '580px',
-              background: currentSlide.type === 'midnight_curse_exact' ? '#f4ece1' : '#140f20',
-              color: currentSlide.type === 'midnight_curse_exact' ? '#1a1714' : '#f5ead6',
+              background: currentSlide.num === 16 ? '#f4ece1' : currentSlide.num === 3 ? '#161022' : '#0e0b17',
+              color: currentSlide.num === 16 ? '#1a1714' : '#f5ead6',
               padding: 'clamp(24px, 4vw, 44px)',
               boxSizing: 'border-box',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              fontFamily: currentSlide.type === 'midnight_curse_exact' ? "Georgia, 'Times New Roman', serif" : 'inherit',
               transition: 'background 200ms ease',
             }}
           >
+            {/* SLIDE 1: COVER */}
+            {currentSlide.type === 'cover' && (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.85rem', color: '#ff7a1a', fontWeight: 800, letterSpacing: '0.12em', marginBottom: '8px' }}>
+                    VULCAN CLUB × MIRAI SCHOOL OF TECHNOLOGY
+                  </div>
+                  <h1 style={{ fontSize: 'clamp(2.6rem, 6vw, 4.5rem)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.03em', color: '#ffffff', margin: '0 0 10px 0' }}>
+                    HACK-O-LANTERN
+                  </h1>
+                  <div style={{ fontSize: 'clamp(1.1rem, 2vw, 1.4rem)', color: '#ff8da1', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                    A HALLOWEEN OVERNIGHT HACKATHON
+                  </div>
+                  <div style={{ display: 'inline-flex', gap: '12px', background: 'rgba(255, 255, 255, 0.05)', padding: '6px 14px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.1)', fontFamily: 'ui-monospace, monospace', fontSize: '0.9rem', color: '#ffa95c', fontWeight: 700 }}>
+                    <span>CODE</span>
+                    <span>/</span>
+                    <span>CREATE</span>
+                    <span>/</span>
+                    <span>CELEBRATE</span>
+                  </div>
+                </div>
+
+                <div style={{ background: 'linear-gradient(90deg, rgba(255, 122, 26, 0.15), rgba(165, 139, 255, 0.15))', border: '1px solid rgba(255, 122, 26, 0.3)', borderRadius: '12px', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                  <div>
+                    <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.75rem', color: '#ffa95c', fontWeight: 800, textTransform: 'uppercase' }}>
+                      OPENING CEREMONY
+                    </div>
+                    <div style={{ fontSize: '1rem', color: '#ffffff', fontWeight: 700 }}>
+                      31 October 2026 · 7:00 PM · Mirai Floor, Mirai School of Technology
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '1.8rem' }}>🎃</div>
+                </div>
+              </div>
+            )}
+
+            {/* SLIDE 2: NIGHT AT A GLANCE */}
+            {currentSlide.type === 'glance' && (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 800, letterSpacing: '0.08em', marginBottom: '6px' }}>
+                    THE NIGHT AT A GLANCE
+                  </div>
+                  <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 24px 0' }}>
+                    Twelve hours. Five cursed problems.
+                  </h1>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                    <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', padding: '16px' }}>
+                      <div style={{ fontSize: '0.75rem', fontFamily: 'ui-monospace, monospace', color: 'rgba(247, 244, 235, 0.6)', marginBottom: '4px' }}>DATE & TIME</div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ff7a1a', marginBottom: '4px' }}>31 OCT & 1 NOV</div>
+                      <div style={{ fontSize: '0.88rem', color: 'rgba(247, 244, 235, 0.8)' }}>7:00 PM – 7:00 AM</div>
+                    </div>
+
+                    <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', padding: '16px' }}>
+                      <div style={{ fontSize: '0.75rem', fontFamily: 'ui-monospace, monospace', color: 'rgba(247, 244, 235, 0.6)', marginBottom: '4px' }}>VENUE</div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#8be04e', marginBottom: '4px' }}>MIRAI FLOOR</div>
+                      <div style={{ fontSize: '0.88rem', color: 'rgba(247, 244, 235, 0.8)' }}>Mirai School of Technology</div>
+                    </div>
+
+                    <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', padding: '16px' }}>
+                      <div style={{ fontSize: '0.75rem', fontFamily: 'ui-monospace, monospace', color: 'rgba(247, 244, 235, 0.6)', marginBottom: '4px' }}>TEAM RULES</div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#a58bff', marginBottom: '4px' }}>TEAM OF 3</div>
+                      <div style={{ fontSize: '0.88rem', color: 'rgba(247, 244, 235, 0.8)' }}>Present at each evaluation</div>
+                    </div>
+
+                    <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', padding: '16px' }}>
+                      <div style={{ fontSize: '0.75rem', fontFamily: 'ui-monospace, monospace', color: 'rgba(247, 244, 235, 0.6)', marginBottom: '4px' }}>CODE FREEZE</div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ff5470', marginBottom: '4px' }}>HACKING ENDS</div>
+                      <div style={{ fontSize: '0.88rem', color: 'rgba(247, 244, 235, 0.8)' }}>Code freeze at 6:45 AM</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ background: 'rgba(255, 122, 26, 0.12)', border: '1px solid rgba(255, 122, 26, 0.35)', borderRadius: '12px', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.75rem', color: '#ffa95c', fontWeight: 800 }}>PRIZE POOL</div>
+                    <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff' }}>₹9,000</div>
+                  </div>
+                  <div style={{ fontSize: '0.85rem', color: 'rgba(247, 244, 235, 0.7)' }}>
+                    ₹300 per team entry · awards decided by the judges
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SLIDE 3: OUR SPONSOR (BOOM PIZZA) */}
+            {currentSlide.type === 'sponsor' && (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.85rem', color: '#ff7a1a', fontWeight: 800, letterSpacing: '0.1em', marginBottom: '6px' }}>
+                    OUR SPONSOR
+                  </div>
+                  <h1 style={{ fontSize: 'clamp(2.4rem, 5vw, 3.8rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 10px 0' }}>
+                    Powered by Boom Pizza 🍕
+                  </h1>
+                  <div style={{ fontSize: '1.2rem', color: '#ffa95c', fontWeight: 700, marginBottom: '24px' }}>
+                    The fuel for tonight's hackers
+                  </div>
+
+                  <div style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 122, 26, 0.3)', borderRadius: '16px', padding: '24px', maxWidth: '780px', fontSize: '1.05rem', lineHeight: 1.6, color: '#f5ead6' }}>
+                    &ldquo;Boom Pizza is sponsoring the pizzas for Hack-O-Lantern, so every team can build through the night on a full stomach. A huge thank you to the Boom Pizza team for backing student builders at Mirai School of Technology.&rdquo;
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'rgba(247, 244, 235, 0.5)', fontFamily: 'ui-monospace, monospace' }}>
+                  <span>HACK-O-LANTERN · VULCAN CLUB × MIRAI SCHOOL OF TECHNOLOGY</span>
+                  <span>SLIDE 3</span>
+                </div>
+              </div>
+            )}
+
+            {/* SLIDE 4: THE CHALLENGE, REVEALED */}
+            {currentSlide.type === 'tracks_overview' && (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 800, letterSpacing: '0.08em', marginBottom: '6px' }}>
+                    THE CHALLENGE, REVEALED
+                  </div>
+                  <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 20px 0' }}>
+                    Five tracks. Pick one curse.
+                  </h1>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {[
+                      { num: 'TRACK 01', name: "The Witch's Potion Pantry", desc: 'Smart inventory & demand prediction', tag: '1st years only', color: '#ff7a1a' },
+                      { num: 'TRACK 02', name: 'The Midnight Phantom Hotline', desc: 'Hinglish voice agent under 800 ms', tag: 'AI + Systems', color: '#ff5470' },
+                      { num: 'TRACK 03', name: 'The Possessed Butler', desc: 'Prompt-injection-proof AI agent', tag: 'AI Security', color: '#a58bff' },
+                      { num: 'TRACK 04', name: 'The Midnight Crossroads', desc: 'Indian traffic signal optimizer', tag: 'CV + RL', color: '#4cc9f0' },
+                      { num: 'TRACK 05', name: 'The Coven of Five Hospitals', desc: 'Federated learning with privacy', tag: 'Privacy + ML', color: '#8be04e' },
+                    ].map((t) => (
+                      <div key={t.num} style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)', borderLeft: `4px solid ${t.color}`, borderRadius: '8px', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.75rem', fontWeight: 800, color: t.color, marginRight: '12px' }}>{t.num}</span>
+                          <strong style={{ fontSize: '1rem', color: '#ffffff' }}>{t.name}</strong>
+                          <span style={{ fontSize: '0.82rem', color: 'rgba(247, 244, 235, 0.6)', marginLeft: '12px' }}>{t.desc}</span>
+                        </div>
+                        <span style={{ fontSize: '0.72rem', fontFamily: 'ui-monospace, monospace', color: t.color, background: `${t.color}20`, padding: '3px 8px', borderRadius: '4px' }}>{t.tag}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '10px', fontSize: '0.75rem', color: 'rgba(247, 244, 235, 0.5)', fontFamily: 'ui-monospace, monospace' }}>
+                  SLIDE 4
+                </div>
+              </div>
+            )}
+
+            {/* SLIDES 5-9: INDIVIDUAL TRACK PROBLEM STATEMENTS */}
+            {currentSlide.type === 'track_detail' && (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: currentSlide.accent, fontWeight: 800 }}>
+                      {currentSlide.trackNum} · {currentSlide.category}
+                    </span>
+                    <span style={{ padding: '3px 10px', borderRadius: '9999px', background: `${currentSlide.accent}22`, border: `1px solid ${currentSlide.accent}55`, color: currentSlide.accent, fontSize: '0.72rem', fontWeight: 700 }}>
+                      OFFICIAL PROBLEM STATEMENT
+                    </span>
+                  </div>
+
+                  <h1 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 12px 0' }}>
+                    {currentSlide.title}
+                  </h1>
+
+                  <div style={{ background: 'rgba(255, 255, 255, 0.04)', borderLeft: `4px solid ${currentSlide.accent}`, padding: '12px 16px', borderRadius: '0 8px 8px 0', marginBottom: '16px', fontSize: '0.92rem', lineHeight: 1.5, color: '#f5ead6' }}>
+                    {currentSlide.story}
+                  </div>
+
+                  <div style={{ marginBottom: '14px' }}>
+                    <div style={{ fontSize: '0.76rem', fontFamily: 'ui-monospace, monospace', color: '#4cc9f0', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>
+                      YOUR QUEST:
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '0.85rem', color: 'rgba(247, 244, 235, 0.85)', lineHeight: 1.4 }}>
+                      {currentSlide.quest.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div style={{ background: 'rgba(0, 0, 0, 0.3)', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '0.82rem', marginBottom: '10px' }}>
+                    <strong style={{ color: '#ffffff' }}>SCORED ON: </strong>
+                    <span style={{ color: 'rgba(247, 244, 235, 0.8)' }}>{currentSlide.scoredOn}</span>
+                  </div>
+
+                  {currentSlide.whyHard && (
+                    <div style={{ fontSize: '0.8rem', color: 'rgba(247, 244, 235, 0.65)', fontStyle: 'italic' }}>
+                      <strong>Why It's Hard: </strong>{currentSlide.whyHard}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ background: 'rgba(255, 84, 112, 0.12)', border: '1px solid rgba(255, 84, 112, 0.35)', borderRadius: '10px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.85rem', color: '#fff1f3', fontWeight: 600 }}>
+                    {currentSlide.twistNotice}
+                  </span>
+                  <span style={{ fontSize: '0.72rem', fontFamily: 'ui-monospace, monospace', color: '#ff8da1', fontWeight: 800 }}>
+                    SEALED UNTIL 12:00 AM
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* SLIDE 10: SCHEDULE OF THE DAMNED */}
+            {currentSlide.type === 'schedule' && (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 800, letterSpacing: '0.08em', marginBottom: '6px' }}>
+                    SCHEDULE OF THE DAMNED
+                  </div>
+                  <h1 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 16px 0' }}>
+                    From dusk till the Grand Séance
+                  </h1>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
+                    {[
+                      { time: '7:00 PM', title: 'Opening ceremony', desc: 'Challenge reveal, check-in, costumes' },
+                      { time: '12:00 AM', title: 'The Midnight Curse', desc: 'Every track gets its twist' },
+                      { time: '1:00 AM', title: 'Round 1 · The First Haunting', desc: 'Baseline check (No elimination)' },
+                      { time: '3:00 AM', title: 'Witching-hour break', desc: 'Pizza courtesy of Boom Pizza 🍕' },
+                      { time: '4:00 AM', title: 'Round 2 · The Witching Hour Trial', desc: 'Public test set metrics & curse progress' },
+                      { time: '6:45 AM', title: 'Code freeze', desc: 'The graves are sealed' },
+                      { time: '7:00 AM', title: 'Round 3 · The Graveyard Cut', desc: 'Top 10 chosen' },
+                      { time: '~8:30 AM', title: 'Top 10 announced', desc: 'The survivors are named' },
+                      { time: '9:30 AM', title: 'Final · The Grand Séance', desc: 'Top 10 present: 8m demo + 4m Q&A' },
+                      { time: '~11:30 AM', title: 'Awards ceremony', desc: 'The night ends' },
+                    ].map((item, i) => (
+                      <div key={i} style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', fontWeight: 800, color: '#ff7a1a' }}>{item.time}</span>
+                          <strong style={{ fontSize: '0.85rem', color: '#ffffff' }}>{item.title}</strong>
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: 'rgba(247, 244, 235, 0.6)', marginTop: '2px' }}>{item.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '10px', fontSize: '0.75rem', color: 'rgba(247, 244, 235, 0.5)', fontFamily: 'ui-monospace, monospace' }}>
+                  SLIDE 10
+                </div>
+              </div>
+            )}
+
+            {/* SLIDE 11: JUDGEMENT */}
+            {currentSlide.type === 'judgement' && (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 800, letterSpacing: '0.08em', marginBottom: '6px' }}>
+                    JUDGEMENT
+                  </div>
+                  <h1 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 16px 0' }}>
+                    Three rounds, one cut, one séance
+                  </h1>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px', marginBottom: '20px' }}>
+                    <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px', padding: '14px' }}>
+                      <span style={{ fontSize: '0.72rem', color: '#ff7a1a', fontWeight: 800, fontFamily: 'ui-monospace, monospace' }}>1:00 AM · NO ELIMINATION</span>
+                      <h3 style={{ fontSize: '1.05rem', color: '#ffffff', margin: '4px 0 6px 0' }}>The First Haunting</h3>
+                      <p style={{ fontSize: '0.82rem', color: 'rgba(247, 244, 235, 0.7)', margin: 0 }}>Architecture and basic flow working end to end.</p>
+                      <div style={{ marginTop: '10px', fontSize: '1.4rem', fontWeight: 900, color: '#ffa95c', fontFamily: 'ui-monospace, monospace' }}>15%</div>
+                    </div>
+
+                    <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px', padding: '14px' }}>
+                      <span style={{ fontSize: '0.72rem', color: '#ff5470', fontWeight: 800, fontFamily: 'ui-monospace, monospace' }}>4:00 AM · NO ELIMINATION</span>
+                      <h3 style={{ fontSize: '1.05rem', color: '#ffffff', margin: '4px 0 6px 0' }}>The Witching Hour Trial</h3>
+                      <p style={{ fontSize: '0.82rem', color: 'rgba(247, 244, 235, 0.7)', margin: 0 }}>Public test data metrics and curse progress. Live leaderboard.</p>
+                      <div style={{ marginTop: '10px', fontSize: '1.4rem', fontWeight: 900, color: '#ff5470', fontFamily: 'ui-monospace, monospace' }}>25%</div>
+                    </div>
+
+                    <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px', padding: '14px' }}>
+                      <span style={{ fontSize: '0.72rem', color: '#a58bff', fontWeight: 800, fontFamily: 'ui-monospace, monospace' }}>7:00 AM · ELIMINATION</span>
+                      <h3 style={{ fontSize: '1.05rem', color: '#ffffff', margin: '4px 0 6px 0' }}>The Graveyard Cut</h3>
+                      <p style={{ fontSize: '0.82rem', color: 'rgba(247, 244, 235, 0.7)', margin: 0 }}>Hidden test sets, live attacks and curse handling. Top 10 advance.</p>
+                      <div style={{ marginTop: '10px', fontSize: '1.4rem', fontWeight: 900, color: '#a58bff', fontFamily: 'ui-monospace, monospace' }}>60%</div>
+                    </div>
+
+                    <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px', padding: '14px' }}>
+                      <span style={{ fontSize: '0.72rem', color: '#8be04e', fontWeight: 800, fontFamily: 'ui-monospace, monospace' }}>9:30 AM · TOP 10 ONLY</span>
+                      <h3 style={{ fontSize: '1.05rem', color: '#ffffff', margin: '4px 0 6px 0' }}>The Grand Séance</h3>
+                      <p style={{ fontSize: '0.82rem', color: 'rgba(247, 244, 235, 0.7)', margin: 0 }}>8 min presentation and live demo, then 4 min judge Q&A.</p>
+                      <div style={{ marginTop: '10px', fontSize: '1.4rem', fontWeight: 900, color: '#8be04e', fontFamily: 'ui-monospace, monospace' }}>FINALS</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '10px', fontSize: '0.75rem', color: 'rgba(247, 244, 235, 0.5)', fontFamily: 'ui-monospace, monospace' }}>
+                  SLIDE 11
+                </div>
+              </div>
+            )}
+
+            {/* SLIDE 12: ROUND 1 CHECKLIST */}
+            {currentSlide.type === 'checklist' && (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 800, letterSpacing: '0.08em', marginBottom: '6px' }}>
+                    ROUND 1 · 1:00 AM
+                  </div>
+                  <h1 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 16px 0' }}>
+                    What the judges want to see first
+                  </h1>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {[
+                      { track: 'Potion Pantry', req: 'Database and CRUD working; web and Android app connected to the backend' },
+                      { track: 'Phantom Hotline', req: 'End-to-end voice pipeline answers at least one query' },
+                      { track: 'Possessed Butler', req: 'Agent completes basic email, browsing and file tasks' },
+                      { track: 'Midnight Crossroads', req: 'Vehicle detection running on the sample video' },
+                      { track: 'Coven of Hospitals', req: 'Federated training loop running across all 5 hospitals' },
+                    ].map((row, idx) => (
+                      <div key={idx} style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px', padding: '10px 16px', display: 'grid', gridTemplateColumns: 'minmax(140px, 180px) 1fr', gap: '16px', alignItems: 'center' }}>
+                        <strong style={{ color: '#ff7a1a', fontSize: '0.9rem' }}>{row.track}</strong>
+                        <span style={{ color: '#f5ead6', fontSize: '0.85rem' }}>{row.req}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ background: 'rgba(165, 139, 255, 0.12)', border: '1px solid rgba(165, 139, 255, 0.3)', borderRadius: '8px', padding: '10px 16px', fontSize: '0.85rem', color: '#d4c5ff' }}>
+                  💡 Round 1 has no elimination. It is your chance to get early feedback.
+                </div>
+              </div>
+            )}
+
+            {/* SLIDE 13: THE COVEN'S LAWS */}
+            {currentSlide.type === 'laws' && (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 800, letterSpacing: '0.08em', marginBottom: '6px' }}>
+                    THE COVEN'S LAWS
+                  </div>
+                  <h1 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 16px 0' }}>
+                    Rules of the night
+                  </h1>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
+                    {[
+                      { num: '01', title: 'Teams of 3', desc: 'All code is written tonight. Open-source libraries, pretrained models and public APIs are allowed; list them in your README.' },
+                      { num: '02', title: 'Hidden tests', desc: 'You get sample data now. Final scores use hidden test sets no team sees in advance.' },
+                      { num: '03', title: 'The curse counts', desc: 'The Midnight Curse drops at 12:00 AM and is scored in Rounds 2 and 3.' },
+                      { num: '04', title: 'Show up', desc: 'Be at your table with a working build for every round. A missed round scores zero.' },
+                      { num: '05', title: 'Code freeze 6:45 AM', desc: 'Only your last commit before the freeze is judged.' },
+                      { num: '06', title: 'Fair play', desc: 'Attacking other teams is allowed only in the official Track 3 Possession Round. The judges’ decision is final.' },
+                    ].map((law) => (
+                      <div key={law.num} style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px', padding: '12px 14px' }}>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '4px' }}>
+                          <span style={{ fontFamily: 'ui-monospace, monospace', color: '#ff7a1a', fontWeight: 800, fontSize: '0.85rem' }}>{law.num}</span>
+                          <strong style={{ color: '#ffffff', fontSize: '0.9rem' }}>{law.title}</strong>
+                        </div>
+                        <p style={{ fontSize: '0.8rem', color: 'rgba(247, 244, 235, 0.75)', margin: 0, lineHeight: 1.45 }}>{law.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '10px', fontSize: '0.75rem', color: 'rgba(247, 244, 235, 0.5)', fontFamily: 'ui-monospace, monospace' }}>
+                  SLIDE 13
+                </div>
+              </div>
+            )}
+
+            {/* SLIDE 14: GLORY (AWARDS) */}
+            {currentSlide.type === 'awards' && (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 800, letterSpacing: '0.08em', marginBottom: '6px' }}>
+                    GLORY
+                  </div>
+                  <h1 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 16px 0' }}>
+                    Awards of the night
+                  </h1>
+
+                  <div style={{ background: 'rgba(255, 122, 26, 0.12)', border: '1px solid rgba(255, 122, 26, 0.35)', borderRadius: '12px', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+                    <div>
+                      <span style={{ fontSize: '0.75rem', fontFamily: 'ui-monospace, monospace', color: '#ffa95c', fontWeight: 800 }}>PRIZE POOL</span>
+                      <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff' }}>₹9,000</div>
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: 'rgba(247, 244, 235, 0.7)' }}>Split across the awards, announced at the ceremony.</div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+                    {[
+                      { icon: '🧙', title: 'Grand Sorcerer', desc: 'Overall winner' },
+                      { icon: '🌱', title: 'Rising Witch', desc: 'Best first-year team' },
+                      { icon: '🛡️', title: 'Exorcist', desc: 'Best defence in the Possession Round' },
+                      { icon: '⚡', title: 'Speed Demon', desc: 'Lowest latency on the Phantom Hotline' },
+                      { icon: '💀', title: 'Necromancer', desc: 'Best comeback after the Midnight Curse' },
+                      { icon: '🎭', title: 'Best Costume', desc: 'Voted at the opening ceremony' },
+                    ].map((award, i) => (
+                      <div key={i} style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '1.4rem' }}>{award.icon}</span>
+                        <div>
+                          <div style={{ color: '#ffffff', fontWeight: 700, fontSize: '0.85rem' }}>{award.title}</div>
+                          <div style={{ color: 'rgba(247, 244, 235, 0.6)', fontSize: '0.72rem' }}>{award.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '10px', fontSize: '0.75rem', color: 'rgba(247, 244, 235, 0.5)', fontFamily: 'ui-monospace, monospace' }}>
+                  SLIDE 14
+                </div>
+              </div>
+            )}
+
+            {/* SLIDE 15: CONTACT & VENUE */}
+            {currentSlide.type === 'contact' && (
+              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 800, letterSpacing: '0.08em', marginBottom: '6px' }}>
+                    MIRAI SCHOOL OF TECHNOLOGY
+                  </div>
+                  <h1 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 20px 0' }}>
+                    Venue & Organizers
+                  </h1>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '640px' }}>
+                    <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '14px 18px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <span style={{ fontSize: '1.4rem' }}>📞</span>
+                      <div>
+                        <div style={{ fontSize: '0.75rem', fontFamily: 'ui-monospace, monospace', color: 'rgba(247, 244, 235, 0.6)' }}>HELPLINE</div>
+                        <strong style={{ fontSize: '1.1rem', color: '#ffffff' }}>7993521335</strong>
+                      </div>
+                    </div>
+
+                    <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '14px 18px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <span style={{ fontSize: '1.4rem' }}>✉️</span>
+                      <div>
+                        <div style={{ fontSize: '0.75rem', fontFamily: 'ui-monospace, monospace', color: 'rgba(247, 244, 235, 0.6)' }}>EMAIL</div>
+                        <strong style={{ fontSize: '1.1rem', color: '#ffffff' }}>vulcan.techclub@gmail.com</strong>
+                      </div>
+                    </div>
+
+                    <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '14px 18px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <span style={{ fontSize: '1.4rem' }}>📍</span>
+                      <div>
+                        <div style={{ fontSize: '0.75rem', fontFamily: 'ui-monospace, monospace', color: 'rgba(247, 244, 235, 0.6)' }}>ADDRESS</div>
+                        <p style={{ fontSize: '0.85rem', color: '#f5ead6', margin: 0, lineHeight: 1.4 }}>
+                          Survey No. 137, South, Doddakammanahalli, Phase 2, Begur Hobli, Bengaluru, Karnataka 560083
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '10px', fontSize: '0.75rem', color: 'rgba(247, 244, 235, 0.5)', fontFamily: 'ui-monospace, monospace' }}>
+                  SLIDE 15
+                </div>
+              </div>
+            )}
+
             {/* SLIDE 16: EXACT REPLICA OF THE SCREENSHOT */}
-            {currentSlide.type === 'midnight_curse_exact' ? (
-              <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            {currentSlide.type === 'midnight_curse' && (
+              <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', fontFamily: "Georgia, 'Times New Roman', serif" }}>
                 {/* Vertical Japanese Watermark on Right Edge */}
                 <div
                   aria-hidden="true"
@@ -569,7 +1007,7 @@ export default function EventMidnightReveal() {
                           marginBottom: '6px',
                         }}
                       >
-                        {currentSlide.content.kicker}
+                        SHOW AT 12:00 AM ONLY
                       </div>
                       <h1
                         style={{
@@ -582,11 +1020,11 @@ export default function EventMidnightReveal() {
                           lineHeight: 1.1,
                         }}
                       >
-                        {currentSlide.content.heading}
+                        The Midnight Curse has fallen
                       </h1>
                     </div>
 
-                    {/* The Midnight Curse Stamp (Rotated, distressed look) */}
+                    {/* The Midnight Curse Stamp */}
                     <div
                       style={{
                         transform: 'rotate(-2.5deg)',
@@ -616,7 +1054,13 @@ export default function EventMidnightReveal() {
 
                   {/* 5 Rows Matching the Exact Screenshot Layout */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '24px', marginRight: '32px' }}>
-                    {currentSlide.content.tracks.map((item) => (
+                    {[
+                      { name: 'Potion Pantry', icon: '⚗️', curse: 'A full moon festival is announced for next week. Demand for 3 ingredients triples.' },
+                      { name: 'Phantom Hotline', icon: '👻', curse: 'The latency limit drops to 600 ms, and callers switch language mid-sentence.' },
+                      { name: 'Possessed Butler', icon: '🧛', curse: "The Possession Round: write curses to attack other teams' butlers. Points for attack and defence." },
+                      { name: 'Midnight Crossroads', icon: '🚦', curse: 'A funeral procession (emergency-vehicle priority) and a fog curse on night footage.' },
+                      { name: 'Coven of Hospitals', icon: '☠️', curse: 'One hospital is corrupted and sends poisoned updates. Detect it and stay accurate.' },
+                    ].map((item) => (
                       <div
                         key={item.name}
                         style={{
@@ -631,7 +1075,6 @@ export default function EventMidnightReveal() {
                           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
                         }}
                       >
-                        {/* Rounded Orange Graphic Icon */}
                         <div
                           style={{
                             width: '36px',
@@ -646,14 +1089,9 @@ export default function EventMidnightReveal() {
                             flexShrink: 0,
                           }}
                         >
-                          {item.iconType === 'cauldron' && '⚗️'}
-                          {item.iconType === 'ghost' && '👻'}
-                          {item.iconType === 'vampire' && '🧛'}
-                          {item.iconType === 'crossroads' && '🚦'}
-                          {item.iconType === 'skull' && '☠️'}
+                          {item.icon}
                         </div>
 
-                        {/* Track Name */}
                         <div
                           style={{
                             fontFamily: "Georgia, 'Times New Roman', serif",
@@ -666,7 +1104,6 @@ export default function EventMidnightReveal() {
                           {item.name}
                         </div>
 
-                        {/* Single-Sentence Curse Description */}
                         <div
                           style={{
                             fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
@@ -693,7 +1130,7 @@ export default function EventMidnightReveal() {
                       marginBottom: '10px',
                     }}
                   >
-                    {currentSlide.content.hiddenNote}
+                    Keep this slide hidden until midnight.
                   </div>
                   <div
                     style={{
@@ -708,209 +1145,16 @@ export default function EventMidnightReveal() {
                       letterSpacing: '0.04em',
                     }}
                   >
-                    <span>{currentSlide.content.footerText}</span>
-                    <span style={{ fontWeight: 700 }}>{currentSlide.content.pageNumber}</span>
+                    <span>🎃 HACK-O-LANTERN · VULCAN CLUB × MIRAI SCHOOL OF TECHNOLOGY · POWERED BY BOOM PIZZA</span>
+                    <span style={{ fontWeight: 700 }}>16</span>
                   </div>
-                </div>
-              </div>
-            ) : currentSlide.type === 'overview' ? (
-              /* SLIDE 1: OVERVIEW */
-              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 700, letterSpacing: '0.1em', marginBottom: '8px' }}>
-                    MIRAI SCHOOL OF TECHNOLOGY · MSOT
-                  </div>
-                  <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 8px 0', letterSpacing: '-0.02em' }}>
-                    Halloween Night Hackathon
-                  </h1>
-                  <p style={{ fontSize: '1.1rem', color: '#a58bff', fontStyle: 'italic', margin: '0 0 24px 0' }}>
-                    &ldquo;{currentSlide.subtitle}&rdquo;
-                  </p>
-
-                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '24px' }}>
-                    <div style={{ background: 'rgba(255,255,255,0.06)', padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'rgba(247,244,235,0.6)', display: 'block' }}>NIGHT OF</span>
-                      <strong style={{ color: '#ffffff', fontSize: '0.95rem' }}>31 Oct 2026</strong>
-                    </div>
-                    <div style={{ background: 'rgba(255,255,255,0.06)', padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'rgba(247,244,235,0.6)', display: 'block' }}>DOORS OPEN</span>
-                      <strong style={{ color: '#ff7a1a', fontSize: '0.95rem' }}>8:00 PM</strong>
-                    </div>
-                    <div style={{ background: 'rgba(255,255,255,0.06)', padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'rgba(247,244,235,0.6)', display: 'block' }}>GRAND FINALE</span>
-                      <strong style={{ color: '#8be04e', fontSize: '0.95rem' }}>9:30 AM</strong>
-                    </div>
-                    <div style={{ background: 'rgba(255,255,255,0.06)', padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'rgba(247,244,235,0.6)', display: 'block' }}>EVALUATIONS</span>
-                      <strong style={{ color: '#4cc9f0', fontSize: '0.95rem' }}>3 Rounds + Finals</strong>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '10px' }}>
-                    {currentSlide.content.tracks.map((t) => (
-                      <div key={t.num} style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontSize: '1.4rem' }}>{t.icon}</span>
-                        <div>
-                          <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#ffffff' }}>{t.name}</div>
-                          <div style={{ fontSize: '0.74rem', color: 'rgba(247,244,235,0.6)' }}>{t.desc}</div>
-                        </div>
-                        <span style={{ marginLeft: 'auto', fontSize: '0.68rem', fontFamily: 'ui-monospace, monospace', color: '#ffa95c', background: 'rgba(255,122,26,0.15)', padding: '2px 6px', borderRadius: '4px' }}>{t.tag}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#ff5470', fontFamily: 'ui-monospace, monospace' }}>
-                  <span>{currentSlide.content.warning}</span>
-                  <span style={{ color: 'rgba(247,244,235,0.5)' }}>PAGE 1</span>
-                </div>
-              </div>
-            ) : currentSlide.type === 'track' ? (
-              /* SLIDES 2-6: INDIVIDUAL TRACK PROBLEM STATEMENTS */
-              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 800 }}>
-                      {currentSlide.subtitle}
-                    </span>
-                    <span style={{ padding: '3px 10px', borderRadius: '9999px', background: 'rgba(255, 122, 26, 0.2)', border: '1px solid rgba(255, 122, 26, 0.4)', color: '#ff7a1a', fontSize: '0.72rem', fontWeight: 700 }}>
-                      {currentSlide.badge}
-                    </span>
-                  </div>
-
-                  <h1 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 12px 0' }}>
-                    {currentSlide.title}
-                  </h1>
-
-                  <div style={{ background: 'rgba(255, 255, 255, 0.04)', borderLeft: '4px solid #ff7a1a', padding: '12px 16px', borderRadius: '0 8px 8px 0', marginBottom: '18px', fontSize: '0.92rem', lineHeight: 1.5, color: '#f5ead6' }}>
-                    {currentSlide.content.story}
-                  </div>
-
-                  <div style={{ marginBottom: '18px' }}>
-                    <div style={{ fontSize: '0.76rem', fontFamily: 'ui-monospace, monospace', color: '#4cc9f0', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px' }}>
-                      YOUR QUEST:
-                    </div>
-                    <ul style={{ margin: 0, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.86rem', color: 'rgba(247,244,235,0.85)', lineHeight: 1.45 }}>
-                      {currentSlide.content.questItems.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div style={{ background: 'rgba(0,0,0,0.3)', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)', fontSize: '0.82rem', marginBottom: '14px' }}>
-                    <strong style={{ color: '#ffffff' }}>SCORED ON: </strong>
-                    <span style={{ color: 'rgba(247,244,235,0.8)' }}>{currentSlide.content.scoredOn}</span>
-                  </div>
-                </div>
-
-                <div style={{ background: 'rgba(255, 84, 112, 0.12)', border: '1px solid rgba(255, 84, 112, 0.35)', borderRadius: '10px', padding: '10px 14px' }}>
-                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.72rem', color: '#ff8da1', fontWeight: 800, textTransform: 'uppercase', marginBottom: '3px' }}>
-                    🌑 MIDNIGHT CURSE
-                  </div>
-                  <div style={{ fontSize: '0.88rem', color: '#fff1f3', fontWeight: 600 }}>
-                    {currentSlide.content.curse}
-                  </div>
-                </div>
-              </div>
-            ) : currentSlide.type === 'rules' ? (
-              /* SLIDE 7: RULES */
-              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 800, marginBottom: '6px' }}>
-                    GUIDELINES OF THE COVEN
-                  </div>
-                  <h1 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 16px 0' }}>
-                    {currentSlide.title}
-                  </h1>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {currentSlide.content.rules.map((rule, idx) => (
-                      <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', background: 'rgba(255,255,255,0.04)', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                        <span style={{ fontFamily: 'ui-monospace, monospace', color: '#ff7a1a', fontWeight: 800, fontSize: '0.85rem' }}>{idx + 1}.</span>
-                        <span style={{ fontSize: '0.88rem', lineHeight: 1.45, color: '#f5ead6' }}>{rule}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px', fontSize: '0.75rem', color: 'rgba(247,244,235,0.5)', fontFamily: 'ui-monospace, monospace' }}>
-                  MSOT Halloween Night Hackathon · Page 4
-                </div>
-              </div>
-            ) : currentSlide.type === 'schedule' ? (
-              /* SLIDE 8: SCHEDULE */
-              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 800, marginBottom: '6px' }}>
-                    OVERNIGHT TIMELINE
-                  </div>
-                  <h1 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 16px 0' }}>
-                    {currentSlide.title}: {currentSlide.subtitle}
-                  </h1>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '10px' }}>
-                    {currentSlide.content.milestones.map((m, idx) => (
-                      <div key={idx} style={{ display: 'flex', gap: '10px', alignItems: 'center', background: 'rgba(255,255,255,0.04)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                        <span style={{ fontSize: '1.2rem' }}>{m.icon}</span>
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <strong style={{ color: '#ff7a1a', fontSize: '0.82rem', fontFamily: 'ui-monospace, monospace' }}>{m.time}</strong>
-                            <span style={{ color: '#ffffff', fontSize: '0.85rem', fontWeight: 700 }}>{m.title}</span>
-                          </div>
-                          <div style={{ color: 'rgba(247,244,235,0.6)', fontSize: '0.75rem' }}>{m.desc}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px', fontSize: '0.75rem', color: 'rgba(247,244,235,0.5)', fontFamily: 'ui-monospace, monospace' }}>
-                  MSOT Halloween Night Hackathon · Page 5
-                </div>
-              </div>
-            ) : (
-              /* SLIDE 9: JUDGEMENT */
-              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem', color: '#ffa95c', fontWeight: 800, marginBottom: '6px' }}>
-                    SCORE WEIGHTS & AWARDS
-                  </div>
-                  <h1 style={{ fontSize: 'clamp(1.8rem, 3.2vw, 2.6rem)', fontWeight: 900, color: '#ffffff', margin: '0 0 16px 0' }}>
-                    {currentSlide.title}
-                  </h1>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
-                    {currentSlide.content.weights.map((w, idx) => (
-                      <div key={idx} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '12px' }}>
-                        <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ff7a1a', fontFamily: 'ui-monospace, monospace' }}>{w.weight}</div>
-                        <div style={{ color: '#ffffff', fontWeight: 700, fontSize: '0.85rem', marginBottom: '4px' }}>{w.round}</div>
-                        <div style={{ color: 'rgba(247,244,235,0.6)', fontSize: '0.75rem', lineHeight: 1.4 }}>{w.focus}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px' }}>
-                    {currentSlide.content.awards.map((a, idx) => (
-                      <div key={idx} style={{ background: 'rgba(165, 139, 255, 0.08)', border: '1px solid rgba(165, 139, 255, 0.2)', borderRadius: '8px', padding: '8px 10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '1.2rem' }}>{a.icon}</span>
-                        <div>
-                          <div style={{ color: '#ffffff', fontSize: '0.8rem', fontWeight: 700 }}>{a.title}</div>
-                          <div style={{ color: 'rgba(247,244,235,0.6)', fontSize: '0.72rem' }}>{a.desc}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '10px', fontSize: '0.75rem', color: 'rgba(247,244,235,0.5)', fontFamily: 'ui-monospace, monospace' }}>
-                  MSOT Halloween Night Hackathon · Page 6
                 </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Bottom Download Deck Bar with All PDFs */}
+        {/* Bottom Download Deck Bar */}
         <div
           style={{
             background: 'linear-gradient(90deg, rgba(23, 15, 33, 0.95), rgba(36, 17, 34, 0.95))',
@@ -949,16 +1193,14 @@ export default function EventMidnightReveal() {
                 fontWeight: 500,
               }}
             >
-              Download the complete multi-page slide deck, problem statements, and midnight curses for your team:
+              Download the official <strong>Hack-O-Lantern_Halloween_Hackathon</strong> presentation (.pptx & .pdf):
             </p>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <a
-              href="/Hack-O-Lantern_Complete_Guide_And_Curse.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              download="Hack-O-Lantern_Complete_Guide_And_Curse.pdf"
+              href="/Hack-O-Lantern_Halloween_Hackathon.pptx"
+              download="Hack-O-Lantern_Halloween_Hackathon.pptx"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -975,15 +1217,15 @@ export default function EventMidnightReveal() {
                 boxShadow: '0 4px 18px rgba(255, 122, 26, 0.3)',
               }}
             >
-              <span>Download Full 7-Page Deck PDF</span>
+              <span>Download PPTX (Official Deck)</span>
               <span>↗</span>
             </a>
 
             <a
-              href="/MSOT_Halloween_Night_Hackathon.pdf"
+              href="/Hack-O-Lantern_Halloween_Hackathon.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              download="MSOT_Halloween_Night_Hackathon.pdf"
+              download="Hack-O-Lantern_Halloween_Hackathon.pdf"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -1000,32 +1242,7 @@ export default function EventMidnightReveal() {
                 textDecoration: 'none',
               }}
             >
-              <span>Problem Statements (6 Pages)</span>
-              <span>↗</span>
-            </a>
-
-            <a
-              href="/Hack-O-Lantern_Midnight_Reveal.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              download="Hack-O-Lantern_Midnight_Reveal.pdf"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '12px 18px',
-                borderRadius: '10px',
-                background: 'rgba(255, 84, 112, 0.15)',
-                border: '1px solid rgba(255, 84, 112, 0.35)',
-                color: '#ff8da1',
-                fontWeight: 700,
-                fontSize: '0.82rem',
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
-                textDecoration: 'none',
-              }}
-            >
-              <span>Slide 16 Curse Only</span>
+              <span>Download PDF (Official Deck)</span>
               <span>↗</span>
             </a>
           </div>
