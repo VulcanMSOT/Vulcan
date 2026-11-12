@@ -4,6 +4,8 @@ import './index.css'
 import App from './App.jsx'
 import HalloweenHackPage from './components/event/HalloweenHackPage.jsx'
 import LogoDebugPage from './components/3d/LogoDebugPage.jsx'
+import EnrollmentPage from './components/enrollment/EnrollmentPage.jsx'
+import { isEnrollmentRoute } from './config/enrollment.js'
 
 function RoutedApp() {
   const [path, setPath] = useState(() => (typeof window !== 'undefined' ? window.location.pathname : '/'))
@@ -58,6 +60,11 @@ function RoutedApp() {
     normalized === '/hack-o-lantern'
   ) {
     return <HalloweenHackPage />
+  }
+
+  // Hidden recruitment route: /enroll-2026-preview (configurable via src/config/enrollment.js)
+  if (isEnrollmentRoute(normalized)) {
+    return <EnrollmentPage />
   }
 
   // Dev-only /logo-debug route for visual verification

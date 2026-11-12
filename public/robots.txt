@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /enroll-2026-preview
+Disallow: /enrollment-2026-preview
+Disallow: /logo-debug
+Allow: /
+
