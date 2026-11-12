@@ -26,5 +26,8 @@ dist-ssr
 
 /src/generated/prisma
 Vulcan-admin/
+msot-halloween-judge-desk/
+*.pptx
+*.pdf
 .taste-skill/
 tasks/
