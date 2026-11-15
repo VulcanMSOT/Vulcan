@@ -63,12 +63,12 @@ export const ENROLLMENT_CLASSES = [
   {
     id: 'Class of 2029',
     label: 'Class of 2029',
-    sublabel: '2nd Year / Explorer Forge',
+    sublabel: 'Explorer',
   },
   {
     id: 'Class of 2030',
     label: 'Class of 2030',
-    sublabel: '1st Year / Nurture Intake',
+    sublabel: 'Nurture',
   },
 ];
 
