@@ -101,7 +101,7 @@ export default function EnrollmentPage() {
   return (
     <div className="relative w-full min-h-screen bg-vulcan-bg text-white overflow-x-hidden selection:bg-vulcan-gold/25 selection:text-vulcan-gold">
       {/* 1. Cinematic Loading Screen while 3D environment initializes */}
-      <LoadingScreen onLoaded={() => setLoading(false)} minDuration={1800} />
+      <LoadingScreen onLoaded={() => setLoading(false)} minDuration={1100} />
 
       {/* 2. Unified "Quiet Ember" Premium Background (Layer z-0) */}
       <QuietEmberBackground
