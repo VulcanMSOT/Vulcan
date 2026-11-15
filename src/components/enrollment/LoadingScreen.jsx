@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useProgress } from '@react-three/drei';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 
@@ -195,14 +195,6 @@ export default function LoadingScreen({
   // Logo Y bounds: ~18 (top) to ~190 (bottom)
   const fillProgress = Math.max(0, (displayProgress - 15) / 85);
   const fillTopY = 195 - fillProgress * (195 - 16);
-
-  // Status text determination
-  const statusText = useMemo(() => {
-    if (displayProgress >= 95) return 'READY';
-    if (displayProgress >= 70) return 'SHAPING THE EMBLEM';
-    if (displayProgress >= 35) return 'HEATING THE METAL';
-    return 'LIGHTING THE FURNACE';
-  }, [displayProgress]);
 
   // Formatted percentage string (e.g. "085%")
   const pctString = `${String(Math.min(100, Math.round(displayProgress))).padStart(3, '0')}%`;
@@ -408,22 +400,6 @@ export default function LoadingScreen({
                 />
               )}
             </div>
-          </div>
-
-          {/* Status text: 11px uppercase monospace, letter-spacing 0.35em, color #FDBA74/70, cross-fading */}
-          <div className="mt-4 h-5 flex items-center justify-center overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={statusText}
-                initial={{ opacity: 0, y: 3 }}
-                animate={{ opacity: 0.7, y: 0 }}
-                exit={{ opacity: 0, y: -3 }}
-                transition={{ duration: 0.22 }}
-                className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#FDBA74] font-medium"
-              >
-                {statusText}
-              </motion.span>
-            </AnimatePresence>
           </div>
         </div>
       </div>
