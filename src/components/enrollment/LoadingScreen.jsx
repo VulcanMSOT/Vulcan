@@ -15,7 +15,7 @@ const THIN_V =
 
 export default function LoadingScreen({
   onLoaded,
-  minDuration = 1800,
+  minDuration = 1100,
 }) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const { progress: realProgress } = useProgress();
@@ -72,9 +72,9 @@ export default function LoadingScreen({
       setDisplayProgress((prev) => {
         if (prev >= 100) return 100;
         const diff = target - prev;
-        const step = Math.max(0.4, diff * 0.12);
+        const step = Math.max(0.6, diff * 0.16);
         const next = prev + step;
-        return next >= 99.9 && target >= 100 ? 100 : next;
+        return next >= 99.8 && target >= 100 ? 100 : next;
       });
 
       if (displayProgress < 100) {
@@ -97,23 +97,23 @@ export default function LoadingScreen({
         setTimeout(() => {
           setVisible(false);
           onLoaded?.();
-        }, 200);
+        }, 150);
         return;
       }
 
-      // Step A: Logo flash bright (~150ms)
+      // Step A: Logo flash bright (~100ms)
       setIsFlashing(true);
       setShowRing(true);
 
       const flashTimeout = setTimeout(() => {
         setIsFlashing(false);
-      }, 150);
+      }, 100);
 
-      // Step B: Ring finishes and loader fades out over ~500ms
+      // Step B: Ring finishes and loader fades out over ~380ms
       const fadeTimeout = setTimeout(() => {
         setVisible(false);
         onLoaded?.();
-      }, 550);
+      }, 380);
 
       return () => {
         clearTimeout(flashTimeout);
@@ -217,7 +217,7 @@ export default function LoadingScreen({
     <div
       role="status"
       aria-busy="true"
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050505] overflow-hidden select-none transition-opacity duration-500 ease-out ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050505] overflow-hidden select-none transition-opacity duration-350 ease-out ${
         isExiting ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
