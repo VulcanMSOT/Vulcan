@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { ArrowUpRight } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import ClosingCanvas from '../3d/ClosingCanvas';
@@ -70,6 +71,17 @@ export default function Closing({ prefersReducedMotion }) {
         >
           An engineering collective of students focused on craftsmanship and execution.
         </FadeParagraph>
+
+        {/* Enrollment CTA */}
+        <div className="pt-3">
+          <a
+            href="/enroll"
+            className="group inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 text-black font-sans font-bold text-sm tracking-wide shadow-[0_0_25px_rgba(245,166,35,0.35)] hover:shadow-[0_0_35px_rgba(245,166,35,0.55)] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <span>Apply for 2026 Intake</span>
+            <ArrowUpRight className="w-4 h-4 text-black group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200" aria-hidden="true" />
+          </a>
+        </div>
       </div>
     </section>
   );
