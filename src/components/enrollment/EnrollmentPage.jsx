@@ -8,6 +8,7 @@ import SuccessScene from './SuccessScene';
 import LoadingScreen from './LoadingScreen';
 import { submitEnrollment } from '../../lib/enrollmentApi';
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { ENROLLMENT_PUBLIC } from '../../config/enrollment';
 
 export default function EnrollmentPage() {
   const [sceneState, setSceneState] = useState('intro'); // 'intro' | 'form' | 'submitting' | 'success'
@@ -27,31 +28,38 @@ export default function EnrollmentPage() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // 1. Dynamic SEO & Noindex Meta Guard
+  // 1. Dynamic SEO & Title
   useEffect(() => {
     const prevTitle = document.title;
-    document.title = 'Vulcan Club Enrollment 2026 | Private Preview';
+    document.title = ENROLLMENT_PUBLIC
+      ? 'Vulcan Club Enrollment 2026 | Applications Open'
+      : 'Vulcan Club Enrollment 2026 | Private Preview';
 
-    // Inject <meta name="robots" content="noindex, nofollow">
     let metaRobots = document.querySelector('meta[name="robots"]');
     let created = false;
-    if (!metaRobots) {
-      metaRobots = document.createElement('meta');
-      metaRobots.setAttribute('name', 'robots');
-      document.head.appendChild(metaRobots);
-      created = true;
+    let prevContent = null;
+
+    if (!ENROLLMENT_PUBLIC) {
+      if (!metaRobots) {
+        metaRobots = document.createElement('meta');
+        metaRobots.setAttribute('name', 'robots');
+        document.head.appendChild(metaRobots);
+        created = true;
+      }
+      prevContent = metaRobots.getAttribute('content');
+      metaRobots.setAttribute('content', 'noindex, nofollow');
     }
-    const prevContent = metaRobots.getAttribute('content');
-    metaRobots.setAttribute('content', 'noindex, nofollow');
 
     return () => {
       document.title = prevTitle;
-      if (created && metaRobots.parentNode) {
-        metaRobots.parentNode.removeChild(metaRobots);
-      } else if (prevContent) {
-        metaRobots.setAttribute('content', prevContent);
-      } else {
-        metaRobots.removeAttribute('content');
+      if (!ENROLLMENT_PUBLIC) {
+        if (created && metaRobots?.parentNode) {
+          metaRobots.parentNode.removeChild(metaRobots);
+        } else if (prevContent && metaRobots) {
+          metaRobots.setAttribute('content', prevContent);
+        } else if (metaRobots) {
+          metaRobots.removeAttribute('content');
+        }
       }
     };
   }, []);

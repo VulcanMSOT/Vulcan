@@ -13,7 +13,7 @@ export const ENROLLMENT_PUBLIC_ROUTE = '/enroll';
 
 // Toggle to go public. When false, only ENROLLMENT_ROUTE is active.
 // When true, ENROLLMENT_PUBLIC_ROUTE is also enabled and can be linked in the nav.
-export const ENROLLMENT_PUBLIC = false;
+export const ENROLLMENT_PUBLIC = true;
 
 /**
  * Route matching helper used by main router.
@@ -25,10 +25,16 @@ export function isEnrollmentRoute(pathname) {
   const clean = pathname.toLowerCase().replace(/\/+$/, '') || '/';
   
   if (clean === ENROLLMENT_ROUTE.toLowerCase()) return true;
-  if (ENROLLMENT_PUBLIC && clean === ENROLLMENT_PUBLIC_ROUTE.toLowerCase()) return true;
+  if (clean === ENROLLMENT_PUBLIC_ROUTE.toLowerCase()) return true;
   
-  // Also accept clean variations of the preview route
-  if (clean === '/enroll-2026' || clean === '/enrollment-2026-preview') return true;
+  // Also accept clean variations of the route
+  if (
+    clean === '/enroll' ||
+    clean === '/enrollment' ||
+    clean === '/enroll-2026' ||
+    clean === '/enrollment-2026' ||
+    clean === '/enrollment-2026-preview'
+  ) return true;
 
   return false;
 }

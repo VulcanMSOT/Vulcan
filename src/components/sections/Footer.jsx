@@ -122,6 +122,18 @@ export default function Footer({ prefersReducedMotion }) {
             <span>Email</span>
             <ArrowUpRight className="w-3 h-3 text-zinc-500 group-hover:text-vulcan-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" />
           </a>
+
+          {/* Enrollment 2026 Pill */}
+          <a
+            href="/enroll"
+            className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-vulcan-gold/40 bg-vulcan-gold/10 hover:bg-vulcan-gold/20 text-vulcan-gold hover:text-white transition-all duration-200 active:scale-[0.96] shadow-sm hover:shadow-[0_0_12px_rgba(245,166,35,0.25)] whitespace-nowrap"
+            title="Vulcan Club Enrollment 2026"
+            aria-label="Enrollment 2026"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
+            <span>Enrollment 2026</span>
+            <ArrowUpRight className="w-3 h-3 text-vulcan-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" />
+          </a>
         </div>
       </div>
     </footer>
